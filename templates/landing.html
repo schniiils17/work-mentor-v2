@@ -3,7 +3,7 @@
 {% block title %}Work Mentor — Finde deinen Karriere-Typ{% endblock %}
 
 {% block body %}
-<div class="container screen">
+<div class="container landing-page">
     
     <!-- Header -->
     <header class="header">
@@ -18,53 +18,159 @@
             Karriere-Check
         </div>
         
-        <h1 class="animate-in animate-delay-1" style="margin-top: 20px;">
-            Welcher Job passt<br><span class="underline">wirklich</span> zu dir?
+        <h1 class="animate-in animate-delay-1" style="margin-top: 16px;">
+            Welcher Job passt<br>
+            <span class="underline">wirklich</span> zu dir?
         </h1>
         
         <p class="subline animate-in animate-delay-2">
-            Wissenschaftlich fundiert. 5 Minuten. Kostenlos.
+            Basiert auf dem RIASEC-Modell der Berufspsychologie.<br>~5 Minuten. Kostenlos.
         </p>
 
-        <!-- How it works -->
-        <div class="steps-card animate-in animate-delay-3">
-            <div class="steps-label">So funktioniert's</div>
-            
-            <div class="step">
-                <div class="step-number">1</div>
-                <div class="step-content">
-                    <h3>24 Aussagen bewerten</h3>
-                    <p>Wie sehr trifft das auf dich zu?</p>
+        <a href="/assessment" class="btn btn-primary animate-in animate-delay-2" style="margin-top: 24px;">Test starten →</a>
+        
+        <div class="trust-indicators animate-in animate-delay-3">
+            <span>~5 Min</span>
+            <span>·</span>
+            <span>Anonym</span>
+            <span>·</span>
+            <span>Wissenschaftlich</span>
+        </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Preview vom Ergebnis -->
+    <section class="preview-section">
+        <div class="section-label">So sieht dein Ergebnis aus</div>
+        
+        <div class="preview-card">
+            <div class="preview-card-header">
+                <div class="preview-hexagon">
+                    <svg viewBox="0 0 60 60" width="48" height="48">
+                        <polygon points="30,5 52,18 52,42 30,55 8,42 8,18" fill="none" stroke="#1A3A5C" stroke-width="1.5"/>
+                        <polygon points="30,12 45,21 45,38 30,46 16,38 16,21" fill="rgba(26,58,92,0.15)" stroke="#1A3A5C" stroke-width="1"/>
+                    </svg>
                 </div>
+                <span class="example-tag">Beispiel</span>
             </div>
+            <div class="preview-code">EA · Karriere-Typ</div>
+            <h3 class="preview-type-name">Der Kreative Stratege</h3>
             
-            <div class="step">
-                <div class="step-number">2</div>
-                <div class="step-content">
-                    <h3>Karriere-Profil</h3>
-                    <p>Auf einen Blick — wer du bist.</p>
-                </div>
+            <div class="preview-jobs-label">Top 3 Matches</div>
+            <div class="preview-job-row">
+                <span class="preview-job-title">🎯 UX Designer</span>
+                <span class="match-badge">87% Match</span>
             </div>
-            
-            <div class="step">
-                <div class="step-number">3</div>
-                <div class="step-content">
-                    <h3>Passende Matches</h3>
-                    <p>Jobs die zu dir passen — mit Fit-Score.</p>
-                </div>
+            <div class="preview-job-row">
+                <span class="preview-job-title">🎯 Produktmanager</span>
+                <span class="match-badge">82% Match</span>
+            </div>
+            <div class="preview-job-row">
+                <span class="preview-job-title">🎯 Startup-Gründer</span>
+                <span class="match-badge medium">74% Match</span>
             </div>
         </div>
     </section>
 
-    <!-- CTA -->
-    <section class="cta-section">
-        <a href="/assessment" class="btn btn-primary">Los geht's →</a>
+    <hr class="section-divider">
+
+    <!-- So funktioniert's -->
+    <section class="how-section">
+        <div class="section-label">So funktioniert's</div>
+        
+        <div class="how-step">
+            <div class="how-icon">①</div>
+            <div class="how-content">
+                <h3>24 Aussagen bewerten</h3>
+                <p>Wie sehr trifft das auf dich zu? Schieberegler statt Tippen.</p>
+            </div>
+        </div>
+        
+        <div class="how-step">
+            <div class="how-icon">②</div>
+            <div class="how-content">
+                <h3>Dein Karriere-Profil</h3>
+                <p>Wer du beruflich wirklich bist, mit Hexagon-Chart.</p>
+            </div>
+        </div>
+        
+        <div class="how-step">
+            <div class="how-icon">③</div>
+            <div class="how-content">
+                <h3>3 passende Jobs</h3>
+                <p>Konkrete Berufe mit Match-Score und Gehaltsspanne.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Wissenschaft -->
+    <section class="science-section">
+        <div class="pill pill-dark">
+            <span>🔬</span>
+            Wissenschaftlich fundiert
+        </div>
+        
+        <h2 class="science-headline">Auf dem internationalen Standard für Berufsorientierung.</h2>
+        
+        <p class="science-text">
+            Basiert auf John Hollands <strong>RIASEC-Modell</strong> — genutzt vom US-Arbeitsministerium (O*NET) und der Bundesagentur für Arbeit (Check-U).
+        </p>
+        
+        <div class="credibility-row">
+            O*NET · BUNDESAGENTUR · HOLLAND 1959
+        </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- FAQ -->
+    <section class="faq-section">
+        <div class="section-label">Häufige Fragen</div>
+        
+        <details class="faq-item">
+            <summary>
+                <span>Wie lange dauert der Test?</span>
+                <span class="faq-toggle">+</span>
+            </summary>
+            <p>Etwa 5 Minuten. Du bewertest 24 Aussagen mit einer Skala — kein Tippen, nur antippen.</p>
+        </details>
+        
+        <details class="faq-item">
+            <summary>
+                <span>Brauche ich einen Account?</span>
+                <span class="faq-toggle">+</span>
+            </summary>
+            <p>Nein. Der Test ist anonym und komplett kostenlos. Dein Ergebnis kannst du am Ende speichern oder einfach teilen.</p>
+        </details>
+        
+        <details class="faq-item">
+            <summary>
+                <span>Was ist das RIASEC-Modell?</span>
+                <span class="faq-toggle">+</span>
+            </summary>
+            <p>Eine wissenschaftliche Methode aus der Berufspsychologie, entwickelt vom Psychologen John Holland (1959). Sie ordnet Menschen 6 Karriere-Dimensionen zu: Realistisch, Forschend, Kreativ, Sozial, Unternehmerisch, Organisierend.</p>
+        </details>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Final CTA -->
+    <section class="final-cta-section">
+        <h2 class="final-cta-headline">Bereit?</h2>
+        
+        <a href="/assessment" class="btn btn-primary">Jetzt deinen Karriere-Typ finden →</a>
+        
         <div class="trust-indicators">
             <span>~5 Min</span>
             <span>·</span>
-            <span>Basiert auf RIASEC</span>
+            <span>Wissenschaftlich</span>
             <span>·</span>
             <span>Kostenlos</span>
+            <span>·</span>
+            <span>Anonym</span>
         </div>
     </section>
 
