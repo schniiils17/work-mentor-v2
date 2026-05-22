@@ -6,7 +6,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap');
 
 :root {
-    --bg: #ECECE7;
+    --bg: #EDE7D9;
     --bg-card: #FFFFFF;
     --bg-soft: #F5F4EF;
     --text-primary: #141414;
@@ -112,20 +112,18 @@ body {
 /* ─── Typography ─────────────────────────────────── */
 
 h1 {
-    font-size: 34px;
+    font-size: 38px;
     font-weight: 600;
-    line-height: 1.1;
+    line-height: 1.05;
     letter-spacing: -0.04em;
     color: var(--text-primary);
 }
 
 h1 .underline {
-    text-decoration: none;
-    background-image: linear-gradient(to right, var(--accent), var(--accent));
-    background-size: 100% 3px;
-    background-position: 0 100%;
-    background-repeat: no-repeat;
-    padding-bottom: 8px;
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 3px;
+    text-underline-offset: 4px;
 }
 
 h2 {
@@ -267,20 +265,38 @@ h2 {
 .preview-card {
     background: #FFFFFF;
     border: 1px solid var(--border-light);
-    border-radius: 18px;
-    padding: 24px;
+    border-radius: 16px;
+    padding: 22px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .preview-card-header {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
+    gap: 14px;
     margin-bottom: 20px;
+}
+
+.preview-hexagon {
+    flex-shrink: 0;
 }
 
 .preview-hexagon svg {
     display: block;
+    width: 44px;
+    height: 44px;
+}
+
+.preview-header-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.preview-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
 }
 
 .example-tag {
@@ -295,19 +311,19 @@ h2 {
 }
 
 .preview-code {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--text-secondary);
-    margin-bottom: 4px;
+    color: var(--text-muted);
+    margin-bottom: 0;
 }
 
 .preview-type-name {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     letter-spacing: -0.03em;
-    margin-bottom: 20px;
+    margin: 0;
     color: var(--text-primary);
 }
 
@@ -324,7 +340,7 @@ h2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
+    padding: 10px 0;
     border-top: 1px solid var(--border-light);
 }
 
@@ -333,12 +349,21 @@ h2 {
 }
 
 .preview-job-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     font-size: 14px;
     font-weight: 500;
     color: var(--text-primary);
 }
 
-/* How it works — editorial style: no boxes, just hairlines + numbers */
+.target-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+/* How it works — editorial style with boxed icons */
 .how-section {
     padding-bottom: 8px;
 }
@@ -357,21 +382,36 @@ h2 {
 }
 
 .how-icon {
-    width: 44px;
-    min-width: 44px;
-    height: 44px;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    border-radius: 12px;
     color: var(--text-primary);
 }
 
 .how-icon svg {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
     stroke: var(--text-primary);
     stroke-width: 1.5;
     fill: none;
+}
+
+.how-content {
+    flex: 1;
+    padding-top: 4px;
+}
+
+.how-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 4px;
 }
 
 .how-number {
@@ -379,21 +419,21 @@ h2 {
     font-weight: 600;
     color: var(--text-muted);
     letter-spacing: 0.04em;
-    margin-bottom: 4px;
 }
 
 .how-content h3 {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 4px;
     letter-spacing: -0.02em;
+    margin: 0;
 }
 
 .how-content p {
     font-size: 14px;
     color: var(--text-secondary);
     line-height: 1.5;
+    margin: 0;
 }
 
 /* Wissenschaft */
@@ -815,18 +855,13 @@ h2 {
 .match-badge {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    padding: 4px 10px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
-    background: #E8F0E8;
     color: #4A7C59;
-    border-radius: var(--radius-full);
     letter-spacing: 0.01em;
 }
 
 .match-badge.medium {
-    background: #F2EBD9;
     color: #8B7340;
 }
 
