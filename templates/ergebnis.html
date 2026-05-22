@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Dein Ergebnis — Work Mentor{% endblock %}
+
+{% block head %}
+<meta property="og:title" content="Mein Work Mentor Karriere-Typ">
+<meta property="og:description" content="Finde raus welcher Karriere-Typ du bist!">
+{% endblock %}
+
+{% block body %}
+<div class="container" id="app">
+    
+    <!-- Header -->
+    <header class="header">
+        <a href="/" class="logo">Work Mentor</a>
+    </header>
+
+    <!-- Result Section -->
+    <section class="result-section" id="resultSection">
+        <div class="result-label animate-in">Dein Ergebnis</div>
+        <div class="result-code animate-in animate-delay-1" id="resultCode"></div>
+        <h1 class="result-type-name animate-in animate-delay-1" id="typeName"></h1>
+        
+        <!-- Hexagon Chart -->
+        <div class="hexagon-container animate-in animate-delay-2">
+            <svg class="hexagon-chart" viewBox="0 0 240 240" id="hexChart"></svg>
+        </div>
+        
+        <!-- Description -->
+        <p class="result-description animate-in animate-delay-2" id="typeDesc"></p>
+        
+        <!-- Strength Tags -->
+        <div class="strengths-tags animate-in animate-delay-3" id="strengthTags"></div>
+        
+        <!-- Jobs -->
+        <div class="jobs-section animate-in animate-delay-3">
+            <div class="jobs-label">Jobs, die zu dir passen</div>
+            <div id="jobsList"></div>
+        </div>
+        
+        <!-- CTA Buttons -->
+        <div class="result-actions">
+            <button class="btn btn-primary" onclick="alert('Kommt bald! 🚀')">Alle passenden Jobs entdecken →</button>
+            <button class="btn btn-secondary" onclick="alert('Kommt bald! 🚀')">Ich hab schon einen Job im Kopf</button>
+        </div>
+        
+        <!-- Share -->
+        <div class="share-card">
+            <h3>Teile dein Ergebnis</h3>
+            <p>Zeig es Freunden — was ist ihr Typ?</p>
+            <div class="share-buttons">
+                <button class="share-btn" onclick="shareWhatsApp()">📱 WhatsApp</button>
+                <button class="share-btn" onclick="shareLinkedIn()">💼 LinkedIn</button>
+                <button class="share-btn" onclick="copyLink()">🔗 Link kopieren</button>
+            </div>
+        </div>
+
+        <!-- Restart -->
+        <div style="text-align: center; padding: 24px 0;">
+            <a href="/assessment" class="back-link">← Nochmal machen</a>
+        </div>
+    </section>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load result from sessionStorage
+const result = JSON.parse(sessionStorage.getItem('wm_result'));
+
+if (!result) {
+    window.location.href = '/';
+} else {
+    renderResult(result);
+}
+
+function renderResult(r) {
+    // Code & Name
+    document.getElementById('resultCode').textContent = 
+        `${r.dimensions.first}${r.dimensions.second} · ${r.dimensions.first_label} · ${r.dimensions.second_label}`;
+    document.getElementById('typeName').textContent = `${r.type_name}.`;
+    
+    // Description
+    document.getElementById('typeDesc').textContent = r.description;
+    
+    // Strength tags
+    const tagsContainer = document.getElementById('strengthTags');
+    r.strengths.forEach(s => {
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = s;
+        tagsContainer.appendChild(tag);
+    });
+    
+    // Hexagon chart
+    drawHexagon(r.normalized_scores);
+    
+    // Jobs
+    const jobsList = document.getElementById('jobsList');
+    r.jobs.forEach(job => {
+        const matchClass = job.match >= 80 ? '' : ' medium';
+        jobsList.innerHTML += `
+            <div class="job-card">
+                <div class="job-info">
+                    <div class="job-title">${job.title}</div>
+                    <div class="job-desc">${job.desc}</div>
+                    <div class="job-salary">${job.salary}</div>
+                </div>
+                <div class="match-badge${matchClass}">${job.match}%</div>
+            </div>
+        `;
+    });
+}
+
+function drawHexagon(scores) {
+    const svg = document.getElementById('hexChart');
+    const cx = 120, cy = 120, maxR = 90;
+    const dims = ['R', 'I', 'A', 'S', 'E', 'C'];
+    const labels = ['Realistisch', 'Forschend', 'Kreativ', 'Sozial', 'Unternehm.', 'Organisier.'];
+    
+    // Calculate points
+    function getPoint(index, radius) {
+        const angle = (Math.PI * 2 * index / 6) - Math.PI / 2;
+        return {
+            x: cx + radius * Math.cos(angle),
+            y: cy + radius * Math.sin(angle)
+        };
+    }
+    
+    // Draw grid lines
+    [0.25, 0.5, 0.75, 1.0].forEach(scale => {
+        const points = dims.map((_, i) => getPoint(i, maxR * scale));
+        const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z';
+        svg.innerHTML += `<path d="${path}" fill="none" stroke="#E8E8E8" stroke-width="1"/>`;
+    });
+    
+    // Draw axis lines
+    dims.forEach((_, i) => {
+        const p = getPoint(i, maxR);
+        svg.innerHTML += `<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="#E8E8E8" stroke-width="1"/>`;
+    });
+    
+    // Draw data polygon
+    const dataPoints = dims.map((d, i) => {
+        const val = (scores[d] || 0) / 100;
+        return getPoint(i, maxR * Math.max(val, 0.08));
+    });
+    const dataPath = dataPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z';
+    svg.innerHTML += `<path d="${dataPath}" fill="rgba(20,20,20,0.08)" stroke="#141414" stroke-width="2.5"/>`;
+    
+    // Draw dots and labels
+    dims.forEach((d, i) => {
+        const val = (scores[d] || 0) / 100;
+        const dp = getPoint(i, maxR * Math.max(val, 0.08));
+        svg.innerHTML += `<circle cx="${dp.x}" cy="${dp.y}" r="4" fill="#141414"/>`;
+        
+        const lp = getPoint(i, maxR + 20);
+        const anchor = i === 0 || i === 3 ? 'middle' : (i < 3 ? 'start' : 'end');
+        svg.innerHTML += `<text x="${lp.x}" y="${lp.y + 4}" text-anchor="${anchor}" 
+            font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#9B9B9B">${labels[i]}</text>`;
+    });
+}
+
+// Share functions
+function shareWhatsApp() {
+    const text = `Ich bin "${result.type_name}" 🎯 Finde raus welcher Karriere-Typ du bist: work-mentor.com`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+}
+
+function shareLinkedIn() {
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://work-mentor.com')}`, '_blank');
+}
+
+function copyLink() {
+    navigator.clipboard.writeText('https://work-mentor.com').then(() => {
+        const btn = event.target;
+        btn.textContent = '✅ Kopiert!';
+        setTimeout(() => btn.textContent = '🔗 Link kopieren', 2000);
+    });
+}
+</script>
+{% endblock %}

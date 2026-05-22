@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Assessment — Work Mentor{% endblock %}
+
+{% block body %}
+<div class="container screen" id="app">
+    
+    <!-- Header -->
+    <header class="header">
+        <a href="/" class="logo">Work Mentor</a>
+        <span class="progress-label" id="questionCounter">Frage 1 von 12</span>
+    </header>
+
+    <!-- Progress -->
+    <div class="progress-section">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 8.3%"></div>
+        </div>
+    </div>
+
+    <!-- Question -->
+    <section class="question-section" id="questionSection">
+        <div class="question-hint">Antippen, was eher zu dir passt</div>
+        <h2 class="question-text" id="questionText"></h2>
+        
+        <div class="option-card" id="optionA" onclick="selectOption('a')">
+            <span class="option-icon" id="iconA"></span>
+            <span class="option-text" id="textA"></span>
+        </div>
+        
+        <div class="option-card" id="optionB" onclick="selectOption('b')">
+            <span class="option-icon" id="iconB"></span>
+            <span class="option-text" id="textB"></span>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="assessment-footer">
+        <span class="back-link" id="backBtn" onclick="goBack()">← Zurück</span>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Questions from backend
+const questions = {{ questions | tojson }};
+let currentIndex = 0;
+let answers = [];
+
+function renderQuestion() {
+    const q = questions[currentIndex];
+    
+    document.getElementById('questionCounter').textContent = `Frage ${currentIndex + 1} von ${questions.length}`;
+    document.getElementById('progressFill').style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
+    document.getElementById('questionText').textContent = q.question;
+    document.getElementById('iconA').textContent = q.option_a.icon;
+    document.getElementById('textA').textContent = q.option_a.text;
+    document.getElementById('iconB').textContent = q.option_b.icon;
+    document.getElementById('textB').textContent = q.option_b.text;
+    
+    // Reset selection state
+    document.getElementById('optionA').classList.remove('selected');
+    document.getElementById('optionB').classList.remove('selected');
+    
+    // Show/hide back button
+    document.getElementById('backBtn').style.visibility = currentIndex > 0 ? 'visible' : 'hidden';
+    
+    // Animate in
+    const section = document.getElementById('questionSection');
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(12px)';
+    requestAnimationFrame(() => {
+        section.style.transition = 'all 0.3s ease';
+        section.style.opacity = '1';
+        section.style.transform = 'translateY(0)';
+    });
+}
+
+function selectOption(choice) {
+    const q = questions[currentIndex];
+    
+    // Visual feedback
+    const cardId = choice === 'a' ? 'optionA' : 'optionB';
+    document.getElementById(cardId).classList.add('selected');
+    
+    // Store answer
+    answers[currentIndex] = {
+        question_id: q.id,
+        choice: choice
+    };
+    
+    // Next question or submit
+    setTimeout(() => {
+        if (currentIndex < questions.length - 1) {
+            currentIndex++;
+            renderQuestion();
+        } else {
+            submitAssessment();
+        }
+    }, 300);
+}
+
+function goBack() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion();
+    }
+}
+
+async function submitAssessment() {
+    // Show loading state
+    document.getElementById('questionSection').innerHTML = `
+        <div style="text-align: center; padding: 40px 0;">
+            <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 12px;">Dein Profil wird erstellt...</h2>
+            <p class="subline">Wir analysieren deine Antworten.</p>
+        </div>
+    `;
+    
+    try {
+        const response = await fetch('/api/assess', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ answers: answers })
+        });
+        
+        const result = await response.json();
+        
+        // Store result and redirect
+        sessionStorage.setItem('wm_result', JSON.stringify(result));
+        window.location.href = '/ergebnis';
+        
+    } catch (error) {
+        document.getElementById('questionSection').innerHTML = `
+            <div style="text-align: center; padding: 40px 0;">
+                <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 12px;">Ups, da lief was schief.</h2>
+                <p class="subline">Bitte versuch es nochmal.</p>
+                <a href="/assessment" class="btn btn-primary" style="margin-top: 20px;">Nochmal versuchen</a>
+            </div>
+        `;
+    }
+}
+
+// Start
+renderQuestion();
+</script>
+{% endblock %}

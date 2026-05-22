@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Work Mentor — Finde deinen Karriere-Typ{% endblock %}
+
+{% block body %}
+<div class="container screen">
+    
+    <!-- Header -->
+    <header class="header">
+        <a href="/" class="logo">Work Mentor</a>
+        <span class="badge-beta">Beta</span>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero-section">
+        <div class="pill animate-in">
+            <span class="pill-dot"></span>
+            Karriere-Check
+        </div>
+        
+        <h1 class="animate-in animate-delay-1" style="margin-top: 20px;">
+            Welcher Job passt<br><span class="underline">wirklich</span> zu dir?
+        </h1>
+        
+        <p class="subline animate-in animate-delay-2">
+            Wissenschaftlich fundiert. 5 Minuten. Kostenlos.
+        </p>
+
+        <!-- How it works -->
+        <div class="steps-card animate-in animate-delay-3">
+            <div class="steps-label">So funktioniert's</div>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>12 Schnellfragen</h3>
+                    <p>Antippen, kein Tippen.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Karriere-Profil</h3>
+                    <p>Auf einen Blick — wer du bist.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Passende Matches</h3>
+                    <p>Jobs die zu dir passen — mit Fit-Score.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <a href="/assessment" class="btn btn-primary">Los geht's →</a>
+        <div class="trust-indicators">
+            <span>< 5 Min</span>
+            <span>·</span>
+            <span>Wissenschaftlich</span>
+            <span>·</span>
+            <span>Kostenlos</span>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="footer-links">
+        <a href="#">Impressum</a> · <a href="#">Datenschutz</a>
+    </div>
+
+</div>
+{% endblock %}
