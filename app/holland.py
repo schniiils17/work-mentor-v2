@@ -9,189 +9,69 @@ S = Social (Sozial/Helfend)
 E = Enterprising (Unternehmerisch/Führend)
 C = Conventional (Konventionell/Organisierend)
 
-12 Forced-Choice Fragen — jede Antwort gibt Punkte auf 1-2 Dimensionen.
+24 Aussagen (4 pro Dimension) auf 7-Punkte Likert-Skala.
+Items basieren auf dem O*NET Interest Profiler des US Department of Labor (Public Domain),
+übersetzt und für den deutschen Sprachraum adaptiert.
+
+Methodik:
+- User bewertet jede Aussage: "Wie sehr würde dir das Spaß machen?"
+- Skala: -3 (gar nicht) bis +3 (sehr)
+- Pro Dimension werden 4 Items addiert → Rohwert -12 bis +12
+- Top-2 Dimensionen ergeben den Holland-Code (z.B. "EA")
 """
 
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
-# ─── Fragen ──────────────────────────────────────────────────────────
-# Jede Frage hat zwei Optionen (A/B).
-# Jede Option vergibt Punkte auf eine oder mehrere RIASEC-Dimensionen.
 
-QUESTIONS = [
-    {
-        "id": 1,
-        "question": "Was machst du lieber?",
-        "option_a": {
-            "text": "Etwas Technisches bauen oder reparieren",
-            "icon": "🔧",
-            "scores": {"R": 2}
-        },
-        "option_b": {
-            "text": "Etwas Kreatives gestalten oder designen",
-            "icon": "🎨",
-            "scores": {"A": 2}
-        }
-    },
-    {
-        "id": 2,
-        "question": "Neues Projekt — was ist dein erster Impuls?",
-        "option_a": {
-            "text": "Daten sammeln und das Problem analysieren",
-            "icon": "🔬",
-            "scores": {"I": 2}
-        },
-        "option_b": {
-            "text": "Menschen zusammenbringen und Aufgaben verteilen",
-            "icon": "🤝",
-            "scores": {"E": 1, "S": 1}
-        }
-    },
-    {
-        "id": 3,
-        "question": "Welches Kompliment freut dich mehr?",
-        "option_a": {
-            "text": "\"Du kannst echt gut erklären!\"",
-            "icon": "💬",
-            "scores": {"S": 2}
-        },
-        "option_b": {
-            "text": "\"Du hast echt den Durchblick bei Zahlen!\"",
-            "icon": "📊",
-            "scores": {"C": 1, "I": 1}
-        }
-    },
-    {
-        "id": 4,
-        "question": "Samstagnachmittag — was machst du lieber?",
-        "option_a": {
-            "text": "An einem DIY-Projekt in der Werkstatt arbeiten",
-            "icon": "🪚",
-            "scores": {"R": 2}
-        },
-        "option_b": {
-            "text": "Einen Business-Plan oder eine Strategie ausarbeiten",
-            "icon": "📈",
-            "scores": {"E": 2}
-        }
-    },
-    {
-        "id": 5,
-        "question": "Was nervt dich weniger?",
-        "option_a": {
-            "text": "Stundenlang Excel-Tabellen organisieren",
-            "icon": "📋",
-            "scores": {"C": 2}
-        },
-        "option_b": {
-            "text": "Stundenlang kreative Texte schreiben",
-            "icon": "✍️",
-            "scores": {"A": 2}
-        }
-    },
-    {
-        "id": 6,
-        "question": "In einem Team — welche Rolle ziehst du an?",
-        "option_a": {
-            "text": "Die Person die Konflikte löst und alle zusammenhält",
-            "icon": "🫂",
-            "scores": {"S": 2}
-        },
-        "option_b": {
-            "text": "Die Person die die Richtung vorgibt und Entscheidungen trifft",
-            "icon": "🧭",
-            "scores": {"E": 2}
-        }
-    },
-    {
-        "id": 7,
-        "question": "Welches Buch greifst du eher?",
-        "option_a": {
-            "text": "Ein Sachbuch über Wissenschaft oder Technologie",
-            "icon": "🧪",
-            "scores": {"I": 2}
-        },
-        "option_b": {
-            "text": "Eine Biografie über einen erfolgreichen Unternehmer",
-            "icon": "📖",
-            "scores": {"E": 1, "A": 1}
-        }
-    },
-    {
-        "id": 8,
-        "question": "Was beschreibt dich besser?",
-        "option_a": {
-            "text": "Ich arbeite gerne mit meinen Händen — Ergebnisse anfassen können",
-            "icon": "🖐️",
-            "scores": {"R": 2}
-        },
-        "option_b": {
-            "text": "Ich arbeite gerne mit Menschen — zuhören und unterstützen",
-            "icon": "❤️",
-            "scores": {"S": 2}
-        }
-    },
-    {
-        "id": 9,
-        "question": "Dein Chef gibt dir die Wahl:",
-        "option_a": {
-            "text": "Ein komplexes Problem alleine lösen",
-            "icon": "🧩",
-            "scores": {"I": 1, "R": 1}
-        },
-        "option_b": {
-            "text": "Ein neues Projekt vor dem Vorstand präsentieren",
-            "icon": "🎤",
-            "scores": {"E": 2}
-        }
-    },
-    {
-        "id": 10,
-        "question": "Welcher Fehler stört dich mehr?",
-        "option_a": {
-            "text": "Eine Präsentation die langweilig und uninspiriert ist",
-            "icon": "😴",
-            "scores": {"A": 2}
-        },
-        "option_b": {
-            "text": "Ein Bericht der ungenau und schlecht organisiert ist",
-            "icon": "🚫",
-            "scores": {"C": 2}
-        }
-    },
-    {
-        "id": 11,
-        "question": "Was gibt dir mehr Energie?",
-        "option_a": {
-            "text": "Jemandem bei einem persönlichen Problem helfen",
-            "icon": "🌱",
-            "scores": {"S": 2}
-        },
-        "option_b": {
-            "text": "Ein System optimieren das danach reibungslos läuft",
-            "icon": "⚙️",
-            "scores": {"C": 1, "R": 1}
-        }
-    },
-    {
-        "id": 12,
-        "question": "Wenn Geld keine Rolle spielen würde:",
-        "option_a": {
-            "text": "Ein eigenes Startup gründen",
-            "icon": "🚀",
-            "scores": {"E": 1, "A": 1}
-        },
-        "option_b": {
-            "text": "An einer Forschungseinrichtung arbeiten",
-            "icon": "🏛️",
-            "scores": {"I": 2}
-        }
-    }
+# ─── Items (Aussagen) ──────────────────────────────────────────────
+# Quelle: O*NET Interest Profiler (Public Domain, US Department of Labor)
+# Adaptiert ins Deutsche für unseren Kontext.
+# 
+# Jedes Item misst genau EINE Dimension (eindimensional).
+# User-Frage über allen: "Wie sehr würde dir das Spaß machen?"
+
+ITEMS = [
+    # ─── R (Realistic) ──────────────────────────────────
+    {"id": 1,  "dim": "R", "text": "Ein defektes Gerät auseinandernehmen und reparieren"},
+    {"id": 2,  "dim": "R", "text": "Mit Werkzeugen oder Maschinen arbeiten"},
+    {"id": 3,  "dim": "R", "text": "Etwas Praktisches mit deinen Händen bauen"},
+    {"id": 4,  "dim": "R", "text": "Draußen körperlich arbeiten (z.B. Garten, Bau, Forst)"},
+    
+    # ─── I (Investigative) ──────────────────────────────
+    {"id": 5,  "dim": "I", "text": "Ein wissenschaftliches Experiment durchführen"},
+    {"id": 6,  "dim": "I", "text": "Daten analysieren um ein Muster zu finden"},
+    {"id": 7,  "dim": "I", "text": "Über ein komplexes Problem lange nachdenken"},
+    {"id": 8,  "dim": "I", "text": "Recherchieren, wie etwas wirklich funktioniert"},
+    
+    # ─── A (Artistic) ───────────────────────────────────
+    {"id": 9,  "dim": "A", "text": "Eine eigene kreative Idee zum Leben erwecken"},
+    {"id": 10, "dim": "A", "text": "Etwas gestalten oder designen (visuell, musikalisch, schriftlich)"},
+    {"id": 11, "dim": "A", "text": "Ohne klare Vorgaben arbeiten und frei improvisieren"},
+    {"id": 12, "dim": "A", "text": "Geschichten schreiben oder erzählen"},
+    
+    # ─── S (Social) ─────────────────────────────────────
+    {"id": 13, "dim": "S", "text": "Jemandem ein schwieriges Thema verständlich erklären"},
+    {"id": 14, "dim": "S", "text": "Einem Menschen helfen, ein persönliches Problem zu lösen"},
+    {"id": 15, "dim": "S", "text": "In einem Team arbeiten, wo Zusammenarbeit zählt"},
+    {"id": 16, "dim": "S", "text": "Andere Menschen unterrichten oder ausbilden"},
+    
+    # ─── E (Enterprising) ───────────────────────────────
+    {"id": 17, "dim": "E", "text": "Andere von einer Idee überzeugen"},
+    {"id": 18, "dim": "E", "text": "Ein Team führen und Entscheidungen treffen"},
+    {"id": 19, "dim": "E", "text": "Etwas Neues aufbauen oder gründen"},
+    {"id": 20, "dim": "E", "text": "Ein Produkt oder eine Dienstleistung verkaufen"},
+    
+    # ─── C (Conventional) ───────────────────────────────
+    {"id": 21, "dim": "C", "text": "Eine umfangreiche Datensammlung sauber strukturieren"},
+    {"id": 22, "dim": "C", "text": "Mit Zahlen und Tabellen präzise arbeiten"},
+    {"id": 23, "dim": "C", "text": "Klare Regeln und Abläufe einhalten und überwachen"},
+    {"id": 24, "dim": "C", "text": "Dokumente prüfen und Fehler finden"},
 ]
 
 
 # ─── Typ-Mapping ─────────────────────────────────────────────────────
 # Top-2 Holland-Code → Typ-Name + Beschreibung + Stärken
+# 15 Karriere-Typen (alle ungeordneten Paare aus RIASEC)
 
 TYPE_MAP = {
     "RI": {
@@ -354,30 +234,31 @@ JOB_DATABASE = {
 }
 
 
+# Backwards-compat: alte API exportierte QUESTIONS
+QUESTIONS = ITEMS
+
+
 def calculate_scores(answers: List[Dict]) -> Dict[str, int]:
     """
-    Berechne RIASEC-Scores aus den Antworten.
-    answers = [{"question_id": 1, "choice": "a"}, ...]
+    Berechne RIASEC-Scores aus den Likert-Antworten.
+    answers = [{"item_id": 1, "value": 2}, ...]
+    value: -3 bis +3 (7-Punkte-Skala, zentriert um 0)
     """
     scores = {"R": 0, "I": 0, "A": 0, "S": 0, "E": 0, "C": 0}
     
-    question_map = {q["id"]: q for q in QUESTIONS}
+    item_map = {it["id"]: it for it in ITEMS}
     
     for answer in answers:
-        q = question_map.get(answer["question_id"])
-        if not q:
+        item_id = answer.get("item_id") or answer.get("question_id")
+        item = item_map.get(item_id)
+        if not item:
             continue
         
-        choice = answer["choice"]
-        if choice == "a":
-            option_scores = q["option_a"]["scores"]
-        elif choice == "b":
-            option_scores = q["option_b"]["scores"]
-        else:
-            continue
+        value = answer.get("value", 0)
+        # Clamp to -3..+3
+        value = max(-3, min(3, int(value)))
         
-        for dim, pts in option_scores.items():
-            scores[dim] += pts
+        scores[item["dim"]] += value
     
     return scores
 
@@ -397,7 +278,6 @@ def get_type_info(code: str) -> Dict:
     if reversed_code in TYPE_MAP:
         return {**TYPE_MAP[reversed_code], "code": reversed_code}
     
-    # Fallback
     return {
         "name": "Der Entdecker",
         "code": code,
@@ -415,7 +295,6 @@ def get_matching_jobs(code: str) -> List[Dict]:
     if reversed_code in JOB_DATABASE:
         return JOB_DATABASE[reversed_code]
     
-    # Fallback: Jobs der ersten Dimension
     first = code[0]
     for key, jobs in JOB_DATABASE.items():
         if key.startswith(first):
@@ -434,10 +313,14 @@ def assess(answers: List[Dict]) -> Dict:
     jobs = get_matching_jobs(code)
     
     # Normalisiere Scores auf 0-100 für das Hexagon
-    max_possible = 8  # Theoretisches Maximum pro Dimension
+    # Maximum pro Dimension: 4 Items × 3 Punkte = 12
+    max_possible = 12
+    min_possible = -12
     normalized_scores = {}
     for dim, val in scores.items():
-        normalized_scores[dim] = min(round((val / max_possible) * 100), 100)
+        # Skaliere von [-12, +12] auf [0, 100]
+        normalized = ((val - min_possible) / (max_possible - min_possible)) * 100
+        normalized_scores[dim] = max(0, min(100, round(normalized)))
     
     return {
         "code": type_info["code"],

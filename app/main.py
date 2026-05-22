@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from typing import List
 import os
 
-from app.holland import QUESTIONS, assess
+from app.holland import ITEMS, assess
 
 app = FastAPI(title="Work Mentor 2.0")
 
@@ -24,23 +24,23 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 # ─── API ─────────────────────────────────────────────────────────────
 
 class Answer(BaseModel):
-    question_id: int
-    choice: str  # "a" or "b"
+    item_id: int
+    value: int  # -3 to +3 (Likert scale)
 
 class AssessmentRequest(BaseModel):
     answers: List[Answer]
 
 
-@app.get("/api/questions")
-async def get_questions():
-    """Liefere alle Assessment-Fragen."""
-    return {"questions": QUESTIONS}
+@app.get("/api/items")
+async def get_items():
+    """Liefere alle Assessment-Items."""
+    return {"items": ITEMS}
 
 
 @app.post("/api/assess")
 async def post_assess(req: AssessmentRequest):
     """Berechne das Ergebnis aus den Antworten."""
-    answers = [{"question_id": a.question_id, "choice": a.choice} for a in req.answers]
+    answers = [{"item_id": a.item_id, "value": a.value} for a in req.answers]
     result = assess(answers)
     return result
 
@@ -56,7 +56,7 @@ async def landing(request: Request):
 async def assessment(request: Request):
     return templates.TemplateResponse("assessment.html", {
         "request": request,
-        "questions": QUESTIONS
+        "items": ITEMS
     })
 
 

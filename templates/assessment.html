@@ -1,6 +1,145 @@
 {% extends "base.html" %}
 
-{% block title %}Assessment — Work Mentor{% endblock %}
+{% block title %}Karriere-Check — Work Mentor{% endblock %}
+
+{% block head %}
+<style>
+/* Likert-Skala spezifische Styles */
+.likert-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 0 32px;
+}
+
+.item-intro {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.item-question {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    font-weight: 500;
+}
+
+.item-statement {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+    margin-bottom: 32px;
+    color: var(--text-primary);
+}
+
+/* Likert Scale Buttons */
+.likert-scale {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin: 24px 0 16px;
+}
+
+.likert-btn {
+    aspect-ratio: 1;
+    border: 1.5px solid var(--border);
+    background: var(--bg-card);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    position: relative;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Größenstaffelung — wie 16personalities */
+.likert-btn[data-value="-3"], .likert-btn[data-value="3"] {
+    width: 100%;
+}
+.likert-btn[data-value="-2"], .likert-btn[data-value="2"] {
+    width: 86%;
+    margin: 0 auto;
+}
+.likert-btn[data-value="-1"], .likert-btn[data-value="1"] {
+    width: 72%;
+    margin: 0 auto;
+}
+.likert-btn[data-value="0"] {
+    width: 60%;
+    margin: 0 auto;
+}
+
+/* Farbig je nach Richtung */
+.likert-btn.disagree-3, .likert-btn.disagree-2, .likert-btn.disagree-1 {
+    border-color: #C9A878;
+}
+.likert-btn.agree-3, .likert-btn.agree-2, .likert-btn.agree-1 {
+    border-color: var(--accent);
+}
+.likert-btn.neutral {
+    border-color: #B8B8B3;
+}
+
+.likert-btn:hover {
+    transform: scale(1.08);
+}
+
+.likert-btn.selected[data-value="-3"], .likert-btn.selected[data-value="-2"], .likert-btn.selected[data-value="-1"] {
+    background: #C9A878;
+    border-color: #C9A878;
+}
+.likert-btn.selected[data-value="0"] {
+    background: #B8B8B3;
+    border-color: #B8B8B3;
+}
+.likert-btn.selected[data-value="3"], .likert-btn.selected[data-value="2"], .likert-btn.selected[data-value="1"] {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.likert-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding: 0 4px;
+}
+
+.likert-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    max-width: 100px;
+}
+
+.likert-label.left {
+    text-align: left;
+}
+
+.likert-label.right {
+    text-align: right;
+}
+
+.dimension-hint {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    background: var(--bg-soft);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    margin-bottom: 16px;
+}
+</style>
+{% endblock %}
 
 {% block body %}
 <div class="container screen" id="app">
@@ -8,29 +147,34 @@
     <!-- Header -->
     <header class="header">
         <a href="/" class="logo"><span class="logo-mark">M</span>Work Mentor</a>
-        <span class="progress-label" id="questionCounter">Frage 1 von 12</span>
+        <span class="progress-label" id="itemCounter">1 von 24</span>
     </header>
 
     <!-- Progress -->
     <div class="progress-section">
         <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 8.3%"></div>
+            <div class="progress-fill" id="progressFill" style="width: 4%"></div>
         </div>
     </div>
 
-    <!-- Question -->
-    <section class="question-section" id="questionSection">
-        <div class="question-hint">Antippen, was eher zu dir passt</div>
-        <h2 class="question-text" id="questionText"></h2>
+    <!-- Likert Item -->
+    <section class="likert-section" id="itemSection">
+        <div class="item-intro">Wie sehr würde dir das Spaß machen?</div>
+        <h2 class="item-statement" id="itemStatement"></h2>
         
-        <div class="option-card" id="optionA" onclick="selectOption('a')">
-            <span class="option-icon" id="iconA"></span>
-            <span class="option-text" id="textA"></span>
+        <div class="likert-scale">
+            <button class="likert-btn disagree-3" data-value="-3" onclick="answer(-3)" aria-label="Gar nicht"></button>
+            <button class="likert-btn disagree-2" data-value="-2" onclick="answer(-2)" aria-label="Eher nicht"></button>
+            <button class="likert-btn disagree-1" data-value="-1" onclick="answer(-1)" aria-label="Ein bisschen nicht"></button>
+            <button class="likert-btn neutral" data-value="0" onclick="answer(0)" aria-label="Neutral"></button>
+            <button class="likert-btn agree-1" data-value="1" onclick="answer(1)" aria-label="Ein bisschen"></button>
+            <button class="likert-btn agree-2" data-value="2" onclick="answer(2)" aria-label="Ziemlich"></button>
+            <button class="likert-btn agree-3" data-value="3" onclick="answer(3)" aria-label="Sehr"></button>
         </div>
         
-        <div class="option-card" id="optionB" onclick="selectOption('b')">
-            <span class="option-icon" id="iconB"></span>
-            <span class="option-text" id="textB"></span>
+        <div class="likert-labels">
+            <span class="likert-label left">Gar nicht</span>
+            <span class="likert-label right">Sehr gerne</span>
         </div>
     </section>
 
@@ -44,76 +188,78 @@
 
 {% block scripts %}
 <script>
-// Questions from backend
-const questions = {{ questions | tojson }};
+// Items from backend
+const items = {{ items | tojson }};
 let currentIndex = 0;
 let answers = [];
 
-function renderQuestion() {
-    const q = questions[currentIndex];
+function renderItem() {
+    const item = items[currentIndex];
     
-    document.getElementById('questionCounter').textContent = `Frage ${currentIndex + 1} von ${questions.length}`;
-    document.getElementById('progressFill').style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
-    document.getElementById('questionText').textContent = q.question;
-    document.getElementById('iconA').textContent = q.option_a.icon;
-    document.getElementById('textA').textContent = q.option_a.text;
-    document.getElementById('iconB').textContent = q.option_b.icon;
-    document.getElementById('textB').textContent = q.option_b.text;
+    document.getElementById('itemCounter').textContent = `${currentIndex + 1} von ${items.length}`;
+    document.getElementById('progressFill').style.width = `${((currentIndex + 1) / items.length) * 100}%`;
+    document.getElementById('itemStatement').textContent = item.text;
     
-    // Reset selection state
-    document.getElementById('optionA').classList.remove('selected');
-    document.getElementById('optionB').classList.remove('selected');
+    // Reset selection
+    document.querySelectorAll('.likert-btn').forEach(btn => btn.classList.remove('selected'));
+    
+    // If already answered, show selection
+    const existing = answers[currentIndex];
+    if (existing !== undefined && existing !== null) {
+        const btn = document.querySelector(`.likert-btn[data-value="${existing.value}"]`);
+        if (btn) btn.classList.add('selected');
+    }
     
     // Show/hide back button
     document.getElementById('backBtn').style.visibility = currentIndex > 0 ? 'visible' : 'hidden';
     
     // Animate in
-    const section = document.getElementById('questionSection');
+    const section = document.getElementById('itemSection');
     section.style.opacity = '0';
-    section.style.transform = 'translateY(12px)';
+    section.style.transform = 'translateY(8px)';
     requestAnimationFrame(() => {
-        section.style.transition = 'all 0.3s ease';
+        section.style.transition = 'all 0.25s ease';
         section.style.opacity = '1';
         section.style.transform = 'translateY(0)';
     });
 }
 
-function selectOption(choice) {
-    const q = questions[currentIndex];
+function answer(value) {
+    const item = items[currentIndex];
     
     // Visual feedback
-    const cardId = choice === 'a' ? 'optionA' : 'optionB';
-    document.getElementById(cardId).classList.add('selected');
+    document.querySelectorAll('.likert-btn').forEach(btn => btn.classList.remove('selected'));
+    const btn = document.querySelector(`.likert-btn[data-value="${value}"]`);
+    if (btn) btn.classList.add('selected');
     
     // Store answer
     answers[currentIndex] = {
-        question_id: q.id,
-        choice: choice
+        item_id: item.id,
+        value: value
     };
     
-    // Next question or submit
+    // Next item or submit
     setTimeout(() => {
-        if (currentIndex < questions.length - 1) {
+        if (currentIndex < items.length - 1) {
             currentIndex++;
-            renderQuestion();
+            renderItem();
         } else {
             submitAssessment();
         }
-    }, 300);
+    }, 250);
 }
 
 function goBack() {
     if (currentIndex > 0) {
         currentIndex--;
-        renderQuestion();
+        renderItem();
     }
 }
 
 async function submitAssessment() {
-    // Show loading state
-    document.getElementById('questionSection').innerHTML = `
+    document.getElementById('itemSection').innerHTML = `
         <div style="text-align: center; padding: 40px 0;">
-            <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 12px;">Dein Profil wird erstellt...</h2>
+            <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 12px; letter-spacing: -0.03em;">Dein Profil wird erstellt...</h2>
             <p class="subline">Wir analysieren deine Antworten.</p>
         </div>
     `;
@@ -122,19 +268,17 @@ async function submitAssessment() {
         const response = await fetch('/api/assess', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ answers: answers })
+            body: JSON.stringify({ answers: answers.filter(a => a !== null && a !== undefined) })
         });
         
         const result = await response.json();
-        
-        // Store result and redirect
         sessionStorage.setItem('wm_result', JSON.stringify(result));
         window.location.href = '/ergebnis';
         
     } catch (error) {
-        document.getElementById('questionSection').innerHTML = `
+        document.getElementById('itemSection').innerHTML = `
             <div style="text-align: center; padding: 40px 0;">
-                <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 12px;">Ups, da lief was schief.</h2>
+                <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 12px;">Ups, da lief was schief.</h2>
                 <p class="subline">Bitte versuch es nochmal.</p>
                 <a href="/assessment" class="btn btn-primary" style="margin-top: 20px;">Nochmal versuchen</a>
             </div>
@@ -142,7 +286,6 @@ async function submitAssessment() {
     }
 }
 
-// Start
-renderQuestion();
+renderItem();
 </script>
 {% endblock %}
