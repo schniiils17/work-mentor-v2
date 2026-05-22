@@ -23,7 +23,7 @@
         
         <!-- Hexagon Chart -->
         <div class="hexagon-container animate-in animate-delay-2">
-            <svg class="hexagon-chart" viewBox="0 0 360 360" id="hexChart" preserveAspectRatio="xMidYMid meet"></svg>
+            <svg class="hexagon-chart" viewBox="0 0 400 400" id="hexChart" preserveAspectRatio="xMidYMid meet"></svg>
         </div>
         
         <!-- Description -->
@@ -115,7 +115,8 @@ function renderResult(r) {
 
 function drawHexagon(scores) {
     const svg = document.getElementById('hexChart');
-    const cx = 180, cy = 180, maxR = 110;
+    // Larger viewBox gives room for long labels without clipping
+    const cx = 200, cy = 200, maxR = 100;
     const dims = ['R', 'I', 'A', 'S', 'E', 'C'];
     const labels = ['REALISTISCH', 'FORSCHEND', 'KREATIV', 'SOZIAL', 'UNTERNEHMEND', 'ORGANISIEREND'];
     
@@ -152,17 +153,17 @@ function drawHexagon(scores) {
     
     // Labels (Letter + Name, two lines)
     dims.forEach((d, i) => {
-        const lp = getPoint(i, maxR + 32);
+        const lp = getPoint(i, maxR + 26);
         let anchor = 'middle';
         if (i === 1 || i === 2) anchor = 'start';
         if (i === 4 || i === 5) anchor = 'end';
         
         // Letter (big, bold)
         svgContent += `<text x="${lp.x}" y="${lp.y - 2}" text-anchor="${anchor}" 
-            font-family="Geist, Inter, sans-serif" font-size="16" font-weight="700" fill="#141414">${d}</text>`;
+            font-family="Geist, Inter, sans-serif" font-size="14" font-weight="700" fill="#141414">${d}</text>`;
         // Name (small, uppercase)
-        svgContent += `<text x="${lp.x}" y="${lp.y + 14}" text-anchor="${anchor}" 
-            font-family="Geist, Inter, sans-serif" font-size="9" font-weight="600" fill="#9B9B9B" letter-spacing="0.05em">${labels[i]}</text>`;
+        svgContent += `<text x="${lp.x}" y="${lp.y + 12}" text-anchor="${anchor}" 
+            font-family="Geist, Inter, sans-serif" font-size="8" font-weight="600" fill="#9B9B9B" letter-spacing="0.05em">${labels[i]}</text>`;
     });
     
     svg.innerHTML = svgContent;
