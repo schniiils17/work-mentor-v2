@@ -31,41 +31,42 @@ from typing import List, Dict
 # User-Frage über allen: "Wie sehr würde dir das Spaß machen?"
 
 ITEMS = [
-    # ─── R (Realistic) ──────────────────────────────────
-    {"id": 1,  "dim": "R", "text": "Ein defektes Gerät auseinandernehmen und reparieren"},
-    {"id": 2,  "dim": "R", "text": "Mit Werkzeugen oder Maschinen arbeiten"},
-    {"id": 3,  "dim": "R", "text": "Etwas Praktisches mit deinen Händen bauen"},
-    {"id": 4,  "dim": "R", "text": "Draußen körperlich arbeiten (z.B. Garten, Bau, Forst)"},
+    # ─── R (Realistic) ─── Praktisch-handwerklich
+    # Adaptiert aus O*NET Interest Profiler Short Form (US Dept of Labor, Public Domain)
+    {"id": 1,  "dim": "R", "text": "Küchenmöbel oder Schränke selbst bauen"},
+    {"id": 2,  "dim": "R", "text": "Haushaltsgeräte reparieren wenn sie kaputt sind"},
+    {"id": 3,  "dim": "R", "text": "Elektronische Bauteile zusammensetzen"},
+    {"id": 4,  "dim": "R", "text": "Eine Maschine bedienen die Produkte herstellt"},
     
-    # ─── I (Investigative) ──────────────────────────────
-    {"id": 5,  "dim": "I", "text": "Ein wissenschaftliches Experiment durchführen"},
-    {"id": 6,  "dim": "I", "text": "Daten analysieren um ein Muster zu finden"},
-    {"id": 7,  "dim": "I", "text": "Über ein komplexes Problem lange nachdenken"},
-    {"id": 8,  "dim": "I", "text": "Recherchieren, wie etwas wirklich funktioniert"},
+    # ─── I (Investigative) ─── Forschend-analytisch
+    {"id": 5,  "dim": "I", "text": "Ein neues Medikament entwickeln"},
+    {"id": 6,  "dim": "I", "text": "Erforschen wie man Umweltverschmutzung reduzieren kann"},
+    {"id": 7,  "dim": "I", "text": "Blutproben unter dem Mikroskop untersuchen"},
+    {"id": 8,  "dim": "I", "text": "Im Labor chemische Experimente durchführen"},
     
-    # ─── A (Artistic) ───────────────────────────────────
-    {"id": 9,  "dim": "A", "text": "Eine eigene kreative Idee zum Leben erwecken"},
-    {"id": 10, "dim": "A", "text": "Etwas gestalten oder designen (visuell, musikalisch, schriftlich)"},
-    {"id": 11, "dim": "A", "text": "Ohne klare Vorgaben arbeiten und frei improvisieren"},
-    {"id": 12, "dim": "A", "text": "Geschichten schreiben oder erzählen"},
+    # ─── A (Artistic) ─── Künstlerisch-kreativ
+    {"id": 9,  "dim": "A", "text": "Bücher oder Theaterstücke schreiben"},
+    {"id": 10, "dim": "A", "text": "Ein Musikinstrument spielen"},
+    {"id": 11, "dim": "A", "text": "Drehbücher für Filme oder Serien schreiben"},
+    {"id": 12, "dim": "A", "text": "Spezialeffekte oder visuelle Designs für Filme erschaffen"},
     
-    # ─── S (Social) ─────────────────────────────────────
-    {"id": 13, "dim": "S", "text": "Jemandem ein schwieriges Thema verständlich erklären"},
-    {"id": 14, "dim": "S", "text": "Einem Menschen helfen, ein persönliches Problem zu lösen"},
-    {"id": 15, "dim": "S", "text": "In einem Team arbeiten, wo Zusammenarbeit zählt"},
-    {"id": 16, "dim": "S", "text": "Andere Menschen unterrichten oder ausbilden"},
+    # ─── S (Social) ─── Helfend-sozial
+    {"id": 13, "dim": "S", "text": "Menschen mit persönlichen oder emotionalen Problemen helfen"},
+    {"id": 14, "dim": "S", "text": "Menschen bei der Berufswahl beraten"},
+    {"id": 15, "dim": "S", "text": "Eine Schulklasse unterrichten"},
+    {"id": 16, "dim": "S", "text": "Kindern beibringen wie man Sport macht"},
     
-    # ─── E (Enterprising) ───────────────────────────────
-    {"id": 17, "dim": "E", "text": "Andere von einer Idee überzeugen"},
-    {"id": 18, "dim": "E", "text": "Ein Team führen und Entscheidungen treffen"},
-    {"id": 19, "dim": "E", "text": "Etwas Neues aufbauen oder gründen"},
-    {"id": 20, "dim": "E", "text": "Ein Produkt oder eine Dienstleistung verkaufen"},
+    # ─── E (Enterprising) ─── Unternehmerisch-führend
+    {"id": 17, "dim": "E", "text": "Ein eigenes Unternehmen gründen"},
+    {"id": 18, "dim": "E", "text": "Eine Abteilung in einer großen Firma leiten"},
+    {"id": 19, "dim": "E", "text": "Aktien und Wertpapiere kaufen und verkaufen"},
+    {"id": 20, "dim": "E", "text": "Geschäftsverträge verhandeln"},
     
-    # ─── C (Conventional) ───────────────────────────────
-    {"id": 21, "dim": "C", "text": "Eine umfangreiche Datensammlung sauber strukturieren"},
-    {"id": 22, "dim": "C", "text": "Mit Zahlen und Tabellen präzise arbeiten"},
-    {"id": 23, "dim": "C", "text": "Klare Regeln und Abläufe einhalten und überwachen"},
-    {"id": 24, "dim": "C", "text": "Dokumente prüfen und Fehler finden"},
+    # ─── C (Conventional) ─── Organisierend-strukturiert
+    {"id": 21, "dim": "C", "text": "Eine Excel-Tabelle aufbauen und damit arbeiten"},
+    {"id": 22, "dim": "C", "text": "Dokumente Korrektur lesen und Fehler finden"},
+    {"id": 23, "dim": "C", "text": "Gehaltsabrechnungen für Mitarbeiter erstellen"},
+    {"id": 24, "dim": "C", "text": "Lagerbestände erfassen und sauber dokumentieren"},
 ]
 
 
