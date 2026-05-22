@@ -31,41 +31,41 @@ from typing import List, Dict
 # User-Frage über allen: "Wie sehr würde dir das Spaß machen?"
 
 ITEMS = [
-    # ─── R (Realistic) ─── Praktisch-handwerklich
+    # ─── R (Realistic) ─── Praktisch-handwerklich, mit den Händen
     # Adaptiert aus O*NET Interest Profiler Short Form (US Dept of Labor, Public Domain)
-    {"id": 1,  "dim": "R", "text": "Küchenmöbel oder Schränke selbst bauen"},
-    {"id": 2,  "dim": "R", "text": "Haushaltsgeräte reparieren wenn sie kaputt sind"},
-    {"id": 3,  "dim": "R", "text": "Elektronische Bauteile zusammensetzen"},
-    {"id": 4,  "dim": "R", "text": "Eine Maschine bedienen die Produkte herstellt"},
+    {"id": 1,  "dim": "R", "text": "Mit Werkzeug etwas selbst bauen — z.B. Möbel oder einen Schrank"},
+    {"id": 2,  "dim": "R", "text": "Ein kaputtes Gerät selbst auseinandernehmen und reparieren"},
+    {"id": 3,  "dim": "R", "text": "Einen PC aus Einzelteilen zusammenbauen"},
+    {"id": 4,  "dim": "R", "text": "Eine Maschine oder Anlage bedienen die Produkte herstellt"},
     
     # ─── I (Investigative) ─── Forschend-analytisch
     {"id": 5,  "dim": "I", "text": "Ein neues Medikament entwickeln"},
     {"id": 6,  "dim": "I", "text": "Erforschen wie man Umweltverschmutzung reduzieren kann"},
-    {"id": 7,  "dim": "I", "text": "Blutproben unter dem Mikroskop untersuchen"},
-    {"id": 8,  "dim": "I", "text": "Im Labor chemische Experimente durchführen"},
+    {"id": 7,  "dim": "I", "text": "Im Labor an Proben oder Experimenten arbeiten"},
+    {"id": 8,  "dim": "I", "text": "Daten auswerten um ein Muster oder eine Antwort zu finden"},
     
     # ─── A (Artistic) ─── Künstlerisch-kreativ
-    {"id": 9,  "dim": "A", "text": "Bücher oder Theaterstücke schreiben"},
-    {"id": 10, "dim": "A", "text": "Ein Musikinstrument spielen"},
-    {"id": 11, "dim": "A", "text": "Drehbücher für Filme oder Serien schreiben"},
-    {"id": 12, "dim": "A", "text": "Spezialeffekte oder visuelle Designs für Filme erschaffen"},
+    {"id": 9,  "dim": "A", "text": "Ein Buch, eine Geschichte oder ein Drehbuch schreiben"},
+    {"id": 10, "dim": "A", "text": "Ein Musikinstrument spielen oder Musik produzieren"},
+    {"id": 11, "dim": "A", "text": "Visuelle Inhalte gestalten — Grafiken, Videos oder Animationen"},
+    {"id": 12, "dim": "A", "text": "Ein Bühnenstück, Konzert oder eine kreative Show entwickeln"},
     
     # ─── S (Social) ─── Helfend-sozial
     {"id": 13, "dim": "S", "text": "Menschen mit persönlichen oder emotionalen Problemen helfen"},
-    {"id": 14, "dim": "S", "text": "Menschen bei der Berufswahl beraten"},
-    {"id": 15, "dim": "S", "text": "Eine Schulklasse unterrichten"},
-    {"id": 16, "dim": "S", "text": "Kindern beibringen wie man Sport macht"},
+    {"id": 14, "dim": "S", "text": "Andere bei ihrer Berufswahl oder Karriere beraten"},
+    {"id": 15, "dim": "S", "text": "Eine Schulklasse oder Gruppe unterrichten"},
+    {"id": 16, "dim": "S", "text": "Kindern oder Jugendlichen etwas beibringen (z.B. Sport, Musik, Schule)"},
     
     # ─── E (Enterprising) ─── Unternehmerisch-führend
-    {"id": 17, "dim": "E", "text": "Ein eigenes Unternehmen gründen"},
-    {"id": 18, "dim": "E", "text": "Eine Abteilung in einer großen Firma leiten"},
-    {"id": 19, "dim": "E", "text": "Aktien und Wertpapiere kaufen und verkaufen"},
-    {"id": 20, "dim": "E", "text": "Geschäftsverträge verhandeln"},
+    {"id": 17, "dim": "E", "text": "Ein eigenes Unternehmen oder Startup gründen"},
+    {"id": 18, "dim": "E", "text": "Eine Abteilung oder ein Team in einer Firma leiten"},
+    {"id": 19, "dim": "E", "text": "Mit Aktien, Investments oder Finanzmärkten handeln"},
+    {"id": 20, "dim": "E", "text": "Geschäftsverträge oder größere Deals verhandeln"},
     
     # ─── C (Conventional) ─── Organisierend-strukturiert
-    {"id": 21, "dim": "C", "text": "Eine Excel-Tabelle aufbauen und damit arbeiten"},
+    {"id": 21, "dim": "C", "text": "Eine Excel-Tabelle aufbauen und mit Formeln arbeiten"},
     {"id": 22, "dim": "C", "text": "Dokumente Korrektur lesen und Fehler finden"},
-    {"id": 23, "dim": "C", "text": "Gehaltsabrechnungen für Mitarbeiter erstellen"},
+    {"id": 23, "dim": "C", "text": "Die Buchhaltung oder Finanzen einer Firma führen"},
     {"id": 24, "dim": "C", "text": "Lagerbestände erfassen und sauber dokumentieren"},
 ]
 
