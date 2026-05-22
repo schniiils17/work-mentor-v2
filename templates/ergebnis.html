@@ -147,13 +147,13 @@ function drawHexagon(scores) {
         return getPoint(i, maxR * Math.max(val, 0.08));
     });
     const dataPath = dataPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z';
-    svg.innerHTML += `<path d="${dataPath}" fill="rgba(20,20,20,0.08)" stroke="#141414" stroke-width="2.5"/>`;
+    svg.innerHTML += `<path d="${dataPath}" fill="rgba(26,58,92,0.12)" stroke="#1A3A5C" stroke-width="2.5"/>`;
     
     // Draw dots and labels
     dims.forEach((d, i) => {
         const val = (scores[d] || 0) / 100;
         const dp = getPoint(i, maxR * Math.max(val, 0.08));
-        svg.innerHTML += `<circle cx="${dp.x}" cy="${dp.y}" r="4" fill="#141414"/>`;
+        svg.innerHTML += `<circle cx="${dp.x}" cy="${dp.y}" r="4" fill="#1A3A5C"/>`;
         
         const lp = getPoint(i, maxR + 20);
         const anchor = i === 0 || i === 3 ? 'middle' : (i < 3 ? 'start' : 'end');
