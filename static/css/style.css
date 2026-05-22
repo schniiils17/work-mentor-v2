@@ -120,10 +120,22 @@ h1 {
 }
 
 h1 .underline {
-    text-decoration: underline;
-    text-decoration-color: var(--accent);
-    text-decoration-thickness: 3px;
-    text-underline-offset: 4px;
+    position: relative;
+    text-decoration: none;
+    display: inline-block;
+}
+
+h1 .underline::after {
+    content: "";
+    position: absolute;
+    left: -2%;
+    right: -2%;
+    bottom: -8px;
+    height: 12px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 10' preserveAspectRatio='none'><path d='M2 8 Q 30 4, 60 5.5 T 118 3.5' fill='none' stroke='%231A3A5C' stroke-width='3' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    pointer-events: none;
 }
 
 h2 {
