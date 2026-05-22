@@ -120,9 +120,12 @@ h1 {
 }
 
 h1 .underline {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 6px;
+    text-decoration: none;
+    background-image: linear-gradient(to right, var(--accent), var(--accent));
+    background-size: 100% 3px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    padding-bottom: 8px;
 }
 
 h2 {
@@ -262,18 +265,18 @@ h2 {
 }
 
 .preview-card {
-    background: var(--bg-card);
+    background: #FFFFFF;
     border: 1px solid var(--border-light);
-    border-radius: var(--radius);
-    padding: 20px;
-    box-shadow: var(--shadow);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .preview-card-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
+    align-items: flex-start;
+    margin-bottom: 20px;
 }
 
 .preview-hexagon svg {
@@ -335,7 +338,7 @@ h2 {
     color: var(--text-primary);
 }
 
-/* How it works */
+/* How it works — editorial style: no boxes, just hairlines + numbers */
 .how-section {
     padding-bottom: 8px;
 }
@@ -343,39 +346,54 @@ h2 {
 .how-step {
     display: flex;
     align-items: flex-start;
-    gap: 14px;
-    padding: 12px 0;
-}
-
-.how-step + .how-step {
+    gap: 16px;
+    padding: 20px 0;
     border-top: 1px solid var(--border-light);
 }
 
+.how-step:first-of-type {
+    border-top: none;
+    padding-top: 8px;
+}
+
 .how-icon {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    color: var(--text-primary);
+}
+
+.how-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke: var(--text-primary);
+    stroke-width: 1.5;
+    fill: none;
+}
+
+.how-number {
+    font-size: 12px;
     font-weight: 600;
-    background: var(--bg-soft);
-    border-radius: var(--radius-sm);
-    color: var(--accent);
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
 }
 
 .how-content h3 {
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 2px;
-    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
 }
 
 .how-content p {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-secondary);
+    line-height: 1.5;
 }
 
 /* Wissenschaft */
@@ -795,22 +813,21 @@ h2 {
 }
 
 .match-badge {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 48px;
-    height: 32px;
-    font-size: 13px;
-    font-weight: 700;
-    background: var(--green-bg);
-    color: var(--green);
-    border-radius: var(--radius-sm);
-    margin-left: 12px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #E8F0E8;
+    color: #4A7C59;
+    border-radius: var(--radius-full);
+    letter-spacing: 0.01em;
 }
 
 .match-badge.medium {
-    background: var(--amber-bg);
-    color: var(--amber);
+    background: #F2EBD9;
+    color: #8B7340;
 }
 
 /* Share Section */
