@@ -23,7 +23,7 @@
         
         <!-- Hexagon Chart -->
         <div class="hexagon-container animate-in animate-delay-2">
-            <svg class="hexagon-chart" viewBox="0 0 240 240" id="hexChart"></svg>
+            <svg class="hexagon-chart" viewBox="0 0 360 360" id="hexChart" preserveAspectRatio="xMidYMid meet"></svg>
         </div>
         
         <!-- Description -->
@@ -34,7 +34,7 @@
         
         <!-- Jobs -->
         <div class="jobs-section animate-in animate-delay-3">
-            <div class="jobs-label">Jobs, die zu dir passen</div>
+            <div class="jobs-label">3 Jobs, die zu dir passen</div>
             <div id="jobsList"></div>
         </div>
         
@@ -78,7 +78,7 @@ if (!result) {
 function renderResult(r) {
     // Code & Name
     document.getElementById('resultCode').textContent = 
-        `${r.dimensions.first}${r.dimensions.second} · ${r.dimensions.first_label} · ${r.dimensions.second_label}`;
+        `${r.dimensions.first}${r.dimensions.second} · ${r.dimensions.first_label.toUpperCase()} · ${r.dimensions.second_label.toUpperCase()}`;
     document.getElementById('typeName').textContent = `${r.type_name}.`;
     
     // Description
@@ -98,16 +98,16 @@ function renderResult(r) {
     
     // Jobs
     const jobsList = document.getElementById('jobsList');
+    const targetSvg = '<svg class="target-icon" viewBox="0 0 16 16" style="width:16px;height:16px;flex-shrink:0"><circle cx="8" cy="8" r="6.5" fill="none" stroke="#9B9B9B" stroke-width="1.2"/><circle cx="8" cy="8" r="3.5" fill="none" stroke="#9B9B9B" stroke-width="1.2"/><circle cx="8" cy="8" r="1" fill="#9B9B9B"/></svg>';
     r.jobs.forEach(job => {
         const matchClass = job.match >= 80 ? '' : ' medium';
         jobsList.innerHTML += `
-            <div class="job-card">
-                <div class="job-info">
-                    <div class="job-title">${job.title}</div>
-                    <div class="job-desc">${job.desc}</div>
-                    <div class="job-salary">${job.salary}</div>
+            <div class="result-job-card">
+                <div class="result-job-row">
+                    <span class="result-job-title">${targetSvg}${job.title}</span>
+                    <span class="match-badge${matchClass}">${job.match}% Match</span>
                 </div>
-                <div class="match-badge${matchClass}">${job.match}%</div>
+                <div class="result-job-meta">${job.desc} · <span class="job-salary-inline">${job.salary}</span></div>
             </div>
         `;
     });
@@ -115,11 +115,10 @@ function renderResult(r) {
 
 function drawHexagon(scores) {
     const svg = document.getElementById('hexChart');
-    const cx = 120, cy = 120, maxR = 90;
+    const cx = 180, cy = 180, maxR = 110;
     const dims = ['R', 'I', 'A', 'S', 'E', 'C'];
-    const labels = ['Realistisch', 'Forschend', 'Kreativ', 'Sozial', 'Unternehm.', 'Organisier.'];
+    const labels = ['REALISTISCH', 'FORSCHEND', 'KREATIV', 'SOZIAL', 'UNTERNEHMEND', 'ORGANISIEREND'];
     
-    // Calculate points
     function getPoint(index, radius) {
         const angle = (Math.PI * 2 * index / 6) - Math.PI / 2;
         return {
@@ -128,38 +127,45 @@ function drawHexagon(scores) {
         };
     }
     
-    // Draw grid lines
+    let svgContent = '';
+    
+    // Grid lines (concentric hexagons)
     [0.25, 0.5, 0.75, 1.0].forEach(scale => {
         const points = dims.map((_, i) => getPoint(i, maxR * scale));
         const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z';
-        svg.innerHTML += `<path d="${path}" fill="none" stroke="#E8E8E8" stroke-width="1"/>`;
+        svgContent += `<path d="${path}" fill="none" stroke="#D9D9D4" stroke-width="1"/>`;
     });
     
-    // Draw axis lines
+    // Axis lines from center
     dims.forEach((_, i) => {
         const p = getPoint(i, maxR);
-        svg.innerHTML += `<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="#E8E8E8" stroke-width="1"/>`;
+        svgContent += `<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="#D9D9D4" stroke-width="1"/>`;
     });
     
-    // Draw data polygon
+    // Data polygon
     const dataPoints = dims.map((d, i) => {
         const val = (scores[d] || 0) / 100;
         return getPoint(i, maxR * Math.max(val, 0.08));
     });
     const dataPath = dataPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z';
-    svg.innerHTML += `<path d="${dataPath}" fill="rgba(26,58,92,0.12)" stroke="#1A3A5C" stroke-width="2.5"/>`;
+    svgContent += `<path d="${dataPath}" fill="rgba(26,58,92,0.10)" stroke="#141414" stroke-width="2"/>`;
     
-    // Draw dots and labels
+    // Labels (Letter + Name, two lines)
     dims.forEach((d, i) => {
-        const val = (scores[d] || 0) / 100;
-        const dp = getPoint(i, maxR * Math.max(val, 0.08));
-        svg.innerHTML += `<circle cx="${dp.x}" cy="${dp.y}" r="4" fill="#1A3A5C"/>`;
+        const lp = getPoint(i, maxR + 32);
+        let anchor = 'middle';
+        if (i === 1 || i === 2) anchor = 'start';
+        if (i === 4 || i === 5) anchor = 'end';
         
-        const lp = getPoint(i, maxR + 20);
-        const anchor = i === 0 || i === 3 ? 'middle' : (i < 3 ? 'start' : 'end');
-        svg.innerHTML += `<text x="${lp.x}" y="${lp.y + 4}" text-anchor="${anchor}" 
-            font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#9B9B9B">${labels[i]}</text>`;
+        // Letter (big, bold)
+        svgContent += `<text x="${lp.x}" y="${lp.y - 2}" text-anchor="${anchor}" 
+            font-family="Geist, Inter, sans-serif" font-size="16" font-weight="700" fill="#141414">${d}</text>`;
+        // Name (small, uppercase)
+        svgContent += `<text x="${lp.x}" y="${lp.y + 14}" text-anchor="${anchor}" 
+            font-family="Geist, Inter, sans-serif" font-size="9" font-weight="600" fill="#9B9B9B" letter-spacing="0.05em">${labels[i]}</text>`;
     });
+    
+    svg.innerHTML = svgContent;
 }
 
 // Share functions
