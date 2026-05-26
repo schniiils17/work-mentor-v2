@@ -71,7 +71,7 @@ Regeln:
 - Deutsch, informell"""
         
         msg = claude.messages.create(
-            model="claude-haiku-4-5-20241022",
+            model="claude-sonnet-4-20250514",
             max_tokens=200,
             messages=[{"role": "user", "content": prompt}]
         )
