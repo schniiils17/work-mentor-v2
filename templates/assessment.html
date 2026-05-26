@@ -9,12 +9,14 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-height: 0;
 }
 .chat-scroll {
-    flex: 1;
+    flex: 1 1 0;
     overflow-y: auto;
     padding: 16px 0;
     -webkit-overflow-scrolling: touch;
+    max-height: 45vh;
 }
 .chat-messages {
     display: flex;
@@ -27,6 +29,9 @@
     align-items: flex-end;
     align-self: flex-start;
     max-width: 88%;
+}
+.mentor-row + .mentor-row .mentor-avatar {
+    visibility: hidden;
 }
 .mentor-avatar {
     width: 28px;
@@ -84,55 +89,41 @@
     30% { transform: translateY(-4px); opacity: 1; }
 }
 
-/* ── Quick-Reply Rating ── */
+/* ── Rating Scale ── */
 .rating-sheet {
     background: var(--bg);
     border-top: 1px solid var(--border-light);
-    padding: 20px 0 28px;
-}
-.rating-question {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-muted);
-    margin-bottom: 6px;
+    padding: 16px 0 24px;
 }
 .rating-statement {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1.3;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     color: var(--text-primary);
 }
 .rating-chips {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
 }
 .rating-chip {
-    flex: 1;
-    min-width: 0;
-    padding: 12px 4px;
+    padding: 14px 0;
     background: var(--bg-card);
     border: 1.5px solid var(--border);
-    border-radius: 12px;
+    border-radius: 10px;
     font-family: var(--font);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
     text-align: center;
     cursor: pointer;
     transition: all 0.15s ease;
     -webkit-tap-highlight-color: transparent;
-    white-space: nowrap;
-}
-.rating-chip:hover {
-    border-color: var(--accent);
 }
 .rating-chip:active {
-    transform: scale(0.96);
+    transform: scale(0.95);
 }
 .rating-chip.selected {
     background: var(--accent);
@@ -167,15 +158,14 @@
 
         <!-- Rating Chips -->
         <div class="rating-sheet" id="ratingSheet" style="display: none;">
-            <div class="rating-question">Wie sehr würde dir das Spaß machen?</div>
-            <div class="rating-statement" id="ratingStatement"></div>
+                <div class="rating-statement" id="ratingStatement"></div>
             
             <div class="rating-chips">
-                <button class="rating-chip" data-value="-2">Nö</button>
-                <button class="rating-chip" data-value="-1">Eher nicht</button>
-                <button class="rating-chip" data-value="0">Geht so</button>
-                <button class="rating-chip" data-value="1">Ja!</button>
-                <button class="rating-chip" data-value="2">Voll! 🔥</button>
+                <button class="rating-chip" data-value="-2">Gar nicht</button>
+                <button class="rating-chip" data-value="-1">Wenig</button>
+                <button class="rating-chip" data-value="0">Okay</button>
+                <button class="rating-chip" data-value="1">Gerne</button>
+                <button class="rating-chip" data-value="2">Sehr!</button>
             </div>
         </div>
     </div>
@@ -209,11 +199,11 @@ const magicMoments = {
 };
 
 const valueLabels = {
-    '-2': 'Nö',
-    '-1': 'Eher nicht',
-    '0': 'Geht so',
-    '1': 'Ja!',
-    '2': 'Voll! 🔥'
+    '-2': 'Gar nicht',
+    '-1': 'Wenig',
+    '0': 'Okay',
+    '1': 'Gerne',
+    '2': 'Sehr!'
 };
 
 function scrollToBottom() {
