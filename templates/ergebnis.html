@@ -18,12 +18,12 @@
 <script>
 // Tier-Tiere basierend auf Top-RIASEC-Dimension
 const TIERS = {
-    R: { name: "Der Wal", label: "REALISTISCH", emoji: "🐋", color: "#9CA3AF", colorLight: "#F0F0F0", quote: "Ich red nicht lang — ich machs einfach.", tagline: "praktischem Instinkt", superkraft: "Dinge bauen, die funktionieren — während andere noch planen.", kryptonit: "Endlose Meetings ohne Ergebnis." },
-    I: { name: "Die Eule", label: "FORSCHEND", emoji: "🦉", color: "#3B82F6", colorLight: "#EBF2FF", quote: "Ich will verstehen, warum es funktioniert.", tagline: "analytischem Blick", superkraft: "Muster erkennen, die andere übersehen.", kryptonit: "Entscheidungen treffen ohne genug Daten." },
-    A: { name: "Der Fuchs", label: "KREATIV", emoji: "🦊", color: "#F59E0B", colorLight: "#FFF8E1", quote: "Regeln? Ich mach meine eigenen.", tagline: "kreativem Touch", superkraft: "Ideen haben, auf die sonst keiner kommt.", kryptonit: "Starre Prozesse und Mikromanagement." },
-    S: { name: "Der Delphin", label: "SOZIAL", emoji: "🐬", color: "#14B8A6", colorLight: "#E6FAF5", quote: "Menschen sind mein Ding.", tagline: "empathischer Stärke", superkraft: "Räume schaffen, in denen sich Menschen öffnen.", kryptonit: "Konflikte, die keiner ansprechen will." },
-    E: { name: "Der Adler", label: "UNTERNEHMERISCH", emoji: "🦅", color: "#E85A1A", colorLight: "#FDEEE3", quote: "Wo andere Risiko sehen, seh ich Chancen.", tagline: "unternehmerischem Drive", superkraft: "Leute begeistern, bevor du selbst weißt, wovon du redest.", kryptonit: "Jemand sagt: Das haben wir schon immer so gemacht." },
-    C: { name: "Der Oktopus", label: "ORGANISIEREND", emoji: "🐙", color: "#8B5CF6", colorLight: "#F3EEFF", quote: "Ordnung ist nicht langweilig — Ordnung ist Macht.", tagline: "systematischem Verstand", superkraft: "Chaos in Struktur verwandeln, ohne dass es jemand merkt.", kryptonit: "Wenn alle mal schauen sagen statt zu planen." }
+    R: { name: "Der Wolf", label: "REALISTISCH", svg: "/static/img/wolf.svg", color: "#9CA3AF", colorLight: "#F0F0F0", quote: "Ich red nicht lang — ich machs einfach.", tagline: "praktischem Instinkt", superkraft: "Dinge bauen, die funktionieren — während andere noch planen.", kryptonit: "Endlose Meetings ohne Ergebnis." },
+    I: { name: "Die Eule", label: "FORSCHEND", svg: "/static/img/eule.svg", color: "#3B82F6", colorLight: "#EBF2FF", quote: "Ich will verstehen, warum es funktioniert.", tagline: "analytischem Blick", superkraft: "Muster erkennen, die andere übersehen.", kryptonit: "Entscheidungen treffen ohne genug Daten." },
+    A: { name: "Der Fuchs", label: "KREATIV", svg: "/static/img/fuchs.svg", color: "#F59E0B", colorLight: "#FFF8E1", quote: "Regeln? Ich mach meine eigenen.", tagline: "kreativem Touch", superkraft: "Ideen haben, auf die sonst keiner kommt.", kryptonit: "Starre Prozesse und Mikromanagement." },
+    S: { name: "Der Delphin", label: "SOZIAL", svg: "/static/img/delphin.svg", color: "#14B8A6", colorLight: "#E6FAF5", quote: "Menschen sind mein Ding.", tagline: "empathischer Stärke", superkraft: "Räume schaffen, in denen sich Menschen öffnen.", kryptonit: "Konflikte, die keiner ansprechen will." },
+    E: { name: "Der Adler", label: "UNTERNEHMERISCH", svg: "/static/img/adler.svg", color: "#E85A1A", colorLight: "#FDEEE3", quote: "Wo andere Risiko sehen, seh ich Chancen.", tagline: "unternehmerischem Drive", superkraft: "Leute begeistern, bevor du selbst weißt, wovon du redest.", kryptonit: "Jemand sagt: Das haben wir schon immer so gemacht." },
+    C: { name: "Der Oktopus", label: "ORGANISIEREND", svg: "/static/img/oktopus.svg", color: "#8B5CF6", colorLight: "#F3EEFF", quote: "Ordnung ist nicht langweilig — Ordnung ist Macht.", tagline: "systematischem Verstand", superkraft: "Chaos in Struktur verwandeln, ohne dass es jemand merkt.", kryptonit: "Wenn alle mal schauen sagen statt zu planen." }
 };
 
 function buildHexagon(scores, color) {
@@ -102,7 +102,8 @@ function render() {
     const code = data.code || 'EA';
     const topKey = code[0];
     const secondKey = code[1];
-    const tier = TIERS[topKey];
+        const CHAMELEON = { name: "Das Cham\u00e4leon", label: "ANPASSUNGSF\u00c4HIG", svg: "/static/img/chamaeleon.svg", color: "#7C3AED", colorLight: "#F3EEFF", quote: "Ich passe mich an \u2014 und genau das ist meine St\u00e4rke.", tagline: "vielseitigem Instinkt", superkraft: "Zwischen Welten \u00fcbersetzen, die sonst nicht miteinander reden.", kryptonit: "Auf EINE Schiene festgelegt werden." };
+    const tier = data.is_generalist ? CHAMELEON : TIERS[topKey];
     const secondTier = TIERS[secondKey];
     
     if (!tier) {
@@ -120,7 +121,7 @@ function render() {
         <!-- Hero Card -->
         <div class="tier-hero-card" style="background: ${tier.color}; color: white; margin-top: 12px;">
             <div class="tier-label-pill">${tier.label}</div>
-            <div class="tier-illustration">${tier.emoji}</div>
+            <img class="tier-illustration" src="${tier.svg}" alt="${tier.name}" style="width: 140px; height: auto; margin: 20px auto; display: block; filter: brightness(0) invert(1);">
         </div>
         
         <div class="tier-type-label" style="color: ${tier.color}; margin-top: 20px;">${tier.label}</div>
