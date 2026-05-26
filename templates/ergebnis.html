@@ -166,7 +166,7 @@ function render() {
         <!-- Job Match -->
         <div class="job-match-card" style="margin-top: 16px;">
             <h3 class="job-match-title">Und wo landen Leute wie du?</h3>
-            <p class="job-match-text" style="margin-top:6px;">Dein Typ ist selten — nur 8% haben das gleiche Profil. Wir haben gecheckt, welche Jobs wirklich zu dir passen.</p>
+            <p class="job-match-text" style="margin-top:6px;">${data.ai_job_teaser || 'Wir haben gecheckt, welche Jobs zu deinem Profil passen.'}</p>
             <a href="/jobs" class="btn btn-primary" style="margin-top: 16px;">Zeig mir meine Top-Jobs →</a>
         </div>
         

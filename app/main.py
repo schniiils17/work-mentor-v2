@@ -58,24 +58,43 @@ async def post_assess(req: AssessmentRequest):
         sorted_dims = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         profile = ", ".join([f"{_dim_label(d)}:{v}" for d, v in sorted_dims])
         
-        prompt = f"""Schreib 2-3 kurze Saetze ueber jemanden mit diesem Profil.
+        jobs_list = ", ".join([j["title"] for j in result.get("jobs", [])])
+        
+        prompt = f"""Zwei Aufgaben. Antworte in genau diesem Format:
 
-Scores: {profile}
+BESCHREIBUNG: [2-3 kurze Saetze]
+JOB_TEASER: [1 Satz]
+
+Profil-Scores: {profile}
 Typ: {d1}-{d2}{" (Generalist)" if is_gen else ""}
+Passende Jobs: {jobs_list}
 
-Regeln:
+Regeln fuer BESCHREIBUNG:
 - Einfache Sprache. Kurze Saetze. Wie ein Kumpel der dich gut einschaetzt.
 - Vermutend: wahrscheinlich, vermutlich, koennte sein
 - Sag was die Person antreibt und was sie eher nervt
-- Max 3 Saetze, keine Fachbegriffe, kein Berater-Deutsch
-- Deutsch, Du-Form"""
+- Max 3 Saetze, keine Fachbegriffe
+- Deutsch, Du-Form
+
+Regeln fuer JOB_TEASER:
+- 1 kurzer Satz der neugierig auf die Job-Matches macht
+- Bezieh dich auf das konkrete Profil
+- Kein gelogen-klingendes Zeug wie nur 8 Prozent haben dein Profil"""
         
         msg = claude.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=200,
+            max_tokens=250,
             messages=[{"role": "user", "content": prompt}]
         )
-        result["ai_description"] = msg.content[0].text
+        text = msg.content[0].text
+        
+        if "BESCHREIBUNG:" in text and "JOB_TEASER:" in text:
+            parts = text.split("JOB_TEASER:")
+            result["ai_description"] = parts[0].replace("BESCHREIBUNG:", "").strip()
+            result["ai_job_teaser"] = parts[1].strip()
+        else:
+            result["ai_description"] = text
+            result["ai_job_teaser"] = None
     except Exception as e:
         result["ai_description"] = None
         result["ai_error"] = str(e)
