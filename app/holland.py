@@ -11,7 +11,7 @@ C = Conventional (Konventionell/Organisierend)
 
 36 Aussagen (6 pro Dimension) auf 5-Punkte Likert-Skala.
 Items basieren auf dem O*NET Interest Profiler des US Department of Labor (Public Domain),
-uebersetzt und für den deutschen Sprachraum adaptiert.
+übersetzt und für den deutschen Sprachraum adaptiert.
 
 Methodik:
 - User bewertet jede Aussage: "Wie sehr wuerde dir das Spass machen?"
@@ -84,77 +84,77 @@ ITEMS = [
 TYPE_MAP = {
     "RI": {
         "name": "Der Technische Analyst",
-        "description": "Du kombinierst praktisches Geschick mit analytischem Denken. Du willst verstehen wie Dinge funktionieren — und sie dann besser machen.",
+        "description": "Vermutlich willst du nicht nur wissen WAS funktioniert, sondern WARUM. Und dann machst du es besser.",
         "strengths": ["Problemlöser", "Technisch versiert", "Analytisch"]
     },
     "RA": {
         "name": "Der Handwerker-Künstler",
-        "description": "Du erschaffst gerne Dinge mit deinen Händen — aber mit einem kreativen Twist. Qualität und Ästhetik sind dir wichtig.",
+        "description": "Es könnte sein, dass du Dinge gerne mit deinen Händen erschaffst — aber mit einem kreativen Twist. Qualität und Ästhetik dürften dir wichtig sein.",
         "strengths": ["Kreativ-praktisch", "Detailverliebt", "Handwerklich"]
     },
     "RS": {
         "name": "Der Praktische Helfer",
-        "description": "Du packst gerne an und hilfst dabei anderen. Nicht mit Worten, sondern mit Taten.",
+        "description": "Wahrscheinlich bist du jemand, der lieber anpackt als redet — und dabei gerne anderen hilft.",
         "strengths": ["Hilfsbereit", "Zupackend", "Verlässlich"]
     },
     "RE": {
         "name": "Der Macher",
-        "description": "Du willst Dinge nicht nur planen — du willst sie umsetzen. Schnell, pragmatisch, ergebnisorientiert.",
+        "description": "Vermutlich reicht dir Planen allein nicht — du willst Ergebnisse sehen. Schnell, pragmatisch, hands-on.",
         "strengths": ["Umsetzungsstark", "Pragmatisch", "Führend"]
     },
     "RC": {
         "name": "Der Systematiker",
-        "description": "Du liebst Ordnung und Struktur in der praktischen Welt. Prozesse optimieren, Systeme aufbauen, alles an seinem Platz.",
+        "description": "Gut möglich, dass du Ordnung und Struktur schätzt — Prozesse optimieren, Systeme aufbauen, alles an seinem Platz.",
         "strengths": ["Organisiert", "Zuverlässig", "Strukturiert"]
     },
     "IA": {
         "name": "Der Visionäre Denker",
-        "description": "Du verbindest tiefes Nachdenken mit kreativen Ideen. Du siehst Muster wo andere Chaos sehen.",
+        "description": "Vermutlich verbindest du tiefes Nachdenken mit kreativen Ideen. Wo andere Chaos sehen, erkennst du wahrscheinlich Muster.",
         "strengths": ["Innovativ", "Tiefgründig", "Visionär"]
     },
     "IS": {
         "name": "Der Einfühlsame Forscher",
-        "description": "Du willst Menschen verstehen — wirklich verstehen. Nicht oberflächlich, sondern was sie antreibt und bewegt.",
+        "description": "Es könnte sein, dass du Menschen wirklich verstehen willst — nicht oberflächlich, sondern was sie antreibt und bewegt.",
         "strengths": ["Empathisch", "Analytisch", "Einfühlsam"]
     },
     "IE": {
         "name": "Der Strategische Kopf",
-        "description": "Du denkst in Systemen und willst sie nutzen um etwas aufzubauen. Wissen ist für dich kein Selbstzweck — du willst es anwenden.",
+        "description": "Vermutlich denkst du in Systemen und willst Wissen nicht nur sammeln, sondern anwenden — um etwas aufzubauen.",
         "strengths": ["Strategisch", "Wissbegierig", "Durchsetzungsstark"]
     },
     "IC": {
         "name": "Der Präzise Denker",
-        "description": "Genauigkeit und Tiefe sind deine Superkräfte. Du gräbst tiefer als andere und sorgst dafür dass alles stimmt.",
+        "description": "Genauigkeit und Tiefe könnten deine Superkräfte sein. Du gräbst vermutlich tiefer als andere — und merkst, wenn etwas nicht stimmt.",
         "strengths": ["Genau", "Gründlich", "Analytisch"]
     },
     "AS": {
         "name": "Der Kreative Helfer",
-        "description": "Du nutzt deine Kreativität um anderen zu helfen. Ob durch Kunst, Worte oder Design — du inspirierst Menschen.",
+        "description": "Vielleicht nutzt du deine Kreativität, um anderen zu helfen — ob durch Kunst, Worte oder Design.",
         "strengths": ["Inspirierend", "Einfühlsam", "Kreativ"]
     },
     "AE": {
         "name": "Der Kreative Stratege",
-        "description": "Du brauchst Gestaltungsfreiheit UND willst etwas bewegen. Routine killt dich — du willst Neues erschaffen und andere davon überzeugen. Du denkst gross und handelst schnell.",
+        "description": "Vermutlich brauchst du Gestaltungsfreiheit UND willst etwas bewegen. Routine dürfte dich killen — du willst wahrscheinlich Neues erschaffen und andere davon überzeugen.",
         "strengths": ["Innovativ", "Überzeugend", "Ideenreich"]
     },
     "AC": {
         "name": "Der Ästhetische Perfektionist",
-        "description": "Für dich muss es nicht nur funktionieren — es muss auch gut aussehen. Du bringst Kreativität und Ordnung zusammen.",
+        "description": "Gut möglich, dass es dir nicht reicht wenn etwas nur funktioniert — es muss wahrscheinlich auch gut aussehen.",
         "strengths": ["Perfektionistisch", "Ästhetisch", "Organisiert"]
     },
     "SE": {
         "name": "Der People Leader",
-        "description": "Du inspirierst Menschen und bringst sie dazu ihr Bestes zu geben. Du fuehrst nicht durch Druck, sondern durch echtes Interesse an deinem Gegenüber. Beziehungen sind deine Währung.",
+        "description": "Vermutlich inspirierst du Menschen eher durch echtes Interesse als durch Druck. Wenn du führen würdest, dann wahrscheinlich über Beziehungen — nicht über Autorität.",
         "strengths": ["Charismatisch", "Empathisch", "Führungsstark"]
     },
     "SC": {
         "name": "Der Strukturierte Helfer",
-        "description": "Du hilfst gerne — aber mit System. Nicht chaotisch, sondern organisiert und verlaesslich.",
+        "description": "Wahrscheinlich hilfst du gerne — aber mit System. Nicht chaotisch, sondern organisiert und verlässlich.",
         "strengths": ["Zuverlässig", "Hilfsbereit", "Organisiert"]
     },
     "EC": {
         "name": "Der Business-Macher",
-        "description": "Du willst aufbauen, wachsen, optimieren. Du verbindest Unternehmergeist mit einem Sinn für Struktur.",
+        "description": "Vermutlich willst du aufbauen, wachsen, optimieren. Unternehmergeist gepaart mit einem Sinn für Struktur könnte dein Ding sein.",
         "strengths": ["Unternehmerisch", "Strukturiert", "Zielstrebig"]
     },
 }
@@ -175,7 +175,7 @@ JOB_DATABASE = {
     ],
     "RS": [
         {"title": "Physiotherapeut", "match": 87, "salary": "35.000 - 52.000", "desc": "Hilf Menschen durch gezielte Bewegungstherapie."},
-        {"title": "Rettungssanitaeter", "match": 83, "salary": "30.000 - 45.000", "desc": "Sei zur Stelle wenn es drauf ankommt."},
+        {"title": "Rettungssanitäter", "match": 83, "salary": "30.000 - 45.000", "desc": "Sei zur Stelle wenn es drauf ankommt."},
         {"title": "Ergotherapeut", "match": 79, "salary": "33.000 - 48.000", "desc": "Unterstütze Menschen dabei ihren Alltag zu meistern."},
     ],
     "RE": [
@@ -301,7 +301,7 @@ def get_type_info(code: str, generalist: bool = False) -> Dict:
         return {
             "name": "Das Chamäleon",
             "code": code,
-            "description": "Wo andere ein klares Stärken-Profil haben, hast du Range. Du wechselst Rollen, Branchen, Perspektiven — und nimmst aus jedem Kontext etwas mit. Selten, gefragt, schwer zu fassen.",
+            "description": "Wo andere ein klares Stärken-Profil haben, hast du vermutlich Range. Du wechselst möglicherweise Rollen, Branchen, Perspektiven — und nimmst aus jedem Kontext etwas mit.",
             "strengths": ["Vielseitig", "Anpassungsfähig", "Breit aufgestellt"]
         }
     
@@ -315,7 +315,7 @@ def get_type_info(code: str, generalist: bool = False) -> Dict:
     return {
         "name": "Der Entdecker",
         "code": code,
-        "description": "Du hast ein vielseitiges Profil — das ist eine Stärke! Du passt dich an und findest in vielen Bereichen deinen Weg.",
+        "description": "Du hast vermutlich ein vielseitiges Profil — und das könnte eine echte Stärke sein.",
         "strengths": ["Vielseitig", "Anpassungsfähig", "Neugierig"]
     }
 
