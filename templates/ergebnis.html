@@ -78,8 +78,11 @@ function buildHexagon(scores, color) {
 function render() {
     let data;
     try {
-        data = JSON.parse(sessionStorage.getItem('wm_result') || 'null');
+        const raw = sessionStorage.getItem('wm_result');
+        console.log('[WM] sessionStorage raw:', raw);
+        data = raw ? JSON.parse(raw) : null;
     } catch(e) {
+        console.error('[WM] parse error:', e);
         data = null;
     }
     
@@ -94,6 +97,7 @@ function render() {
         return;
     }
     
+    try {
     const scores = data.scores;
     const code = data.code || 'EA';
     const topKey = code[0];
@@ -102,7 +106,7 @@ function render() {
     const secondTier = TIERS[secondKey];
     
     if (!tier) {
-        document.getElementById('resultSection').innerHTML = `<p>Fehler beim Laden. <a href="/assessment">Nochmal versuchen</a></p>`;
+        document.getElementById('resultSection').innerHTML = `<p>Fehler: Unbekannter Typ "${topKey}". <a href="/assessment">Nochmal versuchen</a></p>`;
         return;
     }
     
@@ -164,6 +168,17 @@ function render() {
             <a href="#">Impressum</a> · <a href="#">Datenschutz</a>
         </div>
     `;
+}
+
+    } catch(err) {
+        console.error('[WM] render error:', err);
+        document.getElementById('resultSection').innerHTML = `
+            <div style="padding: 40px 0; text-align: center;">
+                <p style="color: red; margin-bottom: 16px;">Fehler: ${err.message}</p>
+                <a href="/assessment" class="btn btn-primary">Nochmal versuchen</a>
+            </div>
+        `;
+    }
 }
 
 render();

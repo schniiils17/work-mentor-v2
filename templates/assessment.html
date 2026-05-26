@@ -337,6 +337,7 @@ async function submitAssessment() {
     await addMentorBubble("Dein Karriere-Tier wird berechnet…", 600);
     
     try {
+        console.log('[WM] Submitting', answers.length, 'answers');
         const response = await fetch('/api/assess', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -345,15 +346,25 @@ async function submitAssessment() {
             })
         });
         
+        console.log('[WM] Response status:', response.status);
+        
+        if (!response.ok) {
+            const errText = await response.text();
+            console.error('[WM] API error:', errText);
+            throw new Error('API ' + response.status);
+        }
+        
         const result = await response.json();
+        console.log('[WM] Result:', result);
         sessionStorage.setItem('wm_result', JSON.stringify(result));
         
         setTimeout(() => {
             window.location.href = '/ergebnis';
         }, 1500);
     } catch (error) {
-        await addMentorBubble("Ups, da ist was schiefgelaufen. Versuch's nochmal.", 500);
-        setTimeout(() => { window.location.href = '/assessment'; }, 2000);
+        console.error('[WM] Submit error:', error);
+        await addMentorBubble("Ups: " + error.message + ". Versuch's nochmal.", 500);
+        setTimeout(() => { window.location.href = '/assessment'; }, 3000);
     }
 }
 
