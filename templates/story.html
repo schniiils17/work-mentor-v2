@@ -42,13 +42,13 @@ function render() {
     
     document.getElementById('storyContainer').innerHTML = `
         <div class="story-card" style="background: ${tier.color};">
-            <img src="${tier.svg}" alt="" style="position:absolute;right:-20px;bottom:10%;width:65%;opacity:0.08;filter:brightness(0) invert(1);z-index:0;pointer-events:none;">
+            <img src="${tier.svg}" alt="" style="position:absolute;right:-20px;bottom:10%;width:65%;opacity:0.08;z-index:0;pointer-events:none;">
             <div class="story-card-header">
                 <span class="story-card-brand">WORK MENTOR</span>
             </div>
             
             <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                <img class="story-card-illustration" src="${tier.svg}" alt="${tier.name}" style="width: 120px; height: auto; margin: 0 auto; display: block; filter: brightness(0) invert(1);">
+                <img class="story-card-illustration" src="${tier.svg}" alt="${tier.name}" style="width: 120px; height: auto; margin: 0 auto; display: block; ">
                 <h2 class="story-card-name">${tier.name}.</h2>
                 <p class="story-card-quote">${tier.quote}</p>
             </div>
