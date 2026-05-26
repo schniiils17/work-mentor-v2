@@ -78,6 +78,7 @@ Regeln:
         result["ai_description"] = msg.content[0].text
     except Exception as e:
         result["ai_description"] = None
+        result["ai_error"] = str(e)
     
     return result
 
