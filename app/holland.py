@@ -314,9 +314,9 @@ def assess(answers: List[Dict]) -> Dict:
     jobs = get_matching_jobs(code)
     
     # Normalisiere Scores auf 0-100 für das Hexagon
-    # Maximum pro Dimension: 4 Items × 3 Punkte = 12
-    max_possible = 12
-    min_possible = -12
+    # Maximum pro Dimension: 4 Items × 2 Punkte = 8 (5-Punkt-Skala: -2 bis +2)
+    max_possible = 8
+    min_possible = -8
     normalized_scores = {}
     for dim, val in scores.items():
         # Skaliere von [-12, +12] auf [0, 100]

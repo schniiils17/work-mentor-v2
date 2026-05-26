@@ -27,13 +27,13 @@ const TIERS = {
 };
 
 function buildHexagon(scores, color) {
-    // Für Likert-Scores: Rohwerte -12 bis +12, normalisieren auf 0-1
+    // Für Likert-Scores: Rohwerte -8 bis +8 (5-Punkt-Skala, 4 Items pro Dim)
     const dims = ['R', 'I', 'A', 'S', 'E', 'C'];
     const cx = 140, cy = 140, r = 110;
     
-    // Normalisierung: -12 → 0, +12 → 1
+    // Normalisierung: -8 → 0, +8 → 1
     function normalize(val) {
-        return Math.max(0, Math.min(1, (val + 12) / 24));
+        return Math.max(0, Math.min(1, (val + 8) / 16));
     }
     
     function getPoint(index, normVal) {

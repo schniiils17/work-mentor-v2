@@ -84,13 +84,13 @@
     30% { transform: translateY(-4px); opacity: 1; }
 }
 
-/* ── Likert Scale im Chat ── */
-.likert-sheet {
+/* ── Quick-Reply Rating ── */
+.rating-sheet {
     background: var(--bg);
     border-top: 1px solid var(--border-light);
     padding: 20px 0 28px;
 }
-.likert-question {
+.rating-question {
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
@@ -98,64 +98,46 @@
     color: var(--text-muted);
     margin-bottom: 6px;
 }
-.likert-statement {
+.rating-statement {
     font-size: 18px;
     font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1.3;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     color: var(--text-primary);
 }
-
-.likert-scale {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
-    margin: 0 auto;
-    max-width: 320px;
-}
-.likert-btn {
-    aspect-ratio: 1;
-    border: 1.5px solid var(--border);
-    background: var(--bg-card);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.18s ease;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-}
-
-/* Größenstaffelung wie 16personalities */
-.likert-btn[data-value="-3"], .likert-btn[data-value="3"] { width: 100%; }
-.likert-btn[data-value="-2"], .likert-btn[data-value="2"] { width: 86%; margin: 0 auto; }
-.likert-btn[data-value="-1"], .likert-btn[data-value="1"] { width: 72%; margin: 0 auto; }
-.likert-btn[data-value="0"] { width: 58%; margin: 0 auto; }
-
-/* Farben */
-.likert-btn.neg { border-color: #C9A878; }
-.likert-btn.pos { border-color: var(--accent); }
-.likert-btn.neutral { border-color: #B8B8B3; }
-
-.likert-btn:hover { transform: scale(1.08); }
-.likert-btn:active { transform: scale(0.95); }
-
-.likert-btn.selected.neg { background: #C9A878; border-color: #C9A878; }
-.likert-btn.selected.neutral { background: #B8B8B3; border-color: #B8B8B3; }
-.likert-btn.selected.pos { background: var(--accent); border-color: var(--accent); }
-
-.likert-labels {
+.rating-chips {
     display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-    padding: 0 4px;
-    max-width: 320px;
-    margin-left: auto;
-    margin-right: auto;
+    gap: 8px;
+    flex-wrap: wrap;
 }
-.likert-label {
-    font-size: 12px;
+.rating-chip {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 4px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-family: var(--font);
+    font-size: 13px;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: var(--text-primary);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+}
+.rating-chip:hover {
+    border-color: var(--accent);
+}
+.rating-chip:active {
+    transform: scale(0.96);
+}
+.rating-chip.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
 }
 </style>
 {% endblock %}
@@ -183,23 +165,17 @@
             </div>
         </div>
 
-        <!-- Likert Scale -->
-        <div class="likert-sheet" id="likertSheet" style="display: none;">
-            <div class="likert-question">Wie sehr würde dir das Spaß machen?</div>
-            <div class="likert-statement" id="likertStatement"></div>
+        <!-- Rating Chips -->
+        <div class="rating-sheet" id="ratingSheet" style="display: none;">
+            <div class="rating-question">Wie sehr würde dir das Spaß machen?</div>
+            <div class="rating-statement" id="ratingStatement"></div>
             
-            <div class="likert-scale">
-                <button class="likert-btn neg" data-value="-3" aria-label="Gar nicht"></button>
-                <button class="likert-btn neg" data-value="-2" aria-label="Eher nicht"></button>
-                <button class="likert-btn neg" data-value="-1" aria-label="Wenig"></button>
-                <button class="likert-btn neutral" data-value="0" aria-label="Neutral"></button>
-                <button class="likert-btn pos" data-value="1" aria-label="Ein bisschen"></button>
-                <button class="likert-btn pos" data-value="2" aria-label="Ziemlich"></button>
-                <button class="likert-btn pos" data-value="3" aria-label="Sehr gerne"></button>
-            </div>
-            <div class="likert-labels">
-                <span class="likert-label">Gar nicht</span>
-                <span class="likert-label">Sehr gerne</span>
+            <div class="rating-chips">
+                <button class="rating-chip" data-value="-2">Nö</button>
+                <button class="rating-chip" data-value="-1">Eher nicht</button>
+                <button class="rating-chip" data-value="0">Geht so</button>
+                <button class="rating-chip" data-value="1">Ja!</button>
+                <button class="rating-chip" data-value="2">Voll! 🔥</button>
             </div>
         </div>
     </div>
@@ -221,8 +197,8 @@ let answers = [];
 
 const chatMessages = document.getElementById('chatMessages');
 const chatScroll = document.getElementById('chatScroll');
-const likertSheet = document.getElementById('likertSheet');
-const likertStatement = document.getElementById('likertStatement');
+const ratingSheet = document.getElementById('ratingSheet');
+const ratingStatement = document.getElementById('ratingStatement');
 
 // Magic moments — Mentor kommentiert zwischen den Fragen
 const magicMoments = {
@@ -233,13 +209,11 @@ const magicMoments = {
 };
 
 const valueLabels = {
-    '-3': 'Gar nicht',
-    '-2': 'Eher nicht',
-    '-1': 'Wenig',
-    '0': 'Neutral',
-    '1': 'Ein bisschen',
-    '2': 'Ziemlich',
-    '3': 'Sehr gerne'
+    '-2': 'Nö',
+    '-1': 'Eher nicht',
+    '0': 'Geht so',
+    '1': 'Ja!',
+    '2': 'Voll! 🔥'
 };
 
 function scrollToBottom() {
@@ -280,27 +254,27 @@ function addUserBubble(text) {
     scrollToBottom();
 }
 
-function showLikert(item) {
-    likertStatement.textContent = item.text;
-    likertSheet.style.display = 'block';
+function showRating(item) {
+    ratingStatement.textContent = item.text;
+    ratingSheet.style.display = 'block';
     
     // Reset buttons
-    document.querySelectorAll('.likert-btn').forEach(btn => {
+    document.querySelectorAll('.rating-chip').forEach(btn => {
         btn.classList.remove('selected');
     });
     
     // Restore previous answer if going back
     const existing = answers[currentIndex];
     if (existing !== undefined && existing !== null) {
-        const btn = document.querySelector(`.likert-btn[data-value="${existing.value}"]`);
+        const btn = document.querySelector(`.rating-chip[data-value="${existing.value}"]`);
         if (btn) btn.classList.add('selected');
     }
     
     scrollToBottom();
 }
 
-function hideLikert() {
-    likertSheet.style.display = 'none';
+function hideRating() {
+    ratingSheet.style.display = 'none';
 }
 
 async function showItem(index) {
@@ -319,17 +293,17 @@ async function showItem(index) {
         }
     }
     
-    // Show likert
-    showLikert(item);
+    // Show rating
+    showRating(item);
 }
 
-// Likert button clicks
-document.querySelectorAll('.likert-btn').forEach(btn => {
+// Rating chip clicks
+document.querySelectorAll('.rating-chip').forEach(btn => {
     btn.addEventListener('click', function() {
         const value = parseInt(this.dataset.value);
         
         // Visual feedback
-        document.querySelectorAll('.likert-btn').forEach(b => b.classList.remove('selected'));
+        document.querySelectorAll('.rating-chip').forEach(b => b.classList.remove('selected'));
         this.classList.add('selected');
         
         // Store
@@ -340,7 +314,7 @@ document.querySelectorAll('.likert-btn').forEach(btn => {
         
         // Show as user bubble + next
         setTimeout(async () => {
-            hideLikert();
+            hideRating();
             addUserBubble(valueLabels[String(value)]);
             
             currentIndex++;
@@ -360,7 +334,7 @@ function goBack() {
         // Remove last user bubble
         const bubbles = chatMessages.querySelectorAll('.chat-bubble.user');
         if (bubbles.length) bubbles[bubbles.length - 1].remove();
-        showLikert(items[currentIndex]);
+        showRating(items[currentIndex]);
         document.getElementById('itemCounter').textContent = `${currentIndex + 1} von ${items.length}`;
         document.getElementById('progressFill').style.width = `${((currentIndex + 1) / items.length) * 100}%`;
         document.getElementById('backBtn').style.visibility = currentIndex > 0 ? 'visible' : 'hidden';
