@@ -147,17 +147,19 @@ h1 {
 h1 .underline {
     position: relative;
     display: inline-block;
+    white-space: nowrap;
 }
 
 h1 .underline::after {
     content: '';
     position: absolute;
-    left: 0;
-    bottom: -4px;
-    width: 100%;
-    height: 8px;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8'%3E%3Cpath d='M0 5 Q25 0 50 5 T100 5 T150 5 T200 5' stroke='%23E85A1A' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center;
+    left: -2%;
+    bottom: 2px;
+    width: 104%;
+    height: 6px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8'%3E%3Cpath d='M0 5 Q25 1 50 5 T100 5 T150 5 T200 5' stroke='%231A3A5C' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center;
     background-size: 100% 100%;
+    pointer-events: none;
 }
 
 h2 {

@@ -283,6 +283,9 @@ async function showItem(index) {
         }
     }
     
+    // Show question as mentor bubble
+    await addMentorBubble(item.text, 500);
+    
     // Show rating
     showRating(item);
 }
@@ -305,7 +308,7 @@ document.querySelectorAll('.rating-chip').forEach(btn => {
         // Show as user bubble + next
         setTimeout(async () => {
             hideRating();
-            addUserBubble(valueLabels[String(value)]);
+            addUserBubble(valueLabels[String(value)]);    
             
             currentIndex++;
             
