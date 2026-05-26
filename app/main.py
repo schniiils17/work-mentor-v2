@@ -23,14 +23,12 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 # ─── API ─────────────────────────────────────────────────────────────
 
-class ChatAnswer(BaseModel):
-    question_id: int
-    riasec: str
-    text: str
+class Answer(BaseModel):
+    item_id: int
+    value: int  # -3 to +3 (Likert scale)
 
 class AssessmentRequest(BaseModel):
-    answers: List[ChatAnswer]
-    scores: dict = None
+    answers: List[Answer]
 
 
 @app.get("/api/items")
@@ -41,24 +39,10 @@ async def get_items():
 
 @app.post("/api/assess")
 async def post_assess(req: AssessmentRequest):
-    """Berechne das Ergebnis aus den Chat-Antworten."""
-    # V3: scores kommen direkt vom Frontend (Chat-basiert)
-    if req.scores:
-        scores = req.scores
-    else:
-        # Fallback: aus Antworten berechnen
-        scores = {"R": 0, "I": 0, "A": 0, "S": 0, "E": 0, "C": 0}
-        for a in req.answers:
-            scores[a.riasec] = scores.get(a.riasec, 0) + 1
-    
-    # Top-Typ bestimmen
-    top_key = max(scores, key=scores.get)
-    
-    return {
-        "scores": scores,
-        "top_type": top_key,
-        "version": "3.0"
-    }
+    """Berechne das Ergebnis aus den Likert-Antworten."""
+    answers = [{"item_id": a.item_id, "value": a.value} for a in req.answers]
+    result = assess(answers)
+    return result
 
 
 # ─── Frontend Routes ─────────────────────────────────────────────────

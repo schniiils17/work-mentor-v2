@@ -59,47 +59,8 @@
     border-radius: 16px 16px 4px 16px;
     align-self: flex-end;
     max-width: 85%;
-}
-.answer-sheet {
-    background: var(--bg);
-    border-top: 1px solid var(--border-light);
-    padding: 16px 0 24px;
-}
-.answer-sheet-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-muted);
-    margin-bottom: 10px;
-}
-.answer-chips {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-.answer-chip {
-    width: 100%;
-    text-align: left;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 12px 16px;
-    border-radius: 12px;
-    font-family: var(--font);
+    padding: 10px 16px;
     font-size: 14px;
-    line-height: 1.4;
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: var(--transition);
-    -webkit-tap-highlight-color: transparent;
-}
-.answer-chip:hover {
-    border-color: var(--accent);
-}
-.answer-chip:active, .answer-chip.selected {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
 }
 .typing-indicator {
     display: inline-flex;
@@ -122,6 +83,80 @@
     0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
     30% { transform: translateY(-4px); opacity: 1; }
 }
+
+/* ── Likert Scale im Chat ── */
+.likert-sheet {
+    background: var(--bg);
+    border-top: 1px solid var(--border-light);
+    padding: 20px 0 28px;
+}
+.likert-question {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+.likert-statement {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    margin-bottom: 24px;
+    color: var(--text-primary);
+}
+
+.likert-scale {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin: 0 auto;
+    max-width: 320px;
+}
+.likert-btn {
+    aspect-ratio: 1;
+    border: 1.5px solid var(--border);
+    background: var(--bg-card);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Größenstaffelung wie 16personalities */
+.likert-btn[data-value="-3"], .likert-btn[data-value="3"] { width: 100%; }
+.likert-btn[data-value="-2"], .likert-btn[data-value="2"] { width: 86%; margin: 0 auto; }
+.likert-btn[data-value="-1"], .likert-btn[data-value="1"] { width: 72%; margin: 0 auto; }
+.likert-btn[data-value="0"] { width: 58%; margin: 0 auto; }
+
+/* Farben */
+.likert-btn.neg { border-color: #C9A878; }
+.likert-btn.pos { border-color: var(--accent); }
+.likert-btn.neutral { border-color: #B8B8B3; }
+
+.likert-btn:hover { transform: scale(1.08); }
+.likert-btn:active { transform: scale(0.95); }
+
+.likert-btn.selected.neg { background: #C9A878; border-color: #C9A878; }
+.likert-btn.selected.neutral { background: #B8B8B3; border-color: #B8B8B3; }
+.likert-btn.selected.pos { background: var(--accent); border-color: var(--accent); }
+
+.likert-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding: 0 4px;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.likert-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
 </style>
 {% endblock %}
 
@@ -131,13 +166,13 @@
     <!-- Header -->
     <header class="header">
         <a href="/" class="logo"><span class="logo-mark">M</span>Work Mentor</a>
-        <span class="progress-label" id="questionCounter">1 von 12</span>
+        <span class="progress-label" id="itemCounter">1 von 24</span>
     </header>
 
     <!-- Progress -->
     <div class="progress-section">
         <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 8%"></div>
+            <div class="progress-fill" id="progressFill" style="width: 4%"></div>
         </div>
     </div>
 
@@ -145,17 +180,33 @@
     <div class="chat-wrapper">
         <div class="chat-scroll" id="chatScroll">
             <div class="chat-messages" id="chatMessages">
-                <!-- Messages inserted by JS -->
             </div>
         </div>
 
-        <!-- Answer chips -->
-        <div class="answer-sheet" id="answerSheet" style="display: none;">
-            <div class="answer-sheet-label">Antwort wählen</div>
-            <div class="answer-chips" id="answerChips">
-                <!-- Chips inserted by JS -->
+        <!-- Likert Scale -->
+        <div class="likert-sheet" id="likertSheet" style="display: none;">
+            <div class="likert-question">Wie sehr würde dir das Spaß machen?</div>
+            <div class="likert-statement" id="likertStatement"></div>
+            
+            <div class="likert-scale">
+                <button class="likert-btn neg" data-value="-3" aria-label="Gar nicht"></button>
+                <button class="likert-btn neg" data-value="-2" aria-label="Eher nicht"></button>
+                <button class="likert-btn neg" data-value="-1" aria-label="Wenig"></button>
+                <button class="likert-btn neutral" data-value="0" aria-label="Neutral"></button>
+                <button class="likert-btn pos" data-value="1" aria-label="Ein bisschen"></button>
+                <button class="likert-btn pos" data-value="2" aria-label="Ziemlich"></button>
+                <button class="likert-btn pos" data-value="3" aria-label="Sehr gerne"></button>
+            </div>
+            <div class="likert-labels">
+                <span class="likert-label">Gar nicht</span>
+                <span class="likert-label">Sehr gerne</span>
             </div>
         </div>
+    </div>
+
+    <!-- Back -->
+    <div style="padding: 8px 0 16px;">
+        <span class="back-link" id="backBtn" style="visibility: hidden; cursor: pointer; font-size: 14px; color: var(--text-secondary);" onclick="goBack()">← Zurück</span>
     </div>
 
 </div>
@@ -163,149 +214,40 @@
 
 {% block scripts %}
 <script>
-// ── Questions (12 chat-style RIASEC questions) ──
-const questions = [
-    {
-        id: 1,
-        mentor: ["Schön, dass du da bist. 👋", "Ich stelle dir gleich ein paar Situationen vor — antworte einfach mit dem, was am ehesten passt.", "Stell dir vor, du ziehst in eine neue Wohnung. Umzugstag. Was machst du?"],
-        answers: [
-            { text: "Möbel aufbauen, Löcher bohren, alles selbst machen", riasec: "R" },
-            { text: "Erst mal recherchieren: welches Regal passt am besten?", riasec: "I" },
-            { text: "Wände streichen, Deko aussuchen, Vibe gestalten", riasec: "A" },
-            { text: "Freunde einladen und gemeinsam anpacken", riasec: "S" }
-        ]
-    },
-    {
-        id: 2,
-        mentor: ["Jetzt mal ehrlich — was wäre für dich der absolute Horror-Job?"],
-        answers: [
-            { text: "8 Stunden Excel ausfüllen, allein, ohne Kontext", riasec: "E" },
-            { text: "Den ganzen Tag Leuten am Telefon was verkaufen", riasec: "I" },
-            { text: "Jeden Tag das Gleiche machen, null Abwechslung", riasec: "A" },
-            { text: "In ner Gruppe arbeiten wo alle durcheinander reden", riasec: "R" }
-        ]
-    },
-    {
-        id: 3,
-        magic: "Interessant. Langsam seh ich ein Muster… 🧐",
-        mentor: ["Du bekommst ein Projekt mit komplett freier Hand. Was machst du zuerst?"],
-        answers: [
-            { text: "Prototyp bauen — Learning by Doing", riasec: "R" },
-            { text: "Daten sammeln und analysieren", riasec: "I" },
-            { text: "Brainstormen und kreative Ansätze skizzieren", riasec: "A" },
-            { text: "Team zusammenstellen und Rollen verteilen", riasec: "E" }
-        ]
-    },
-    {
-        id: 4,
-        mentor: ["Freitagnachmittag, alles erledigt. Was machst du freiwillig?"],
-        answers: [
-            { text: "An nem Side-Project basteln", riasec: "R" },
-            { text: "Einen Artikel oder Podcast zu einem Thema das mich interessiert", riasec: "I" },
-            { text: "Etwas Kreatives — zeichnen, Musik, schreiben", riasec: "A" },
-            { text: "Mich mit Kollegen treffen oder jemandem helfen", riasec: "S" }
-        ]
-    },
-    {
-        id: 5,
-        mentor: ["Dein bester Kumpel hat eine Geschäftsidee. Welche Rolle übernimmst du?"],
-        answers: [
-            { text: "Das Produkt bauen", riasec: "R" },
-            { text: "Marktforschung und Zahlen", riasec: "I" },
-            { text: "Branding und Design", riasec: "A" },
-            { text: "Leute überzeugen und Vertrieb", riasec: "E" }
-        ]
-    },
-    {
-        id: 6,
-        magic: "Du bist ehrlich mit dir selbst — das ist selten. 💪",
-        mentor: ["Was nervt dich am meisten an anderen Menschen im Job?"],
-        answers: [
-            { text: "Wenn sie nur reden aber nichts umsetzen", riasec: "R" },
-            { text: "Wenn sie Entscheidungen ohne Fakten treffen", riasec: "I" },
-            { text: "Wenn sie null Kreativität oder Offenheit mitbringen", riasec: "A" },
-            { text: "Wenn sie kein Teamgefühl haben", riasec: "S" }
-        ]
-    },
-    {
-        id: 7,
-        mentor: ["Du musst eine Präsentation halten. Wie bereitest du dich vor?"],
-        answers: [
-            { text: "Live-Demo vorbereiten — zeigen statt reden", riasec: "R" },
-            { text: "Daten und Fakten zusammentragen, Struktur planen", riasec: "I" },
-            { text: "Storytelling — es muss sich gut anfühlen", riasec: "A" },
-            { text: "Fragen an das Publikum einbauen, interaktiv machen", riasec: "S" }
-        ]
-    },
-    {
-        id: 8,
-        mentor: ["Welcher Satz beschreibt dich am besten?"],
-        answers: [
-            { text: "Ich mache lieber als ich plane", riasec: "R" },
-            { text: "Ich will verstehen warum etwas funktioniert", riasec: "I" },
-            { text: "Regeln sind da um gebrochen zu werden", riasec: "A" },
-            { text: "Ich spüre wie es anderen geht", riasec: "S" }
-        ]
-    },
-    {
-        id: 9,
-        magic: "Fast geschafft. Die letzten Fragen sind die spannendsten. 🎯",
-        mentor: ["In der Schule — was hat dir am meisten Spaß gemacht?"],
-        answers: [
-            { text: "Werken, Sport, praktische Fächer", riasec: "R" },
-            { text: "Mathe, Physik, Logik-Rätsel", riasec: "I" },
-            { text: "Kunst, Musik, Deutsch-Aufsätze", riasec: "A" },
-            { text: "Gruppenarbeiten und Projekte", riasec: "S" }
-        ]
-    },
-    {
-        id: 10,
-        mentor: ["Du hast 10.000€ geschenkt bekommen. Was machst du damit?"],
-        answers: [
-            { text: "Werkzeug, Ausrüstung, etwas Handfestes", riasec: "R" },
-            { text: "Investieren und Rendite berechnen", riasec: "C" },
-            { text: "Reisen, Erlebnisse, Inspiration", riasec: "A" },
-            { text: "Ein Business starten", riasec: "E" }
-        ]
-    },
-    {
-        id: 11,
-        mentor: ["Was ist dir wichtiger im Job?"],
-        answers: [
-            { text: "Freiheit und Eigenverantwortung", riasec: "E" },
-            { text: "Sicherheit und klare Strukturen", riasec: "C" },
-            { text: "Sinn und Menschen helfen", riasec: "S" },
-            { text: "Abwechslung und neue Herausforderungen", riasec: "A" }
-        ]
-    },
-    {
-        id: 12,
-        mentor: ["Letzte Frage. Wenn du morgen einen komplett neuen Job anfangen könntest — was zieht dich an?"],
-        answers: [
-            { text: "Etwas mit den Händen erschaffen", riasec: "R" },
-            { text: "Komplexe Probleme lösen", riasec: "I" },
-            { text: "Menschen führen und Visionen umsetzen", riasec: "E" },
-            { text: "Ordnung in Chaos bringen", riasec: "C" }
-        ]
-    }
-];
+// Items from backend (24 Likert-Aussagen)
+const items = {{ items | tojson }};
+let currentIndex = 0;
+let answers = [];
 
-let currentQuestion = 0;
-let userAnswers = [];
 const chatMessages = document.getElementById('chatMessages');
 const chatScroll = document.getElementById('chatScroll');
-const answerSheet = document.getElementById('answerSheet');
-const answerChips = document.getElementById('answerChips');
+const likertSheet = document.getElementById('likertSheet');
+const likertStatement = document.getElementById('likertStatement');
+
+// Magic moments — Mentor kommentiert zwischen den Fragen
+const magicMoments = {
+    0: ["Schön, dass du da bist! 👋", "Ich zeige dir gleich ein paar Tätigkeiten. Sag mir einfach, wie sehr dir das Spaß machen würde."],
+    6: ["Interessant… ich seh schon ein Muster. 🧐"],
+    12: ["Halbzeit! Du machst das super. 💪"],
+    18: ["Fast geschafft. Die letzten Fragen sind die spannendsten. 🎯"],
+};
+
+const valueLabels = {
+    '-3': 'Gar nicht',
+    '-2': 'Eher nicht',
+    '-1': 'Wenig',
+    '0': 'Neutral',
+    '1': 'Ein bisschen',
+    '2': 'Ziemlich',
+    '3': 'Sehr gerne'
+};
 
 function scrollToBottom() {
-    setTimeout(() => {
-        chatScroll.scrollTop = chatScroll.scrollHeight;
-    }, 50);
+    setTimeout(() => { chatScroll.scrollTop = chatScroll.scrollHeight; }, 50);
 }
 
 function addMentorBubble(text, delay) {
     return new Promise(resolve => {
-        // Show typing indicator
         const typingRow = document.createElement('div');
         typingRow.className = 'mentor-row';
         typingRow.innerHTML = `
@@ -320,14 +262,13 @@ function addMentorBubble(text, delay) {
         scrollToBottom();
 
         setTimeout(() => {
-            // Replace typing with actual message
             typingRow.innerHTML = `
                 <div class="mentor-avatar">M</div>
                 <div class="chat-bubble mentor">${text}</div>
             `;
             scrollToBottom();
             resolve();
-        }, delay || 800);
+        }, delay || 700);
     });
 }
 
@@ -339,96 +280,104 @@ function addUserBubble(text) {
     scrollToBottom();
 }
 
-function showAnswers(answers) {
-    answerChips.innerHTML = '';
-    answers.forEach((answer, i) => {
-        const chip = document.createElement('button');
-        chip.className = 'answer-chip';
-        chip.textContent = answer.text;
-        chip.onclick = () => selectAnswer(answer, chip);
-        answerChips.appendChild(chip);
+function showLikert(item) {
+    likertStatement.textContent = item.text;
+    likertSheet.style.display = 'block';
+    
+    // Reset buttons
+    document.querySelectorAll('.likert-btn').forEach(btn => {
+        btn.classList.remove('selected');
     });
-    answerSheet.style.display = 'block';
+    
+    // Restore previous answer if going back
+    const existing = answers[currentIndex];
+    if (existing !== undefined && existing !== null) {
+        const btn = document.querySelector(`.likert-btn[data-value="${existing.value}"]`);
+        if (btn) btn.classList.add('selected');
+    }
+    
     scrollToBottom();
 }
 
-function hideAnswers() {
-    answerSheet.style.display = 'none';
+function hideLikert() {
+    likertSheet.style.display = 'none';
 }
 
-async function selectAnswer(answer, chipEl) {
-    // Visual feedback
-    chipEl.classList.add('selected');
+async function showItem(index) {
+    const item = items[index];
     
-    // Store answer
-    userAnswers.push({
-        question_id: questions[currentQuestion].id,
-        riasec: answer.riasec,
-        text: answer.text
+    // Update UI
+    document.getElementById('itemCounter').textContent = `${index + 1} von ${items.length}`;
+    document.getElementById('progressFill').style.width = `${((index + 1) / items.length) * 100}%`;
+    document.getElementById('backBtn').style.visibility = index > 0 ? 'visible' : 'hidden';
+    
+    // Magic moment?
+    if (magicMoments[index]) {
+        for (const msg of magicMoments[index]) {
+            await addMentorBubble(msg, 600);
+            await new Promise(r => setTimeout(r, 250));
+        }
+    }
+    
+    // Show likert
+    showLikert(item);
+}
+
+// Likert button clicks
+document.querySelectorAll('.likert-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const value = parseInt(this.dataset.value);
+        
+        // Visual feedback
+        document.querySelectorAll('.likert-btn').forEach(b => b.classList.remove('selected'));
+        this.classList.add('selected');
+        
+        // Store
+        answers[currentIndex] = {
+            item_id: items[currentIndex].id,
+            value: value
+        };
+        
+        // Show as user bubble + next
+        setTimeout(async () => {
+            hideLikert();
+            addUserBubble(valueLabels[String(value)]);
+            
+            currentIndex++;
+            
+            if (currentIndex >= items.length) {
+                await submitAssessment();
+            } else {
+                await showItem(currentIndex);
+            }
+        }, 200);
     });
+});
 
-    // Hide answers, show user bubble
-    setTimeout(async () => {
-        hideAnswers();
-        addUserBubble(answer.text);
-        
-        currentQuestion++;
-        
-        // Update progress
-        document.getElementById('questionCounter').textContent = `${Math.min(currentQuestion + 1, 12)} von 12`;
-        document.getElementById('progressFill').style.width = `${((currentQuestion) / 12) * 100}%`;
-
-        if (currentQuestion >= questions.length) {
-            // Done — submit
-            await submitAssessment();
-        } else {
-            // Next question
-            await showQuestion(currentQuestion);
-        }
-    }, 300);
-}
-
-async function showQuestion(index) {
-    const q = questions[index];
-    
-    // Magic moment (mentor reaction to previous answer)
-    if (q.magic) {
-        await addMentorBubble(q.magic, 600);
-        await new Promise(r => setTimeout(r, 400));
+function goBack() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        // Remove last user bubble
+        const bubbles = chatMessages.querySelectorAll('.chat-bubble.user');
+        if (bubbles.length) bubbles[bubbles.length - 1].remove();
+        showLikert(items[currentIndex]);
+        document.getElementById('itemCounter').textContent = `${currentIndex + 1} von ${items.length}`;
+        document.getElementById('progressFill').style.width = `${((currentIndex + 1) / items.length) * 100}%`;
+        document.getElementById('backBtn').style.visibility = currentIndex > 0 ? 'visible' : 'hidden';
     }
-    
-    // Show mentor messages sequentially
-    for (let i = 0; i < q.mentor.length; i++) {
-        await addMentorBubble(q.mentor[i], i === 0 ? 700 : 900);
-        if (i < q.mentor.length - 1) {
-            await new Promise(r => setTimeout(r, 200));
-        }
-    }
-    
-    // Show answer chips
-    await new Promise(r => setTimeout(r, 300));
-    showAnswers(q.answers);
 }
 
 async function submitAssessment() {
-    await addMentorBubble("Perfekt. Ich hab alles was ich brauche. 🎯", 800);
-    await new Promise(r => setTimeout(r, 500));
+    await addMentorBubble("Perfekt — ich hab alles was ich brauche. 🎯", 700);
+    await new Promise(r => setTimeout(r, 400));
     await addMentorBubble("Dein Karriere-Tier wird berechnet…", 600);
     
-    // Calculate RIASEC scores
-    const scores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
-    userAnswers.forEach(a => {
-        scores[a.riasec] = (scores[a.riasec] || 0) + 1;
-    });
-    
-    // Send to backend
     try {
         const response = await fetch('/api/assess', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                answers: userAnswers,
-                scores: scores 
+                answers: answers.filter(a => a !== null && a !== undefined)
             })
         });
         
@@ -440,13 +389,11 @@ async function submitAssessment() {
         }, 1500);
     } catch (error) {
         await addMentorBubble("Ups, da ist was schiefgelaufen. Versuch's nochmal.", 500);
-        setTimeout(() => {
-            window.location.href = '/assessment';
-        }, 2000);
+        setTimeout(() => { window.location.href = '/assessment'; }, 2000);
     }
 }
 
 // Start
-showQuestion(0);
+showItem(0);
 </script>
 {% endblock %}
