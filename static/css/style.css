@@ -435,8 +435,8 @@ h2 {
 }
 
 .tier-hero-card .tier-illustration {
-    width: 45%;
-    max-width: 160px;
+    width: 60%;
+    max-width: 220px;
     height: auto;
     margin: 0 auto 16px;
     filter: brightness(0) invert(1);
