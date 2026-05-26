@@ -33,7 +33,7 @@ function buildHexagon(scores, color) {
     
     // Normalisierung: -12 → 0, +12 → 1
     function normalize(val) {
-        return Math.max(0, Math.min(1, (val + 8) / 16));
+        return Math.max(0, Math.min(1, (val + 12) / 24));
     }
     
     function getPoint(index, normVal) {
