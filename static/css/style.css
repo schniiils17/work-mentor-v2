@@ -394,7 +394,28 @@ h2 {
     text-align: center;
     position: relative;
     overflow: hidden;
-    min-height: 300px;
+    aspect-ratio: 1 / 1.05;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Dot/particle pattern overlay */
+.tier-hero-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px);
+    background-size: 18px 18px;
+    background-position: 0 0, 9px 9px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.tier-hero-card > * {
+    position: relative;
+    z-index: 2;
 }
 
 .tier-hero-card .tier-label-pill {
@@ -414,9 +435,11 @@ h2 {
 }
 
 .tier-hero-card .tier-illustration {
-    width: 160px;
+    width: 45%;
+    max-width: 160px;
     height: auto;
     margin: 0 auto 16px;
+    filter: brightness(0) invert(1);
 }
 
 .tier-type-label {
@@ -619,6 +642,29 @@ h2 {
     color: #FFFFFF;
 }
 
+/* Radiating sun-ray pattern */
+.story-card::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    transform: translate(-50%, -50%);
+    background: repeating-conic-gradient(
+        rgba(255,255,255,0.04) 0deg,
+        transparent 3deg,
+        transparent 12deg
+    );
+    pointer-events: none;
+    z-index: 0;
+}
+
+.story-card > * {
+    position: relative;
+    z-index: 1;
+}
+
 .story-card-header {
     display: flex;
     justify-content: space-between;
@@ -634,8 +680,10 @@ h2 {
 }
 
 .story-card-illustration {
-    width: 140px;
+    width: 120px;
+    height: auto;
     margin: 0 auto;
+    filter: brightness(0) invert(1);
 }
 
 .story-card-name {
