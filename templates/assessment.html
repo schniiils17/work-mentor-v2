@@ -345,6 +345,13 @@ async function submitAssessment() {
     await new Promise(r => setTimeout(r, 400));
     await addMentorBubble("Dein Karriere-Tier wird berechnet…", 600);
     
+    // Typing dots while API runs
+    const typingRow = document.createElement('div');
+    typingRow.className = 'mentor-row';
+    typingRow.innerHTML = '<div class="mentor-avatar">M</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+    chatMessages.appendChild(typingRow);
+    scrollToBottom();
+    
     try {
         console.log('[WM] Submitting', answers.length, 'answers');
         const response = await fetch('/api/assess', {
