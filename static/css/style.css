@@ -389,12 +389,12 @@ h2 {
    8. Karriere-Tier Result
    -------------------------------------------------------------------------- */
 .tier-hero-card {
-    border-radius: var(--radius-lg);
-    padding: 32px 24px;
+    border-radius: 20px;
+    padding: 20px;
     text-align: center;
     position: relative;
     overflow: hidden;
-    aspect-ratio: 1.15 / 1;
+    height: 280px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -423,14 +423,14 @@ h2 {
 
 .tier-hero-card .tier-label-pill {
     position: absolute;
-    top: 16px;
-    left: 16px;
-    background: rgba(255, 255, 255, 0.25);
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.22);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    padding: 4px 10px;
+    padding: 6px 14px;
     border-radius: var(--radius-full);
-    font-size: 10px;
+    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: #FFFFFF;
@@ -438,11 +438,13 @@ h2 {
 }
 
 .tier-hero-card .tier-illustration {
-    width: 55%;
-    max-width: 200px;
+    width: 65%;
+    max-width: 240px;
+    max-height: 70%;
     height: auto;
-    margin: 0 auto 8px;
+    margin: 0 auto;
     filter: brightness(0) invert(1);
+    object-fit: contain;
 }
 
 .tier-type-label {
