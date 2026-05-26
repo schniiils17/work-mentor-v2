@@ -8,9 +8,13 @@ from pydantic import BaseModel
 from typing import List
 import os
 
-from app.holland import ITEMS, assess, get_shuffled_items
+from app.holland import ITEMS, assess, get_shuffled_items, _dim_label
+import anthropic
+import os
 
-app = FastAPI(title="Work Mentor 2.0")
+app = FastAPI(title="Work Mentor 3.0")
+
+claude = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""))
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,9 +43,42 @@ async def get_items():
 
 @app.post("/api/assess")
 async def post_assess(req: AssessmentRequest):
-    """Berechne das Ergebnis aus den Likert-Antworten."""
+    """Berechne das Ergebnis aus den Likert-Antworten + KI-Beschreibung."""
     answers = [{"item_id": a.item_id, "value": a.value} for a in req.answers]
     result = assess(answers)
+    
+    # KI-Beschreibung generieren
+    try:
+        scores = result["scores"]
+        code = result["code"]
+        d1 = _dim_label(code[0])
+        d2 = _dim_label(code[1])
+        is_gen = result.get("is_generalist", False)
+        
+        sorted_dims = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        profile = ", ".join([f"{_dim_label(d)}:{v}" for d, v in sorted_dims])
+        
+        prompt = f"""Du bist ein Karriere-Mentor. Schreibe eine persoenliche 2-3 Satz Beschreibung fuer jemanden mit diesem RIASEC-Profil:
+
+Scores: {profile}
+Top-Typ: {d1}-{d2}{" (Generalist/Chamaeleon - sehr flaches Profil)" if is_gen else ""}
+
+Regeln:
+- Vermutender Ton (wahrscheinlich, vermutlich, es koennte sein)
+- Kein du bist/du machst - eher du koenntest/du wuerdest
+- Bezieh dich auf die KONKRETEN Score-Verhaeltnisse (was hoch ist vs niedrig)
+- Kurz, warm, ueberraschend treffsicher
+- Deutsch, informell"""
+        
+        msg = claude.messages.create(
+            model="claude-haiku-4-5-20250514",
+            max_tokens=200,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        result["ai_description"] = msg.content[0].text
+    except Exception as e:
+        result["ai_description"] = None
+    
     return result
 
 
