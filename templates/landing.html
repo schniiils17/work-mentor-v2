@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Work Mentor — Finde deinen Karriere-Typ{% endblock %}
+{% block title %}Work Mentor — Finde deinen Arbeitstyp{% endblock %}
 
 {% block body %}
 <div class="container landing-page">
@@ -19,191 +19,32 @@
         </div>
         
         <h1 class="animate-in animate-delay-1" style="margin-top: 16px;">
-            Welcher Job passt<br>
-            <span class="underline">wirklich<svg class="underline-stroke" viewBox="0 0 120 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 7 Q 25 2, 55 5 Q 85 7, 118 3" fill="none" stroke="#1A3A5C" stroke-width="3" stroke-linecap="round"/></svg></span> zu dir?
+            Finde raus,<br>
+            welcher<br>
+            <span class="underline">Arbeitstyp<svg class="underline-stroke" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 9 Q 50 2, 100 6 Q 150 10, 198 3" fill="none" stroke="#1A3A5C" stroke-width="3" stroke-linecap="round"/></svg></span><br>
+            du wirklich bist.
         </h1>
         
         <p class="subline animate-in animate-delay-2">
-            Basiert auf dem RIASEC-Modell der Berufspsychologie.
+            Basiert auf dem RIASEC-Modell der Berufspsychologie.<br>~5 Minuten. Kostenlos.
         </p>
 
-        <a href="/assessment" class="btn btn-primary animate-in animate-delay-2" style="margin-top: 24px;">Test starten →</a>
-        
-        <div class="trust-indicators animate-in animate-delay-3">
-            <span>~5 Min</span>
-            <span>·</span>
-            <span>Anonym</span>
-            <span>·</span>
-            <span>Kostenlos</span>
-            <span>·</span>
-            <span>Wissenschaftlich</span>
+        <!-- Tier dots -->
+        <div class="tier-dots animate-in animate-delay-2" style="margin-top: 24px;">
+            <span class="tier-dot" style="background: #9CA3AF;"></span>
+            <span class="tier-dot" style="background: #3B82F6;"></span>
+            <span class="tier-dot" style="background: #F59E0B;"></span>
+            <span class="tier-dot" style="background: #14B8A6;"></span>
+            <span class="tier-dot" style="background: #E85A1A;"></span>
+            <span class="tier-dot" style="background: #8B5CF6;"></span>
         </div>
-    </section>
+        <div class="tier-dots-label animate-in animate-delay-2">6 Typen · Einer davon bist du</div>
 
-    <!-- Preview vom Ergebnis -->
-    <section class="preview-section">
-        <div class="section-label">So sieht dein Ergebnis aus</div>
+        <a href="/assessment" class="btn btn-primary animate-in animate-delay-2" style="margin-top: 24px;">Los geht's →</a>
         
-        <div class="preview-card">
-            <div class="preview-card-header">
-                <div class="preview-hexagon">
-                    <svg viewBox="0 0 60 60">
-                        <polygon points="30,5 52,18 52,42 30,55 8,42 8,18" fill="none" stroke="#1A3A5C" stroke-width="1.5"/>
-                        <polygon points="30,12 45,21 45,38 30,46 16,38 16,21" fill="rgba(26,58,92,0.12)" stroke="#1A3A5C" stroke-width="1"/>
-                    </svg>
-                </div>
-                <div class="preview-header-text">
-                    <div class="preview-header-top">
-                        <div class="preview-code">EA · Karriere-Typ</div>
-                        <span class="example-tag">Beispiel</span>
-                    </div>
-                    <h3 class="preview-type-name">Der Kreative Stratege</h3>
-                </div>
-            </div>
-            
-            <div class="preview-jobs-label">Top 3 Matches</div>
-            <div class="preview-job-row">
-                <span class="preview-job-title">
-                    <svg class="target-icon" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="#9B9B9B" stroke-width="1.2"/><circle cx="8" cy="8" r="3.5" fill="none" stroke="#9B9B9B" stroke-width="1.2"/><circle cx="8" cy="8" r="1" fill="#9B9B9B"/></svg>
-                    UX Designer
-                </span>
-                <span class="match-badge">87% Match</span>
-            </div>
-            <div class="preview-job-row">
-                <span class="preview-job-title">
-                    <svg class="target-icon" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="#9B9B9B" stroke-width="1.2"/><circle cx="8" cy="8" r="3.5" fill="none" stroke="#9B9B9B" stroke-width="1.2"/><circle cx="8" cy="8" r="1" fill="#9B9B9B"/></svg>
-                    Produktmanager
-                </span>
-                <span class="match-badge">82% Match</span>
-            </div>
-            <div class="preview-job-row">
-                <span class="preview-job-title">
-                    <svg class="target-icon" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="#9B9B9B" stroke-width="1.2"/><circle cx="8" cy="8" r="3.5" fill="none" stroke="#9B9B9B" stroke-width="1.2"/><circle cx="8" cy="8" r="1" fill="#9B9B9B"/></svg>
-                    Startup-Gründer
-                </span>
-                <span class="match-badge medium">74% Match</span>
-            </div>
+        <div class="trust-line animate-in animate-delay-3">
+            Holland/RIASEC · Wissenschaftlich · 100% kostenlos
         </div>
-    </section>
-
-    <hr class="section-divider">
-
-    <!-- So funktioniert's -->
-    <section class="how-section">
-        <div class="section-label">So funktioniert's</div>
-        
-        <div class="how-step">
-            <div class="how-icon">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <line x1="4" y1="7" x2="20" y2="7"/>
-                    <line x1="4" y1="12" x2="20" y2="12"/>
-                    <line x1="4" y1="17" x2="20" y2="17"/>
-                    <circle cx="9" cy="7" r="2.5" fill="#FFFFFF"/>
-                    <circle cx="15" cy="12" r="2.5" fill="#FFFFFF"/>
-                    <circle cx="8" cy="17" r="2.5" fill="#FFFFFF"/>
-                </svg>
-            </div>
-            <div class="how-content">
-                <div class="how-header">
-                    <span class="how-number">01</span>
-                    <h3>24 Aussagen bewerten</h3>
-                </div>
-                <p>Wie sehr trifft das auf dich zu? Schieberegler statt Tippen.</p>
-            </div>
-        </div>
-        
-        <div class="how-step">
-            <div class="how-icon">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 3 L13.5 9 L20 10.5 L13.5 12 L12 18 L10.5 12 L4 10.5 L10.5 9 Z"/>
-                    <path d="M18 4 L18.7 6 L21 6.7 L18.7 7.5 L18 9.5 L17.3 7.5 L15 6.7 L17.3 6 Z"/>
-                </svg>
-            </div>
-            <div class="how-content">
-                <div class="how-header">
-                    <span class="how-number">02</span>
-                    <h3>Dein Karriere-Profil</h3>
-                </div>
-                <p>Wer du beruflich wirklich bist — mit Hexagon-Chart.</p>
-            </div>
-        </div>
-        
-        <div class="how-step">
-            <div class="how-icon">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="9"/>
-                    <circle cx="12" cy="12" r="5.5"/>
-                    <circle cx="12" cy="12" r="2" fill="#1A3A5C" stroke="none"/>
-                </svg>
-            </div>
-            <div class="how-content">
-                <div class="how-header">
-                    <span class="how-number">03</span>
-                    <h3>3 passende Jobs</h3>
-                </div>
-                <p>Konkrete Berufe mit Match-Score und Gehaltsspanne.</p>
-            </div>
-        </div>
-    </section>
-
-    <hr class="section-divider">
-
-    <!-- Wissenschaft -->
-    <section class="science-section">
-        <div class="pill pill-dark">
-            <span>🔬</span>
-            Wissenschaftlich fundiert
-        </div>
-        
-        <h2 class="science-headline">Auf dem internationalen Standard für Berufsorientierung.</h2>
-        
-        <p class="science-text">
-            Basiert auf John Hollands <strong>RIASEC-Modell</strong> — genutzt vom US-Arbeitsministerium (O*NET) und der Bundesagentur für Arbeit (Check-U).
-        </p>
-        
-        <div class="credibility-row">
-            O*NET · BUNDESAGENTUR · HOLLAND 1959
-        </div>
-    </section>
-
-    <hr class="section-divider">
-
-    <!-- FAQ -->
-    <section class="faq-section">
-        <div class="section-label">Häufige Fragen</div>
-        
-        <details class="faq-item">
-            <summary>
-                <span>Wie lange dauert der Test?</span>
-                <span class="faq-toggle">+</span>
-            </summary>
-            <p>Etwa 5 Minuten. Du bewertest 24 Aussagen mit einer Skala — kein Tippen, nur antippen.</p>
-        </details>
-        
-        <details class="faq-item">
-            <summary>
-                <span>Brauche ich einen Account?</span>
-                <span class="faq-toggle">+</span>
-            </summary>
-            <p>Nein. Der Test ist anonym und komplett kostenlos. Dein Ergebnis kannst du am Ende speichern oder einfach teilen.</p>
-        </details>
-        
-        <details class="faq-item">
-            <summary>
-                <span>Was ist das RIASEC-Modell?</span>
-                <span class="faq-toggle">+</span>
-            </summary>
-            <p>Eine wissenschaftliche Methode aus der Berufspsychologie, entwickelt vom Psychologen John Holland (1959). Sie ordnet Menschen 6 Karriere-Dimensionen zu: Realistisch, Forschend, Kreativ, Sozial, Unternehmerisch, Organisierend.</p>
-        </details>
-    </section>
-
-    <hr class="section-divider">
-
-    <!-- Final CTA -->
-    <section class="final-cta-section">
-        <h2 class="final-cta-headline">Bereit?</h2>
-        
-        <a href="/assessment" class="btn btn-primary">Jetzt deinen Karriere-Typ finden →</a>
     </section>
 
     <!-- Footer -->

@@ -23,12 +23,14 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 # ─── API ─────────────────────────────────────────────────────────────
 
-class Answer(BaseModel):
-    item_id: int
-    value: int  # -3 to +3 (Likert scale)
+class ChatAnswer(BaseModel):
+    question_id: int
+    riasec: str
+    text: str
 
 class AssessmentRequest(BaseModel):
-    answers: List[Answer]
+    answers: List[ChatAnswer]
+    scores: dict = None
 
 
 @app.get("/api/items")
@@ -39,10 +41,24 @@ async def get_items():
 
 @app.post("/api/assess")
 async def post_assess(req: AssessmentRequest):
-    """Berechne das Ergebnis aus den Antworten."""
-    answers = [{"item_id": a.item_id, "value": a.value} for a in req.answers]
-    result = assess(answers)
-    return result
+    """Berechne das Ergebnis aus den Chat-Antworten."""
+    # V3: scores kommen direkt vom Frontend (Chat-basiert)
+    if req.scores:
+        scores = req.scores
+    else:
+        # Fallback: aus Antworten berechnen
+        scores = {"R": 0, "I": 0, "A": 0, "S": 0, "E": 0, "C": 0}
+        for a in req.answers:
+            scores[a.riasec] = scores.get(a.riasec, 0) + 1
+    
+    # Top-Typ bestimmen
+    top_key = max(scores, key=scores.get)
+    
+    return {
+        "scores": scores,
+        "top_type": top_key,
+        "version": "3.0"
+    }
 
 
 # ─── Frontend Routes ─────────────────────────────────────────────────
@@ -65,6 +81,11 @@ async def ergebnis(request: Request):
     return templates.TemplateResponse("ergebnis.html", {"request": request})
 
 
+@app.get("/story", response_class=HTMLResponse)
+async def story(request: Request):
+    return templates.TemplateResponse("story.html", {"request": request})
+
+
 @app.get("/favicon.ico")
 async def favicon():
     path = os.path.join(STATIC_DIR, "favicon.ico")
@@ -77,4 +98,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "2.0.0"}
+    return {"status": "ok", "version": "3.0.0"}

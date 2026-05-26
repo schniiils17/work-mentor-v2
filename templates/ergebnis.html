@@ -1,190 +1,167 @@
 {% extends "base.html" %}
-
-{% block title %}Dein Ergebnis — Work Mentor{% endblock %}
-
-{% block head %}
-<meta property="og:title" content="Mein Work Mentor Karriere-Typ">
-<meta property="og:description" content="Finde raus welcher Karriere-Typ du bist!">
-{% endblock %}
-
+{% block title %}Dein Karriere-Tier — Work Mentor{% endblock %}
 {% block body %}
 <div class="container" id="app">
-    
-    <!-- Header -->
     <header class="header">
         <a href="/" class="logo"><span class="logo-mark">M</span>Work Mentor</a>
     </header>
 
-    <!-- Result Section -->
     <section class="result-section" id="resultSection">
-        <div class="result-label animate-in">Dein Ergebnis</div>
-        <div class="result-code animate-in animate-delay-1" id="resultCode"></div>
-        <h1 class="result-type-name animate-in animate-delay-1" id="typeName"></h1>
-        
-        <!-- Hexagon Chart -->
-        <div class="hexagon-container animate-in animate-delay-2">
-            <svg class="hexagon-chart" viewBox="0 0 400 400" id="hexChart" preserveAspectRatio="xMidYMid meet"></svg>
-        </div>
-        
-        <!-- Description -->
-        <p class="result-description animate-in animate-delay-2" id="typeDesc"></p>
-        
-        <!-- Strength Tags -->
-        <div class="strengths-tags animate-in animate-delay-3" id="strengthTags"></div>
-        
-        <!-- Jobs -->
-        <div class="jobs-section animate-in animate-delay-3">
-            <div class="jobs-label">3 Jobs, die zu dir passen</div>
-            <div id="jobsList"></div>
-        </div>
-        
-        <!-- CTA Buttons -->
-        <div class="result-actions">
-            <button class="btn btn-primary" onclick="alert('Kommt bald! 🚀')">Alle passenden Jobs entdecken →</button>
-            <button class="btn btn-secondary" onclick="alert('Kommt bald! 🚀')">Ich hab schon einen Job im Kopf</button>
-        </div>
-        
-        <!-- Share -->
-        <div class="share-card">
-            <h3>Teile dein Ergebnis</h3>
-            <p>Zeig es Freunden — was ist ihr Typ?</p>
-            <div class="share-buttons">
-                <button class="share-btn" onclick="shareWhatsApp()">📱 WhatsApp</button>
-                <button class="share-btn" onclick="shareLinkedIn()">💼 LinkedIn</button>
-                <button class="share-btn" onclick="copyLink()">🔗 Link kopieren</button>
-            </div>
-        </div>
-
-        <!-- Restart -->
-        <div style="text-align: center; padding: 24px 0;">
-            <a href="/assessment" class="back-link">← Nochmal machen</a>
-        </div>
+        <!-- JS populates this -->
     </section>
-
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-// Load result from sessionStorage
-const result = JSON.parse(sessionStorage.getItem('wm_result'));
+// Tier data
+const TIERS = {
+    R: { name: "Der Wal", label: "REALISTISCH", emoji: "🐋", color: "#9CA3AF", colorLight: "#F0F0F0", quote: "„Ich red nicht lang — ich mach's einfach."", tagline: "mit praktischem Instinkt", superkraft: "Dinge bauen, die funktionieren — während andere noch planen.", kryptonit: "Endlose Meetings ohne Ergebnis." },
+    I: { name: "Die Eule", label: "FORSCHEND", emoji: "🦉", color: "#3B82F6", colorLight: "#EBF2FF", quote: "„Ich will verstehen, warum es funktioniert."", tagline: "mit analytischem Blick", superkraft: "Muster erkennen, die andere übersehen.", kryptonit: "Entscheidungen treffen ohne genug Daten." },
+    A: { name: "Der Fuchs", label: "KREATIV", emoji: "🦊", color: "#F59E0B", colorLight: "#FFF8E1", quote: "„Regeln? Ich mach meine eigenen."", tagline: "mit kreativem Touch", superkraft: "Ideen haben, auf die sonst keiner kommt.", kryptonit: "Starre Prozesse und Mikromanagement." },
+    S: { name: "Der Delphin", label: "SOZIAL", emoji: "🐬", color: "#14B8A6", colorLight: "#E6FAF5", quote: "„Menschen sind mein Ding."", tagline: "mit empathischer Stärke", superkraft: "Räume schaffen, in denen sich Menschen öffnen.", kryptonit: "Konflikte, die keiner ansprechen will." },
+    E: { name: "Der Adler", label: "UNTERNEHMERISCH", emoji: "🦅", color: "#E85A1A", colorLight: "#FDEEE3", quote: "„Wo andere Risiko sehen, seh ich Chancen."", tagline: "mit kreativem Touch", superkraft: "Leute begeistern, bevor du selbst weißt, wovon du redest.", kryptonit: "Jemand sagt 'Das haben wir schon immer so gemacht'." },
+    C: { name: "Der Oktopus", label: "ORGANISIEREND", emoji: "🐙", color: "#8B5CF6", colorLight: "#F3EEFF", quote: "„Ordnung ist nicht langweilig — Ordnung ist Macht."", tagline: "mit systematischem Verstand", superkraft: "Chaos in Struktur verwandeln, ohne dass es jemand merkt.", kryptonit: "Wenn alle 'mal schauen' sagen statt zu planen." }
+};
 
-if (!result) {
-    window.location.href = '/';
-} else {
-    renderResult(result);
+function getTopType(scores) {
+    let max = 0, topKey = 'E';
+    for (const [key, val] of Object.entries(scores)) {
+        if (val > max) { max = val; topKey = key; }
+    }
+    return topKey;
 }
 
-function renderResult(r) {
-    // Code & Name
-    document.getElementById('resultCode').textContent = 
-        `${r.dimensions.first}${r.dimensions.second} · ${r.dimensions.first_label.toUpperCase()} · ${r.dimensions.second_label.toUpperCase()}`;
-    document.getElementById('typeName').textContent = `${r.type_name}.`;
-    
-    // Description
-    document.getElementById('typeDesc').textContent = r.description;
-    
-    // Strength tags
-    const tagsContainer = document.getElementById('strengthTags');
-    r.strengths.forEach(s => {
-        const tag = document.createElement('span');
-        tag.className = 'tag';
-        tag.textContent = s;
-        tagsContainer.appendChild(tag);
-    });
-    
-    // Hexagon chart
-    drawHexagon(r.normalized_scores);
-    
-    // Jobs
-    const jobsList = document.getElementById('jobsList');
-    const targetSvg = '<svg class="target-icon" viewBox="0 0 16 16" style="width:16px;height:16px;flex-shrink:0"><circle cx="8" cy="8" r="6.5" fill="none" stroke="#9B9B9B" stroke-width="1.2"/><circle cx="8" cy="8" r="3.5" fill="none" stroke="#9B9B9B" stroke-width="1.2"/><circle cx="8" cy="8" r="1" fill="#9B9B9B"/></svg>';
-    r.jobs.forEach(job => {
-        const matchClass = job.match >= 80 ? '' : ' medium';
-        jobsList.innerHTML += `
-            <div class="result-job-card">
-                <div class="result-job-row">
-                    <span class="result-job-title">${targetSvg}${job.title}</span>
-                    <span class="match-badge${matchClass}">${job.match}% Match</span>
-                </div>
-                <div class="result-job-meta">${job.desc} · <span class="job-salary-inline">${job.salary}</span></div>
-            </div>
-        `;
-    });
+function getSecondType(scores, top) {
+    let max = 0, secondKey = null;
+    for (const [key, val] of Object.entries(scores)) {
+        if (key !== top && val > max) { max = val; secondKey = key; }
+    }
+    return secondKey;
 }
 
-function drawHexagon(scores) {
-    const svg = document.getElementById('hexChart');
-    // Larger viewBox gives room for long labels without clipping
-    const cx = 200, cy = 200, maxR = 100;
+function buildHexagon(scores) {
+    // Normalize scores to 0-1 range
+    const maxScore = Math.max(...Object.values(scores), 1);
     const dims = ['R', 'I', 'A', 'S', 'E', 'C'];
-    const labels = ['REALISTISCH', 'FORSCHEND', 'KREATIV', 'SOZIAL', 'UNTERNEHMEND', 'ORGANISIEREND'];
+    const labels = ['R', 'I', 'A', 'S', 'E', 'C'];
+    const cx = 140, cy = 140, r = 110;
     
-    function getPoint(index, radius) {
+    function getPoint(index, value) {
         const angle = (Math.PI * 2 * index / 6) - Math.PI / 2;
-        return {
-            x: cx + radius * Math.cos(angle),
-            y: cy + radius * Math.sin(angle)
-        };
+        const dist = r * (value / maxScore) * 0.85;
+        return [cx + dist * Math.cos(angle), cy + dist * Math.sin(angle)];
     }
     
-    let svgContent = '';
+    function getOuterPoint(index) {
+        const angle = (Math.PI * 2 * index / 6) - Math.PI / 2;
+        return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
+    }
+
+    // Grid lines
+    let gridLines = '';
+    for (let level = 0.33; level <= 1; level += 0.33) {
+        const points = dims.map((_, i) => {
+            const angle = (Math.PI * 2 * i / 6) - Math.PI / 2;
+            const dist = r * level;
+            return `${cx + dist * Math.cos(angle)},${cy + dist * Math.sin(angle)}`;
+        }).join(' ');
+        gridLines += `<polygon points="${points}" fill="none" stroke="#E8E8E3" stroke-width="1"/>`;
+    }
     
-    // Grid lines (concentric hexagons)
-    [0.25, 0.5, 0.75, 1.0].forEach(scale => {
-        const points = dims.map((_, i) => getPoint(i, maxR * scale));
-        const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z';
-        svgContent += `<path d="${path}" fill="none" stroke="#D9D9D4" stroke-width="1"/>`;
-    });
-    
-    // Axis lines from center
-    dims.forEach((_, i) => {
-        const p = getPoint(i, maxR);
-        svgContent += `<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="#D9D9D4" stroke-width="1"/>`;
-    });
+    // Axis lines
+    let axisLines = dims.map((_, i) => {
+        const [x, y] = getOuterPoint(i);
+        return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#E8E8E3" stroke-width="1"/>`;
+    }).join('');
     
     // Data polygon
-    const dataPoints = dims.map((d, i) => {
-        const val = (scores[d] || 0) / 100;
-        return getPoint(i, maxR * Math.max(val, 0.08));
-    });
-    const dataPath = dataPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z';
-    svgContent += `<path d="${dataPath}" fill="rgba(26,58,92,0.10)" stroke="#141414" stroke-width="2"/>`;
+    const dataPoints = dims.map((d, i) => getPoint(i, scores[d] || 0));
+    const dataPolygon = `<polygon points="${dataPoints.map(p => p.join(',')).join(' ')}" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2"/>`;
     
-    // Labels (Letter + Name, two lines)
-    dims.forEach((d, i) => {
-        const lp = getPoint(i, maxR + 26);
-        let anchor = 'middle';
-        if (i === 1 || i === 2) anchor = 'start';
-        if (i === 4 || i === 5) anchor = 'end';
+    // Data dots
+    const dataDots = dataPoints.map(([x, y]) => 
+        `<circle cx="${x}" cy="${y}" r="4" fill="currentColor"/>`
+    ).join('');
+    
+    // Labels
+    const labelEls = dims.map((d, i) => {
+        const angle = (Math.PI * 2 * i / 6) - Math.PI / 2;
+        const lx = cx + (r + 20) * Math.cos(angle);
+        const ly = cy + (r + 20) * Math.sin(angle);
+        return `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#9B9B95">${labels[i]}</text>`;
+    }).join('');
+
+    return `<svg viewBox="0 0 280 280" class="hexagon-chart">${gridLines}${axisLines}${dataPolygon}${dataDots}${labelEls}</svg>`;
+}
+
+function render() {
+    const data = JSON.parse(sessionStorage.getItem('wm_result') || '{}');
+    const scores = data.scores || { R: 2, I: 1, A: 3, S: 1, E: 4, C: 1 };
+    
+    const topKey = getTopType(scores);
+    const secondKey = getSecondType(scores, topKey);
+    const tier = TIERS[topKey];
+    const secondTier = secondKey ? TIERS[secondKey] : null;
+    
+    const tagline = secondTier ? `mit ${secondTier.tagline.replace('mit ', '')}` : tier.tagline;
+
+    document.getElementById('resultSection').innerHTML = `
+        <div class="section-label" style="margin-top: 8px;">Dein Karriere-Tier</div>
         
-        // Letter (big, bold)
-        svgContent += `<text x="${lp.x}" y="${lp.y - 2}" text-anchor="${anchor}" 
-            font-family="Geist, Inter, sans-serif" font-size="14" font-weight="700" fill="#141414">${d}</text>`;
-        // Name (small, uppercase)
-        svgContent += `<text x="${lp.x}" y="${lp.y + 12}" text-anchor="${anchor}" 
-            font-family="Geist, Inter, sans-serif" font-size="8" font-weight="600" fill="#9B9B9B" letter-spacing="0.05em">${labels[i]}</text>`;
-    });
-    
-    svg.innerHTML = svgContent;
+        <!-- Hero Card -->
+        <div class="tier-hero-card" style="background: ${tier.color}; color: white; margin-top: 12px;">
+            <div class="tier-label-pill">${tier.label}</div>
+            <div class="tier-illustration">${tier.emoji}</div>
+        </div>
+        
+        <div class="tier-type-label" style="color: ${tier.color}; margin-top: 20px;">${tier.label}</div>
+        <h1 class="tier-name">${tier.name}.</h1>
+        <div class="tier-tagline" style="color: ${tier.color}; font-style: italic;">${tagline}</div>
+        
+        <blockquote class="tier-quote">${tier.quote}</blockquote>
+        
+        <p class="tier-description">${data.description || 'Du siehst das große Bild, während andere sich in Details verlieren. Überzeugen ist keine Technik für dich — es passiert einfach. Du willst nicht verwalten, du willst gestalten.'}</p>
+        
+        <!-- Hexagon -->
+        <div class="hexagon-container" style="color: ${tier.color}">
+            ${buildHexagon(scores)}
+        </div>
+        
+        <!-- Superkraft -->
+        <div class="trait-card superkraft" style="margin-top: 24px;">
+            <div class="trait-card-label" style="color: ${tier.color};">⚡ SUPERKRAFT</div>
+            <div class="trait-card-text">${tier.superkraft}</div>
+        </div>
+        
+        <!-- Kryptonit -->
+        <div class="trait-card kryptonit" style="margin-top: 12px;">
+            <div class="trait-card-label">💀 KRYPTONIT</div>
+            <div class="trait-card-text">${tier.kryptonit}</div>
+        </div>
+        
+        <!-- Story CTA -->
+        <div class="story-cta" style="background: ${tier.color}; margin-top: 24px;">
+            <div class="story-cta-label">STORY-KARTE</div>
+            <div class="story-cta-text">„Ich bin ${tier.name}. Was bist du?"</div>
+            <div class="story-cta-subtext">Bild im 9:16-Format — perfekt für deine Story.</div>
+            <a href="/story" class="story-cta-btn" style="color: ${tier.color};">↗ Teile dein Ergebnis</a>
+        </div>
+        
+        <!-- Job Match -->
+        <div class="job-match-card" style="margin-top: 16px;">
+            <h3 class="job-match-title">Und wo landen Leute wie du?</h3>
+            <p class="job-match-text">Dein Typ ist selten — nur 8% haben das gleiche Profil. Wir haben gecheckt, welche Jobs wirklich zu dir passen.</p>
+            <a href="/jobs" class="btn btn-primary" style="margin-top: 16px;">Zeig mir meine Top-Jobs →</a>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer-links" style="margin-top: 32px;">
+            <a href="#">Impressum</a> · <a href="#">Datenschutz</a>
+        </div>
+    `;
 }
 
-// Share functions
-function shareWhatsApp() {
-    const text = `Ich bin "${result.type_name}" 🎯 Finde raus welcher Karriere-Typ du bist: work-mentor.com`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-}
-
-function shareLinkedIn() {
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://work-mentor.com')}`, '_blank');
-}
-
-function copyLink() {
-    navigator.clipboard.writeText('https://work-mentor.com').then(() => {
-        const btn = event.target;
-        btn.textContent = '✅ Kopiert!';
-        setTimeout(() => btn.textContent = '🔗 Link kopieren', 2000);
-    });
-}
+render();
 </script>
 {% endblock %}

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Story-Karte — Work Mentor{% endblock %}
+{% block body %}
+<div class="container" id="app">
+    <header class="header">
+        <a href="/ergebnis" class="back-link">← Zurück zu meinem Ergebnis</a>
+    </header>
+    
+    <div class="section-label">Story-Karte · 9:16</div>
+    
+    <div class="story-card-container" id="storyContainer">
+        <!-- JS renders -->
+    </div>
+    
+    <div class="action-buttons" id="actionButtons">
+        <!-- JS renders -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const TIERS = {
+    R: { name: "Der Wal", emoji: "🐋", color: "#9CA3AF", quote: "„Ich red nicht lang — ich mach's einfach."", superkraft: "Dinge bauen, die funktionieren — während andere noch planen.", kryptonit: "Endlose Meetings ohne Ergebnis." },
+    I: { name: "Die Eule", emoji: "🦉", color: "#3B82F6", quote: "„Ich will verstehen, warum es funktioniert."", superkraft: "Muster erkennen, die andere übersehen.", kryptonit: "Entscheidungen treffen ohne genug Daten." },
+    A: { name: "Der Fuchs", emoji: "🦊", color: "#F59E0B", quote: "„Regeln? Ich mach meine eigenen."", superkraft: "Ideen haben, auf die sonst keiner kommt.", kryptonit: "Starre Prozesse und Mikromanagement." },
+    S: { name: "Der Delphin", emoji: "🐬", color: "#14B8A6", quote: "„Menschen sind mein Ding."", superkraft: "Räume schaffen, in denen sich Menschen öffnen.", kryptonit: "Konflikte, die keiner ansprechen will." },
+    E: { name: "Der Adler", emoji: "🦅", color: "#E85A1A", quote: "„Wo andere Risiko sehen, seh ich Chancen."", superkraft: "Leute begeistern, bevor du selbst weißt, wovon du redest.", kryptonit: "Jemand sagt 'Das haben wir schon immer so gemacht'." },
+    C: { name: "Der Oktopus", emoji: "🐙", color: "#8B5CF6", quote: "„Ordnung ist nicht langweilig — Ordnung ist Macht."", superkraft: "Chaos in Struktur verwandeln, ohne dass es jemand merkt.", kryptonit: "Wenn alle 'mal schauen' sagen statt zu planen." }
+};
+
+function render() {
+    const data = JSON.parse(sessionStorage.getItem('wm_result') || '{}');
+    const scores = data.scores || { R: 2, I: 1, A: 3, S: 1, E: 4, C: 1 };
+    let max = 0, topKey = 'E';
+    for (const [key, val] of Object.entries(scores)) {
+        if (val > max) { max = val; topKey = key; }
+    }
+    const tier = TIERS[topKey];
+    
+    document.getElementById('storyContainer').innerHTML = `
+        <div class="story-card" style="background: ${tier.color};">
+            <div class="story-card-header">
+                <span class="story-card-brand">WORK MENTOR</span>
+            </div>
+            
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <div class="story-card-illustration">${tier.emoji}</div>
+                <h2 class="story-card-name">${tier.name}.</h2>
+                <p class="story-card-quote">${tier.quote}</p>
+            </div>
+            
+            <div>
+                <div class="story-card-trait">
+                    <div class="story-card-trait-label">⚡ SUPERKRAFT</div>
+                    <div class="story-card-trait-text">${tier.superkraft}</div>
+                </div>
+                <div class="story-card-trait" style="margin-top: 8px;">
+                    <div class="story-card-trait-label">💀 KRYPTONIT</div>
+                    <div class="story-card-trait-text">${tier.kryptonit}</div>
+                </div>
+            </div>
+            
+            <div class="story-card-footer">
+                <span>Finde dein Tier</span>
+                <span>workmentor.com</span>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('actionButtons').innerHTML = `
+        <button class="action-btn-primary" style="background: ${tier.color};" onclick="shareStory()">↑ In Story posten</button>
+        <button class="action-btn-secondary" onclick="saveStory()">✓ Speichern</button>
+    `;
+}
+
+function shareStory() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Mein Karriere-Tier — Work Mentor',
+            text: 'Finde raus welcher Arbeitstyp du wirklich bist!',
+            url: 'https://workmentor.com'
+        });
+    } else {
+        navigator.clipboard.writeText('https://workmentor.com');
+        alert('Link kopiert!');
+    }
+}
+
+function saveStory() {
+    alert('Screenshot-Funktion kommt bald!');
+}
+
+render();
+</script>
+{% endblock %}
