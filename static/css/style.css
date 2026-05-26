@@ -390,25 +390,28 @@ h2 {
    -------------------------------------------------------------------------- */
 .tier-hero-card {
     border-radius: var(--radius-lg);
-    padding: 40px 24px;
+    padding: 32px 24px;
     text-align: center;
     position: relative;
     overflow: hidden;
-    aspect-ratio: 1 / 1.05;
+    aspect-ratio: 1.15 / 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 }
 
-/* Dot/particle pattern overlay */
+/* Organic scattered dot pattern */
 .tier-hero-card::before {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px);
-    background-size: 18px 18px;
-    background-position: 0 0, 9px 9px;
+    background-image:
+        radial-gradient(circle, rgba(255,255,255,0.15) 1.2px, transparent 1.2px),
+        radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,0.12) 0.8px, transparent 0.8px);
+    background-size: 47px 43px, 31px 37px, 59px 53px;
+    background-position: 3px 7px, 19px 23px, 11px 41px;
     pointer-events: none;
     z-index: 1;
 }
@@ -435,10 +438,10 @@ h2 {
 }
 
 .tier-hero-card .tier-illustration {
-    width: 75%;
-    max-width: 280px;
+    width: 55%;
+    max-width: 200px;
     height: auto;
-    margin: 0 auto 16px;
+    margin: 0 auto 8px;
     filter: brightness(0) invert(1);
 }
 
