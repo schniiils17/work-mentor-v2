@@ -58,17 +58,17 @@ async def post_assess(req: AssessmentRequest):
         sorted_dims = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         profile = ", ".join([f"{_dim_label(d)}:{v}" for d, v in sorted_dims])
         
-        prompt = f"""Du bist ein Karriere-Mentor. Schreibe eine persoenliche 2-3 Satz Beschreibung fuer jemanden mit diesem RIASEC-Profil:
+        prompt = f"""Schreib 2-3 kurze Saetze ueber jemanden mit diesem Profil.
 
 Scores: {profile}
-Top-Typ: {d1}-{d2}{" (Generalist/Chamaeleon - sehr flaches Profil)" if is_gen else ""}
+Typ: {d1}-{d2}{" (Generalist)" if is_gen else ""}
 
 Regeln:
-- Vermutender Ton (wahrscheinlich, vermutlich, es koennte sein)
-- Kein du bist/du machst - eher du koenntest/du wuerdest
-- Bezieh dich auf die KONKRETEN Score-Verhaeltnisse (was hoch ist vs niedrig)
-- Kurz, warm, ueberraschend treffsicher
-- Deutsch, informell"""
+- Einfache Sprache. Kurze Saetze. Wie ein Kumpel der dich gut einschaetzt.
+- Vermutend: wahrscheinlich, vermutlich, koennte sein
+- Sag was die Person antreibt und was sie eher nervt
+- Max 3 Saetze, keine Fachbegriffe, kein Berater-Deutsch
+- Deutsch, Du-Form"""
         
         msg = claude.messages.create(
             model="claude-sonnet-4-20250514",
