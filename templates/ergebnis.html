@@ -18,12 +18,12 @@
 <script>
 // Tier-Tiere basierend auf Top-RIASEC-Dimension
 const TIERS = {
-    R: { name: "Der Wal", label: "REALISTISCH", emoji: "🐋", color: "#9CA3AF", colorLight: "#F0F0F0", quote: "„Ich red nicht lang — ich mach's einfach."", tagline: "praktischem Instinkt", superkraft: "Dinge bauen, die funktionieren — während andere noch planen.", kryptonit: "Endlose Meetings ohne Ergebnis." },
-    I: { name: "Die Eule", label: "FORSCHEND", emoji: "🦉", color: "#3B82F6", colorLight: "#EBF2FF", quote: "„Ich will verstehen, warum es funktioniert."", tagline: "analytischem Blick", superkraft: "Muster erkennen, die andere übersehen.", kryptonit: "Entscheidungen treffen ohne genug Daten." },
-    A: { name: "Der Fuchs", label: "KREATIV", emoji: "🦊", color: "#F59E0B", colorLight: "#FFF8E1", quote: "„Regeln? Ich mach meine eigenen."", tagline: "kreativem Touch", superkraft: "Ideen haben, auf die sonst keiner kommt.", kryptonit: "Starre Prozesse und Mikromanagement." },
-    S: { name: "Der Delphin", label: "SOZIAL", emoji: "🐬", color: "#14B8A6", colorLight: "#E6FAF5", quote: "„Menschen sind mein Ding."", tagline: "empathischer Stärke", superkraft: "Räume schaffen, in denen sich Menschen öffnen.", kryptonit: "Konflikte, die keiner ansprechen will." },
-    E: { name: "Der Adler", label: "UNTERNEHMERISCH", emoji: "🦅", color: "#E85A1A", colorLight: "#FDEEE3", quote: "„Wo andere Risiko sehen, seh ich Chancen."", tagline: "unternehmerischem Drive", superkraft: "Leute begeistern, bevor du selbst weißt, wovon du redest.", kryptonit: "Jemand sagt ‚Das haben wir schon immer so gemacht'." },
-    C: { name: "Der Oktopus", label: "ORGANISIEREND", emoji: "🐙", color: "#8B5CF6", colorLight: "#F3EEFF", quote: "„Ordnung ist nicht langweilig — Ordnung ist Macht."", tagline: "systematischem Verstand", superkraft: "Chaos in Struktur verwandeln, ohne dass es jemand merkt.", kryptonit: "Wenn alle ‚mal schauen' sagen statt zu planen." }
+    R: { name: "Der Wal", label: "REALISTISCH", emoji: "🐋", color: "#9CA3AF", colorLight: "#F0F0F0", quote: "Ich red nicht lang — ich machs einfach.", tagline: "praktischem Instinkt", superkraft: "Dinge bauen, die funktionieren — während andere noch planen.", kryptonit: "Endlose Meetings ohne Ergebnis." },
+    I: { name: "Die Eule", label: "FORSCHEND", emoji: "🦉", color: "#3B82F6", colorLight: "#EBF2FF", quote: "Ich will verstehen, warum es funktioniert.", tagline: "analytischem Blick", superkraft: "Muster erkennen, die andere übersehen.", kryptonit: "Entscheidungen treffen ohne genug Daten." },
+    A: { name: "Der Fuchs", label: "KREATIV", emoji: "🦊", color: "#F59E0B", colorLight: "#FFF8E1", quote: "Regeln? Ich mach meine eigenen.", tagline: "kreativem Touch", superkraft: "Ideen haben, auf die sonst keiner kommt.", kryptonit: "Starre Prozesse und Mikromanagement." },
+    S: { name: "Der Delphin", label: "SOZIAL", emoji: "🐬", color: "#14B8A6", colorLight: "#E6FAF5", quote: "Menschen sind mein Ding.", tagline: "empathischer Stärke", superkraft: "Räume schaffen, in denen sich Menschen öffnen.", kryptonit: "Konflikte, die keiner ansprechen will." },
+    E: { name: "Der Adler", label: "UNTERNEHMERISCH", emoji: "🦅", color: "#E85A1A", colorLight: "#FDEEE3", quote: "Wo andere Risiko sehen, seh ich Chancen.", tagline: "unternehmerischem Drive", superkraft: "Leute begeistern, bevor du selbst weißt, wovon du redest.", kryptonit: "Jemand sagt: Das haben wir schon immer so gemacht." },
+    C: { name: "Der Oktopus", label: "ORGANISIEREND", emoji: "🐙", color: "#8B5CF6", colorLight: "#F3EEFF", quote: "Ordnung ist nicht langweilig — Ordnung ist Macht.", tagline: "systematischem Verstand", superkraft: "Chaos in Struktur verwandeln, ohne dass es jemand merkt.", kryptonit: "Wenn alle mal schauen sagen statt zu planen." }
 };
 
 function buildHexagon(scores, color) {
@@ -151,7 +151,7 @@ function render() {
         <!-- Story CTA -->
         <div class="story-cta" style="background: ${tier.color}; margin-top: 24px;">
             <div class="story-cta-label">STORY-KARTE</div>
-            <div class="story-cta-text">„Ich bin ${tier.name}. Was bist du?"</div>
+            <div class="story-cta-text">Ich bin ${tier.name}. Was bist du?"</div>
             <div class="story-cta-subtext">Bild im 9:16-Format — perfekt für deine Story.</div>
             <a href="/story" class="story-cta-btn" style="color: ${tier.color};">↗ Teile dein Ergebnis</a>
         </div>
@@ -168,7 +168,6 @@ function render() {
             <a href="#">Impressum</a> · <a href="#">Datenschutz</a>
         </div>
     `;
-}
 
     } catch(err) {
         console.error('[WM] render error:', err);
