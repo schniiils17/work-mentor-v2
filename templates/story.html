@@ -31,11 +31,13 @@ const TIERS = {
 
 function render() {
     const data = JSON.parse(sessionStorage.getItem('wm_result') || '{}');
-    const scores = data.scores || { R: 2, I: 1, A: 3, S: 1, E: 4, C: 1 };
-    let max = 0, topKey = 'E';
-    for (const [key, val] of Object.entries(scores)) {
-        if (val > max) { max = val; topKey = key; }
+    
+    if (!data || !data.code) {
+        document.getElementById('storyContainer').innerHTML = '<p style="text-align:center;padding:40px;color:#999;">Kein Ergebnis gefunden. <a href="/assessment">Zum Check</a></p>';
+        return;
     }
+    
+    const topKey = data.code ? data.code[0] : 'E';
     const tier = TIERS[topKey];
     
     document.getElementById('storyContainer').innerHTML = `
