@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from typing import List
 import os
 
-from app.holland import ITEMS, assess
+from app.holland import ITEMS, assess, get_shuffled_items
 
 app = FastAPI(title="Work Mentor 2.0")
 
@@ -33,8 +33,8 @@ class AssessmentRequest(BaseModel):
 
 @app.get("/api/items")
 async def get_items():
-    """Liefere alle Assessment-Items."""
-    return {"items": ITEMS}
+    """Liefere Assessment-Items in zufälliger Reihenfolge."""
+    return {"items": get_shuffled_items()}
 
 
 @app.post("/api/assess")
@@ -56,7 +56,7 @@ async def landing(request: Request):
 async def assessment(request: Request):
     return templates.TemplateResponse("assessment.html", {
         "request": request,
-        "items": ITEMS
+        "items": get_shuffled_items()
     })
 
 

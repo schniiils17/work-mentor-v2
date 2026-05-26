@@ -21,7 +21,9 @@ Methodik:
 - Generalist-Erkennung: wenn Profil zu flach -> Chamäleon
 """
 
+import random
 from typing import List, Dict
+from collections import Counter
 
 
 # === Items (36 Aussagen, 6 pro Dimension) ===
@@ -31,24 +33,24 @@ ITEMS = [
     # --- R (Realistic) --- Praktisch-handwerklich
     {"id": 1,  "dim": "R", "text": "Mit Werkzeug etwas selbst bauen — z.B. Möbel oder einen Schrank"},
     {"id": 2,  "dim": "R", "text": "Ein kaputtes Gerät selbst auseinandernehmen und reparieren"},
-    {"id": 3,  "dim": "R", "text": "Einen PC aus Einzelteilen zusammenbauen"},
-    {"id": 4,  "dim": "R", "text": "Eine Maschine oder Anlage bedienen die Produkte herstellt"},
-    {"id": 5,  "dim": "R", "text": "Draussen arbeiten — Garten, Baustelle oder Werkstatt"},
+    {"id": 3,  "dim": "R", "text": "Im Freien arbeiten — zum Beispiel im Garten, auf dem Bau oder in der Natur"},
+    {"id": 4,  "dim": "R", "text": "Tiere versorgen oder mit ihnen arbeiten"},
+    {"id": 5,  "dim": "R", "text": "Sportgeräte, Fahrräder oder technische Geräte warten und pflegen"},
     {"id": 6,  "dim": "R", "text": "Ein Auto oder Fahrrad selbst warten und reparieren"},
     
     # --- I (Investigative) --- Forschend-analytisch
-    {"id": 7,  "dim": "I", "text": "Ein neues Medikament oder eine Therapie entwickeln"},
+    {"id": 7,  "dim": "I", "text": "Ein komplexes Problem Schritt für Schritt analysieren"},
     {"id": 8,  "dim": "I", "text": "Erforschen wie man Umweltverschmutzung reduzieren kann"},
-    {"id": 9,  "dim": "I", "text": "Im Labor an Proben oder Experimenten arbeiten"},
+    {"id": 9,  "dim": "I", "text": "Eine Theorie aufstellen und systematisch überprüfen"},
     {"id": 10, "dim": "I", "text": "Daten auswerten um ein Muster oder eine Antwort zu finden"},
     {"id": 11, "dim": "I", "text": "Wissenschaftliche Artikel lesen um ein Problem zu verstehen"},
     {"id": 12, "dim": "I", "text": "Eine Studie planen und durchführen"},
     
     # --- A (Artistic) --- Künstlerisch-kreativ
     {"id": 13, "dim": "A", "text": "Ein Buch, eine Geschichte oder ein Drehbuch schreiben"},
-    {"id": 14, "dim": "A", "text": "Ein Musikinstrument spielen oder Musik produzieren"},
+    {"id": 14, "dim": "A", "text": "Texte schreiben die Menschen berühren — Blogs, Songs oder Stories"},
     {"id": 15, "dim": "A", "text": "Visuelle Inhalte gestalten — Grafiken, Videos oder Animationen"},
-    {"id": 16, "dim": "A", "text": "Ein Bühnenstück, Konzert oder eine kreative Show entwickeln"},
+    {"id": 16, "dim": "A", "text": "Neue Konzepte oder ungewöhnliche Lösungsansätze entwickeln"},
     {"id": 17, "dim": "A", "text": "Fotos machen und künstlerisch bearbeiten"},
     {"id": 18, "dim": "A", "text": "Räume, Möbel oder Mode designen"},
     
@@ -63,7 +65,7 @@ ITEMS = [
     # --- E (Enterprising) --- Unternehmerisch-führend
     {"id": 25, "dim": "E", "text": "Ein eigenes Unternehmen oder Startup gründen"},
     {"id": 26, "dim": "E", "text": "Eine Abteilung oder ein Team in einer Firma leiten"},
-    {"id": 27, "dim": "E", "text": "Mit Aktien, Investments oder Finanzmärkten handeln"},
+    {"id": 27, "dim": "E", "text": "Ein Projekt von der Idee bis zum Launch durchziehen"},
     {"id": 28, "dim": "E", "text": "Geschäftsverträge oder größere Deals verhandeln"},
     {"id": 29, "dim": "E", "text": "Andere von einer Idee oder einem Produkt überzeugen"},
     {"id": 30, "dim": "E", "text": "Entscheidungen treffen die ein ganzes Projekt beeinflussen"},
@@ -72,7 +74,7 @@ ITEMS = [
     {"id": 31, "dim": "C", "text": "Eine Excel-Tabelle aufbauen und mit Formeln arbeiten"},
     {"id": 32, "dim": "C", "text": "Dokumente Korrektur lesen und Fehler finden"},
     {"id": 33, "dim": "C", "text": "Die Buchhaltung oder Finanzen einer Firma führen"},
-    {"id": 34, "dim": "C", "text": "Lagerbestände erfassen und sauber dokumentieren"},
+    {"id": 34, "dim": "C", "text": "Finanzen, Budgets oder Investments verwalten und analysieren"},
     {"id": 35, "dim": "C", "text": "Abläufe und Prozesse in einem Unternehmen optimieren"},
     {"id": 36, "dim": "C", "text": "Termine, Reisen oder Veranstaltungen planen und koordinieren"},
 ]
@@ -245,6 +247,40 @@ JOB_DATABASE = {
 QUESTIONS = ITEMS
 
 
+def get_shuffled_items() -> List[Dict]:
+    """Return items in randomized order for each assessment."""
+    shuffled = ITEMS.copy()
+    random.shuffle(shuffled)
+    return shuffled
+
+
+def check_answer_quality(answers: List[Dict]) -> Dict:
+    """Check if answers have enough variance to be meaningful."""
+    values = [a.get("value", 0) for a in answers]
+    if not values:
+        return {"valid": False, "reason": "no_answers"}
+    
+    # Check if all answers are the same
+    unique = set(values)
+    if len(unique) <= 1:
+        return {"valid": False, "reason": "all_same"}
+    
+    # Check variance — if std deviation < 0.5, too flat
+    mean = sum(values) / len(values)
+    variance = sum((v - mean) ** 2 for v in values) / len(values)
+    std_dev = variance ** 0.5
+    
+    if std_dev < 0.5:
+        return {"valid": False, "reason": "too_flat"}
+    
+    # Check if >80% are the same value
+    most_common_count = Counter(values).most_common(1)[0][1]
+    if most_common_count / len(values) > 0.8:
+        return {"valid": False, "reason": "too_uniform"}
+    
+    return {"valid": True, "reason": None}
+
+
 def calculate_scores(answers: List[Dict]) -> Dict[str, int]:
     """
     Berechne RIASEC-Scores aus den Likert-Antworten.
@@ -341,6 +377,7 @@ def assess(answers: List[Dict]) -> Dict:
     """
     Hauptfunktion: Nimmt Antworten entgegen und liefert das komplette Ergebnis.
     """
+    quality = check_answer_quality(answers)
     scores = calculate_scores(answers)
     code = get_top_two(scores)
     generalist = is_generalist(scores)
@@ -371,6 +408,7 @@ def assess(answers: List[Dict]) -> Dict:
         "normalized_scores": normalized_scores,
         "jobs": jobs,
         "is_generalist": generalist,
+        "answer_quality": quality,
     }
 
 

@@ -129,6 +129,7 @@ function render() {
         <div class="tier-tagline" style="color: ${tier.color}; font-style: italic;">${tagline}</div>
         <div style="margin-top: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; color: var(--text-muted);">${code} \u00B7 ${data.dimensions?.first_label || ''} \u00B7 ${data.dimensions?.second_label || ''}</div>
         
+        ${data.answer_quality && !data.answer_quality.valid ? '<div style="background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 12px; padding: 12px 16px; margin: 12px 0; font-size: 13px; color: #92400E;">\u26A0\uFE0F Deine Antworten waren sehr einheitlich. Das Ergebnis k\u00F6nnte ungenau sein. <a href=\"/assessment\" style=\"color: #92400E; font-weight: 600;\">Nochmal versuchen?</a></div>' : ''}
         <blockquote class="tier-quote">${tier.quote}</blockquote>
         
         <p class="tier-description">${description}</p>
