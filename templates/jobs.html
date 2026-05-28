@@ -139,7 +139,7 @@ function render() {
         const jobsListHtml = sortedJobs.map((job, index) => {
             return `
                 <div class="job-list-item animate-in animate-in--d${index + 1}">
-                    <div class="job-match-ring" style="border-color: ${tier.color};">
+                    <div class="job-match-ring" style="--ring-color: ${tier.color};">
                         <span class="job-match-percent">${job.match}%</span>
                         <span class="job-match-label">Match</span>
                     </div>
@@ -195,7 +195,7 @@ render();
 
 <style>
 .jobs-hero {
-    padding: 40px 0 32px;
+    padding: 48px 0 40px;
     text-align: center;
 }
 
@@ -219,7 +219,7 @@ render();
     padding: 10px 16px;
     border-radius: 100px;
     border: 2px solid;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
     font-weight: 600;
 }
 
@@ -241,49 +241,53 @@ render();
 .jobs-list {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
 }
 
 .job-list-item {
     background: #FFFFFF;
     border: 1px solid var(--border-light);
-    border-radius: 16px;
-    padding: 20px;
+    border-radius: 20px;
+    padding: 28px;
     display: flex;
-    gap: 16px;
-    align-items: flex-start;
+    gap: 24px;
+    align-items: center;
     transition: all 0.2s ease;
 }
 
 .job-list-item:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     transform: translateY(-2px);
 }
 
 .job-match-ring {
-    width: 64px;
-    height: 64px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
-    border: 3px solid;
+    border: 4px solid var(--ring-color);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    background: #FAFAFA;
+    background: linear-gradient(135deg, #fff 0%, #f8f8f8 100%);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .job-match-percent {
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 22px;
+    font-weight: 800;
     line-height: 1;
+    color: var(--ring-color);
 }
 
 .job-match-label {
-    font-size: 9px;
+    font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    opacity: 0.7;
+    letter-spacing: 0.08em;
+    opacity: 0.6;
+    margin-top: 2px;
+    font-weight: 600;
 }
 
 .job-content {
@@ -292,67 +296,70 @@ render();
 }
 
 .job-title {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 4px;
+    margin-bottom: 6px;
 }
 
 .job-company {
-    font-size: 14px;
+    font-size: 15px;
     color: var(--text-secondary);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    font-weight: 500;
 }
 
 .job-desc {
     font-size: 14px;
     color: var(--text-secondary);
-    line-height: 1.5;
-    margin-bottom: 12px;
+    line-height: 1.6;
+    margin-bottom: 14px;
 }
 
 .job-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 8px;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
 .job-tag {
-    font-size: 12px;
-    font-weight: 500;
-    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
     border-radius: 100px;
 }
 
 .job-salary {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-muted);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .job-apply-btn {
-    padding: 12px 20px;
-    border-radius: 10px;
+    padding: 14px 28px;
+    border-radius: 12px;
     color: white;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 700;
     text-decoration: none;
     white-space: nowrap;
-    transition: opacity 0.2s;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    align-self: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .job-apply-btn:hover {
-    opacity: 0.9;
+    opacity: 0.95;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .jobs-footer {
     display: flex;
     gap: 12px;
-    margin-top: 32px;
+    margin-top: 40px;
 }
 
 .jobs-footer .btn {
@@ -363,6 +370,7 @@ render();
     .job-list-item {
         flex-direction: column;
         align-items: stretch;
+        padding: 24px;
     }
     
     .job-match-ring {
@@ -373,6 +381,11 @@ render();
         width: 100%;
         text-align: center;
         justify-content: center;
+        margin-top: 8px;
+    }
+    
+    .jobs-hero h1 {
+        font-size: 26px;
     }
 }
 </style>
