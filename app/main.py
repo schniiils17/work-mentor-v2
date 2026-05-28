@@ -127,6 +127,11 @@ async def story(request: Request):
     return templates.TemplateResponse("story.html", {"request": request})
 
 
+@app.get("/jobs", response_class=HTMLResponse)
+async def jobs(request: Request):
+    return templates.TemplateResponse("jobs.html", {"request": request})
+
+
 @app.get("/favicon.ico")
 async def favicon():
     path = os.path.join(STATIC_DIR, "favicon.ico")

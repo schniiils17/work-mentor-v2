@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+{% block title %}Jobs die zu dir passen — Work Mentor{% endblock %}
+{% block body %}
+<div class="container" id="app">
+    <header class="header">
+        <a href="/" class="logo"><span class="logo-mark">M</span>Work Mentor</a>
+    </header>
+
+    <section class="jobs-hero">
+        <h1>Jobs die zu dir passen</h1>
+        <p class="subline">Basierend auf deinem Karriere Profil</p>
+    </section>
+
+    <section id="jobsSection">
+        <div style="text-align: center; padding: 60px 0;">
+            <p style="color: var(--text-muted);">Lade passende Jobs...</p>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const TIERS = {
+    R: { name: "Der Wolf", label: "REALISTISCH", color: "#9CA3AF", bg: "#F5F5F4", emoji: "🐺" },
+    I: { name: "Die Eule", label: "FORSCHEND", color: "#3B82F6", bg: "#EFF6FF", emoji: "🦉" },
+    A: { name: "Der Fuchs", label: "KREATIV", color: "#F59E0B", bg: "#FFFBEB", emoji: "🦊" },
+    S: { name: "Der Delphin", label: "SOZIAL", color: "#14B8A6", bg: "#F0FDFA", emoji: "🐬" },
+    E: { name: "Der Adler", label: "UNTERNEHMERISCH", color: "#E85A1A", bg: "#FFF7ED", emoji: "🦅" },
+    C: { name: "Der Oktopus", label: "ORGANISIEREND", color: "#8B5CF6", bg: "#FAF5FF", emoji: "🐙" }
+};
+
+const CHAMELEON = { name: "Das Chamäleon", label: "ANPASSUNGSFÄHIG", color: "#7C3AED", bg: "#FAF5FF", emoji: "🦎" };
+
+const JOB_DATABASE = {
+    "RI": [
+        {title: "Ingenieur", company: "Bosch / Siemens", location: "München, Stuttgart", match: 91, salary: "52.000 - 78.000", desc: "Entwickle und optimiere technische Systeme und Produkte.", tags: ["Technik", "Innovation"]},
+        {title: "IT-Systemadministrator", company: "Versicherung", location: "Remote / Berlin", match: 85, salary: "42.000 - 65.000", desc: "Halte komplexe IT-Systeme am Laufen.", tags: ["IT", "Systeme"]},
+        {title: "Datenanalyst", company: "E-Commerce", location: "Hamburg", match: 79, salary: "45.000 - 68.000", desc: "Finde Muster in Daten und leite Handlungen ab.", tags: ["Daten", "Analyse"]}
+    ],
+    "IA": [
+        {title: "UX Researcher", company: "Tech-Startup", location: "Berlin", match: 89, salary: "48.000 - 75.000", desc: "Erforsche wie Menschen Produkte nutzen.", tags: ["UX", "Forschung"]},
+        {title: "Wissenschaftsjournalist", company: "Medienhaus", location: "Remote", match: 83, salary: "38.000 - 58.000", desc: "Mach komplexe Themen verständlich.", tags: ["Medien", "Schreiben"]},
+        {title: "Innovationsmanager", company: "Beratung", location: "München", match: 80, salary: "55.000 - 85.000", desc: "Entwickle neue Ideen und bring sie zur Marktreife.", tags: ["Innovation", "Strategie"]}
+    ],
+    "IS": [
+        {title: "Psychologe", company: "Klinik", location: "Berlin", match: 90, salary: "42.000 - 68.000", desc: "Verstehe menschliches Verhalten und hilf Menschen wachsen.", tags: ["Beratung", "Gesundheit"]},
+        {title: "Sozialforscher", company: "Forschung", location: "Nationale", match: 84, salary: "40.000 - 60.000", desc: "Erforsche gesellschaftliche Zusammenhänge.", tags: ["Forschung", "Gesellschaft"]},
+        {title: "Pädagoge", company: "Bildung", location: "Deutschlandweit", match: 79, salary: "38.000 - 55.000", desc: "Begleite Menschen auf ihrem Bildungsweg.", tags: ["Bildung", "Coaching"]}
+    ],
+    "IE": [
+        {title: "Unternehmensberater", company: "Big4 / MBB", location: "National", match: 90, salary: "55.000 - 95.000", desc: "Analysiere Unternehmen und entwickle Strategien.", tags: ["Beratung", "Strategie"]},
+        {title: "Data Scientist", company: "AI-Startup", location: "Berlin", match: 86, salary: "52.000 - 82.000", desc: "Nutze Daten für bessere Entscheidungen.", tags: ["Data Science", "AI"]},
+        {title: "Produktmanager", company: "SaaS", location: "München", match: 82, salary: "55.000 - 85.000", desc: "Bringe Ideen vom Konzept zur Realität.", tags: ["Product", "Tech"]}
+    ],
+    "IC": [
+        {title: "Wirtschaftsprüfer", company: "Big4", location: "Nationale", match: 88, salary: "52.000 - 85.000", desc: "Prüfe Unternehmen auf Herz und Nieren.", tags: ["Finance", "Accounting"]},
+        {title: "Forschungsingenieur", company: "Automotive", location: "Stuttgart", match: 84, salary: "50.000 - 78.000", desc: "Entwickle neue Technologien mit Präzision.", tags: ["R&D", "Engineering"]},
+        {title: "Pharmazeut", company: "Pharma", location: "Rhein-Main", match: 79, salary: "48.000 - 72.000", desc: "Sorge für sichere Medikamente.", tags: ["Pharma", "Gesundheit"]}
+    ],
+    "AS": [
+        {title: "Therapeut (Kunst/Musik)", company: "Praxis", location: "Großstädte", match: 87, salary: "35.000 - 55.000", desc: "Nutze Kunst als Werkzeug zum Helfen.", tags: ["Therapie", "Kunst"]},
+        {title: "Lehrer (Kunst/Musik)", company: "Schule", location: "Deutschlandweit", match: 84, salary: "42.000 - 62.000", desc: "Inspiriere junge Menschen durch Kreativität.", tags: ["Bildung", "Kunst"]},
+        {title: "Social Media Manager", company: "Agentur", location: "Berlin", match: 78, salary: "35.000 - 55.000", desc: "Erzähle Geschichten die verbinden.", tags: ["Social Media", "Content"]}
+    ],
+    "AE": [
+        {title: "UX Designer", company: "Tech-Unternehmen", location: "Berlin", match: 87, salary: "45.000 - 72.000", desc: "Gestalte digitale Produkte die Menschen lieben.", tags: ["UX", "Design"]},
+        {title: "Produktmanager", company: "Startup", location: "München", match: 82, salary: "55.000 - 85.000", desc: "Bringe Ideen vom Konzept zur Realität.", tags: ["Product", "Innovation"]},
+        {title: "Startup-Gründer", company: "Eigene Firma", location: "Flexibel", match: 74, salary: "Variabel", desc: "Baue dein eigenes Ding von Null auf.", tags: ["Gründung", "Unternehmertum"]}
+    ],
+    "AC": [
+        {title: "Grafikdesigner", company: "Agentur", location: "Hamburg", match: 88, salary: "35.000 - 58.000", desc: "Gestalte visuelle Kommunikation.", tags: ["Design", "Kreativ"]},
+        {title: "Art Director", company: "Agentur", location: "Berlin", match: 83, salary: "50.000 - 80.000", desc: "Leite kreative Teams.", tags: ["Art Direction", "Leadership"]},
+        {title: "Webdesigner", company: "Web-Agentur", location: "Remote", match: 79, salary: "38.000 - 60.000", desc: "Baue Websites die begeistern.", tags: ["Web", "Design"]}
+    ],
+    "SE": [
+        {title: "Personalmanager (HR)", company: "Konzerne", location: "Deutschlandweit", match: 89, salary: "48.000 - 75.000", desc: "Finde und fördere die besten Talente.", tags: ["HR", "People"]},
+        {title: "Teamleiter", company: "Verschiedene", location: "Nationale", match: 85, salary: "50.000 - 78.000", desc: "Führe dein Team zu Höchstleistungen.", tags: ["Leadership", "Management"]},
+        {title: "Trainer / Coach", company: "Selbstständig", location: "Flexibel", match: 80, salary: "40.000 - 70.000", desc: "Entwickle Menschen und hilf ihnen wachsen.", tags: ["Coaching", "Training"]}
+    ],
+    "SC": [
+        {title: "Verwaltungsfachangestellter", company: "Behörde", location: "Deutschlandweit", match: 85, salary: "35.000 - 52.000", desc: "Sorge für geregelte Abläufe.", tags: ["Verwaltung", "Organisation"]},
+        {title: "Sozialarbeiter", company: "Jugendamt", location: "Städte", match: 82, salary: "36.000 - 52.000", desc: "Unterstütze Menschen systematisch.", tags: ["Soziales", "Beratung"]},
+        {title: "Medizinische Fachangestellte", company: "Arztpraxis", location: "Lokal", match: 78, salary: "30.000 - 42.000", desc: "Organisiere den Praxisalltag.", tags: ["Medizin", "Admin"]}
+    ],
+    "EC": [
+        {title: "Projektmanager", company: "Beratung", location: "Nationale", match: 90, salary: "50.000 - 78.000", desc: "Bringe Projekte strukturiert ins Ziel.", tags: ["Projektmanagement", "Organisation"]},
+        {title: "Vertriebsleiter", company: "B2B", location: "Deutschlandweit", match: 85, salary: "55.000 - 90.000", desc: "Baue Vertriebsteams auf.", tags: ["Vertrieb", "Leadership"]},
+        {title: "Finanzberater", company: "Banken", location: "Lokal", match: 80, salary: "48.000 - 75.000", desc: "Hilf bei klugen finanziellen Entscheidungen.", tags: ["Finance", "Beratung"]}
+    ]
+};
+
+const GENERALIST_JOBS = [
+    {title: "Projektmanager", company: "Verschiedene", location: "Deutschlandweit", match: 85, salary: "50.000 - 78.000", desc: "Deine Vielseitigkeit macht dich ideal.", tags: ["PM", "Organisation"]},
+    {title: "Management-Assistent", company: "Konzerne", location: "Städte", match: 82, salary: "40.000 - 60.000", desc: "Zwischen den Welten navigieren.", tags: ["Assistenz", "Management"]},
+    {title: "Unternehmensberater", company: "Beratung", location: "National", match: 78, salary: "55.000 - 95.000", desc: "Vielseitige Perspektiven.", tags: ["Beratung", "Strategie"]}
+];
+
+function getJobsForCode(code) {
+    if (!code || code.length < 2) return GENERALIST_JOBS;
+    const jobs = JOB_DATABASE[code];
+    if (jobs && jobs.length > 0) return jobs;
+    return GENERALIST_JOBS;
+}
+
+function render() {
+    let data;
+    try {
+        const raw = sessionStorage.getItem('wm_result');
+        data = raw ? JSON.parse(raw) : null;
+    } catch(e) {
+        data = null;
+    }
+    
+    if (!data || !data.scores) {
+        document.getElementById('jobsSection').innerHTML = `
+            <div style="text-align: center; padding: 60px 0;">
+                <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 12px;">Noch kein Ergebnis</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">Mach erst den Karriere-Check.</p>
+                <a href="/assessment" class="btn btn-primary">Karriere-Check starten →</a>
+            </div>
+        `;
+        return;
+    }
+    
+    try {
+        const code = data.code || 'EA';
+        const isGeneralist = data.is_generalist || false;
+        const tier = isGeneralist ? CHAMELEON : TIERS[code[0]];
+        const jobs = isGeneralist ? GENERALIST_JOBS : getJobsForCode(code);
+        
+        if (!tier) {
+            document.getElementById('jobsSection').innerHTML = `<p>Fehler: Unbekannter Typ. <a href="/assessment">Nochmal versuchen</a></p>`;
+            return;
+        }
+        
+        const sortedJobs = [...jobs].sort((a, b) => b.match - a.match);
+        
+        const jobsListHtml = sortedJobs.map((job, index) => {
+            return `
+                <div class="job-list-item animate-in animate-in--d${index + 1}">
+                    <div class="job-match-ring" style="border-color: ${tier.color};">
+                        <span class="job-match-percent">${job.match}%</span>
+                        <span class="job-match-label">Match</span>
+                    </div>
+                    <div class="job-content">
+                        <div class="job-title">${job.title}</div>
+                        <div class="job-company">${job.company} · ${job.location}</div>
+                        <div class="job-desc">${job.desc}</div>
+                        <div class="job-tags">
+                            ${job.tags.map(tag => `<span class="job-tag" style="background: ${tier.bg}; color: ${tier.color};">${tag}</span>`).join('')}
+                        </div>
+                        <div class="job-salary">💰 ${job.salary} €</div>
+                    </div>
+                    <a href="https://www.stepstone.de/jobs/${encodeURIComponent(job.title.toLowerCase().replace(/\s+/g, '-'))}" target="_blank" class="job-apply-btn" style="background: ${tier.color};">
+                        Bewerben →
+                    </a>
+                </div>
+            `;
+        }).join('');
+        
+        document.getElementById('jobsSection').innerHTML = `
+            <div class="tier-badge" style="background: ${tier.bg}; color: ${tier.color}; border-color: ${tier.color};">
+                <span class="tier-emoji">${tier.emoji}</span>
+                <span class="tier-name">${tier.name}</span>
+                <span class="tier-code">${code}</span>
+            </div>
+            
+            <div class="jobs-list">
+                ${jobsListHtml}
+            </div>
+            
+            <div class="jobs-footer">
+                <a href="/ergebnis" class="btn btn-secondary">← Zurück zum Ergebnis</a>
+                <a href="/" class="btn btn-ghost">Neu starten</a>
+            </div>
+            
+            <div class="footer-links" style="margin-top: 40px;">
+                <a href="#">Impressum</a> · <a href="#">Datenschutz</a>
+            </div>
+        `;
+        
+    } catch(err) {
+        document.getElementById('jobsSection').innerHTML = `
+            <div style="padding: 40px 0; text-align: center;">
+                <p style="color: red; margin-bottom: 16px;">Fehler: ${err.message}</p>
+                <a href="/assessment" class="btn btn-primary">Nochmal versuchen</a>
+            </div>
+        `;
+    }
+}
+
+render();
+</script>
+
+<style>
+.jobs-hero {
+    padding: 20px 0 32px;
+    text-align: center;
+}
+
+.jobs-hero h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+
+.jobs-hero .subline {
+    font-size: 16px;
+    color: var(--text-secondary);
+}
+
+.tier-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 100px;
+    border: 2px solid;
+    margin-bottom: 24px;
+    font-weight: 600;
+}
+
+.tier-emoji {
+    font-size: 24px;
+}
+
+.tier-name {
+    font-size: 15px;
+}
+
+.tier-code {
+    font-size: 13px;
+    opacity: 0.7;
+    padding-left: 8px;
+    border-left: 1px solid currentColor;
+}
+
+.jobs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.job-list-item {
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: all 0.2s ease;
+}
+
+.job-list-item:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.job-match-ring {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 3px solid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: #FAFAFA;
+}
+
+.job-match-percent {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.job-match-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+}
+
+.job-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.job-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.job-company {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.job-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.job-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.job-tag {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 100px;
+}
+
+.job-salary {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.job-apply-btn {
+    padding: 12px 20px;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+}
+
+.job-apply-btn:hover {
+    opacity: 0.9;
+}
+
+.jobs-footer {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+}
+
+.jobs-footer .btn {
+    flex: 1;
+}
+
+@media (max-width: 480px) {
+    .job-list-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .job-match-ring {
+        align-self: flex-start;
+    }
+    
+    .job-apply-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
