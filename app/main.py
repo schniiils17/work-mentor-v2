@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List, Optional
 import os
 import json
 import re
@@ -38,9 +38,9 @@ class AssessmentRequest(BaseModel):
 
 class FitRequest(BaseModel):
     job_name: str
-    scores: Dict[str, int]
+    scores: dict
     code: str
-    fit_answers: List[Dict] = []  # [{question, value}] from post-payment check
+    fit_answers: list = []  # [{question, value}] from post-payment check
 
 
 @app.get("/api/items")
