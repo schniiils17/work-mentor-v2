@@ -1,4 +1,7 @@
 """Work Mentor 2.0 — FastAPI Backend + Frontend"""
+import sys, os
+print(f"[STARTUP] Python {sys.version}", flush=True)
+print(f"[STARTUP] CWD: {os.getcwd()}", flush=True)
 
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
@@ -14,7 +17,12 @@ import os
 
 app = FastAPI(title="Work Mentor 3.0")
 
-claude = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""))
+try:
+    claude = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY") or None)
+    print("[STARTUP] Anthropic client OK", flush=True)
+except Exception as e:
+    print(f"[STARTUP] Anthropic client FAILED: {e}", flush=True)
+    claude = None
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
