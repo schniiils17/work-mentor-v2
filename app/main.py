@@ -16,7 +16,8 @@ import os
 
 app = FastAPI(title="Work Mentor 3.0")
 
-claude = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""))
+_api_key = os.environ.get("ANTHROPIC_API_KEY") or None
+claude = anthropic.Anthropic(api_key=_api_key)
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
