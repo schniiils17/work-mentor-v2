@@ -22,15 +22,15 @@
 {% block scripts %}
 <script>
 const TIERS = {
-    R: { name: "Der Wolf", label: "REALISTISCH", color: "#9CA3AF", bg: "#F5F5F4", emoji: "🐺" },
-    I: { name: "Die Eule", label: "FORSCHEND", color: "#3B82F6", bg: "#EFF6FF", emoji: "🦉" },
+    R: { name: "Der Wolf", label: "REALISTISCH", color: "#475569", bg: "#E8ECF1", emoji: "🐺" },
+    I: { name: "Die Eule", label: "FORSCHEND", color: "#4338CA", bg: "#E8E7F8", emoji: "🦉" },
     A: { name: "Der Fuchs", label: "KREATIV", color: "#F59E0B", bg: "#FFFBEB", emoji: "🦊" },
-    S: { name: "Der Delphin", label: "SOZIAL", color: "#14B8A6", bg: "#F0FDFA", emoji: "🐬" },
-    E: { name: "Der Adler", label: "UNTERNEHMERISCH", color: "#E85A1A", bg: "#FFF7ED", emoji: "🦅" },
-    C: { name: "Der Oktopus", label: "ORGANISIEREND", color: "#8B5CF6", bg: "#FAF5FF", emoji: "🐙" }
+    S: { name: "Der Delphin", label: "SOZIAL", color: "#0D9488", bg: "#DBF2EE", emoji: "🐬" },
+    E: { name: "Der Adler", label: "UNTERNEHMERISCH", color: "#EA580C", bg: "#FCE5D2", emoji: "🦅" },
+    C: { name: "Der Oktopus", label: "ORGANISIEREND", color: "#7C3AED", bg: "#ECE2FA", emoji: "🐙" }
 };
 
-const CHAMELEON = { name: "Das Chamäleon", label: "ANPASSUNGSFÄHIG", color: "#7C3AED", bg: "#FAF5FF", emoji: "🦎" };
+const CHAMELEON = { name: "Das Chamäleon", label: "ANPASSUNGSFÄHIG", color: "#3D5A6C", bg: "#E6EAEE", emoji: "🦎" };
 
 const JOB_DATABASE = {
     "RI": [
@@ -117,11 +117,10 @@ function getMatchBadge(match) {
     return `<span class="match-badge ${cls}">${match}% Match</span>`;
 }
 
-function showComingSoon(e) {
+function selectJob(e, title, match) {
     e.preventDefault();
-    var toast = document.getElementById('coming-soon-toast');
-    toast.classList.add('visible');
-    setTimeout(function(){ toast.classList.remove('visible'); }, 3000);
+    sessionStorage.setItem('wm_selected_job', JSON.stringify({name: title, match: match}));
+    window.location.href = '/fit-intro';
 }
 
 function checkCustomJob() {
@@ -166,7 +165,7 @@ function render() {
                 <div class="job-divider"></div>
                 <div class="job-card-bottom">
                     <div class="job-salary">${formatSalary(job.salary)}</div>
-                    <a href="#" class="job-check-link" onclick="showComingSoon(event)">
+                    <a href="#" class="job-check-link" onclick="selectJob(event, '${job.title}', ${job.match})">
                         Passe ich wirklich dahin? →
                     </a>
                 </div>
@@ -186,9 +185,6 @@ function render() {
             </div>
 
 
-            <div id="coming-soon-toast" class="coming-soon-toast">
-                🚀 Coming soon — dein persönlicher Fit-Check
-            </div>
             <div class="footer-links">
                 <a href="#">Impressum</a> · <a href="#">Datenschutz</a>
             </div>
@@ -416,27 +412,7 @@ render();
     text-decoration: underline;
 }
 
-.coming-soon-toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: #1E3A5F;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    opacity: 0;
-    transition: all 0.3s ease;
-    pointer-events: none;
-    z-index: 999;
-    white-space: nowrap;
-}
-.coming-soon-toast.visible {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-}
+
 
 </style>
 {% endblock %}

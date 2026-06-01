@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+{% block title %}Dein vollständiges Ergebnis — Work Mentor{% endblock %}
+
+{% block head %}
+<style>
+.premium-screen {
+    min-height: 100dvh;
+    background: var(--bg);
+    padding-top: 56px;
+    padding-bottom: 48px;
+}
+.premium-topbar {
+    padding: 10px 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.premium-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.premium-logo-mark {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid var(--text-primary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700;
+}
+.unlocked-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    background: #E7F0EB;
+    color: #2D6A4F;
+    font-size: 11px;
+    font-weight: 600;
+}
+.premium-context {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 14px;
+    padding: 0 20px;
+}
+
+/* Score arc — reuse teaser styles */
+.score-arc-wrap {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    height: 170px;
+}
+.score-arc-inner {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 12px;
+}
+.score-number { font-size: 58px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.score-pct { font-size: 24px; color: var(--text-muted); font-weight: 500; }
+.score-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-top: 6px; }
+
+/* Report sections */
+.report-section {
+    border-radius: var(--radius);
+    padding: 18px;
+    margin: 0 20px 12px;
+}
+.report-section-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.report-section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+}
+.report-item { margin-bottom: 14px; }
+.report-item:last-child { margin-bottom: 0; }
+.report-item-title { font-size: 14.5px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.report-item-body { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 0; }
+
+/* Gap items with tag pill */
+.gap-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+.gap-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px 3px 7px;
+    border-radius: var(--radius-full);
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.gap-tag--lernbar   { background: #E7F0EB; color: #2D6A4F; }
+.gap-tag--steuerbar { background: #F5EDE0; color: #A86A2D; }
+.gap-tag--mismatch  { background: var(--bg-soft); color: var(--text-muted); }
+
+/* Lever card */
+.lever-card {
+    border-radius: var(--radius);
+    padding: 20px;
+    margin: 0 20px 12px;
+    background: var(--accent);
+    color: #fff;
+}
+.lever-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.lever-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.65); font-weight: 700; }
+.lever-text { font-size: 17px; font-weight: 700; color: #fff; line-height: 1.3; margin: 0; letter-spacing: -0.02em; }
+
+/* Resources */
+.resource-card {
+    padding: 14px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.resource-card:last-child { margin-bottom: 0; }
+.resource-icon {
+    width: 34px; height: 34px; border-radius: var(--radius-sm);
+    background: var(--bg-card); border: 1px solid var(--border-light);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.resource-for { font-size: 10.5px; color: var(--text-muted); letter-spacing: 0.08em; margin-bottom: 3px; }
+.resource-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+.resource-meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+.resource-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    background: none;
+    border: none;
+    font-family: var(--font);
+    cursor: pointer;
+    padding: 0;
+}
+
+/* Action buttons */
+.premium-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 20px 0;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container premium-screen" id="premiumScreen">
+    <div style="text-align:center;padding:80px 0;color:var(--text-muted);">Lade Report…</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const fitData = JSON.parse(sessionStorage.getItem('wm_fit_result') || 'null');
+const wmResult = JSON.parse(sessionStorage.getItem('wm_result') || '{}');
+
+if (!fitData) {
+    document.getElementById('premiumScreen').innerHTML = `
+        <div style="text-align:center;padding:80px 20px;">
+            <p style="color:var(--text-muted);margin-bottom:24px;">Kein Ergebnis gefunden.</p>
+            <a href="/assessment" class="btn btn-primary">Karriere-Check starten →</a>
+        </div>`;
+} else {
+    renderPremium(fitData);
+}
+
+function buildScoreArcSVG(score) {
+    const R = 76, CX = 100, CY = 100, START = 135, SWEEP = 270;
+    function polar(deg) { const r = (deg-90)*Math.PI/180; return [CX+R*Math.cos(r), CY+R*Math.sin(r)]; }
+    function arcPath(a, b) {
+        const [x1,y1]=polar(a),[x2,y2]=polar(b);
+        return `M ${x1} ${y1} A ${R} ${R} 0 ${(b-a)>180?1:0} 1 ${x2} ${y2}`;
+    }
+    const progress = Math.min(1, score/100);
+    const color = score >= 70 ? '#2D6A4F' : '#A86A2D';
+    return `<svg width="200" height="200" viewBox="0 0 200 200">
+        <path d="${arcPath(START,START+SWEEP)}" fill="none" stroke="#EFEDE6" stroke-width="10" stroke-linecap="round"/>
+        <path d="${arcPath(START,START+SWEEP*progress)}" fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round"/>
+    </svg>`;
+}
+
+function iconSvg(name, color) {
+    const icons = {
+        check: '<polyline points="20 6 9 17 4 12"/>',
+        alert: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+        lightbulb: '<line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>',
+        bookmark: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+        book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+        users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+        laptop: '<rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="2" y1="20" x2="22" y2="20"/>',
+        download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+        arrowright: '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
+        sliders: '<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
+    };
+    const paths = icons[name] || icons.check;
+    return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+}
+
+function tagMeta(tag) {
+    return {
+        lernbar:   {label:'Lernbar',           icon:'book',    cls:'gap-tag--lernbar',   color:'#2D6A4F'},
+        steuerbar: {label:'Bewusst steuerbar',  icon:'sliders', cls:'gap-tag--steuerbar', color:'#A86A2D'},
+        mismatch:  {label:'Interessens-Mismatch',icon:'alert',  cls:'gap-tag--mismatch',  color:'#9B9892'},
+    }[tag] || {label: tag, icon:'alert', cls:'gap-tag--mismatch', color:'#9B9892'};
+}
+
+function resourceIcon(kind) {
+    if (kind === 'book') return 'book';
+    if (kind === 'coach') return 'users';
+    return 'laptop';
+}
+
+function renderPremium(data) {
+    const jobName = data.job_name || 'Produktmanager';
+    const score = data.fit_score || 67;
+
+    const strengthsHtml = (data.strengths || []).map(s => `
+        <div class="report-item">
+            <div class="report-item-title">${s.name}</div>
+            <p class="report-item-body">${s.body}</p>
+        </div>`).join('');
+
+    const gapsHtml = (data.gaps || []).map(g => {
+        const tm = tagMeta(g.tag);
+        return `<div class="report-item">
+            <div class="gap-item-header">
+                <span class="report-item-title" style="margin:0;">${g.name}</span>
+                <span class="gap-tag ${tm.cls}">${iconSvg(tm.icon, tm.color)}${tm.label}</span>
+            </div>
+            <p class="report-item-body">${g.body}</p>
+        </div>`;
+    }).join('');
+
+    const leverData = data.lever || {text: 'Gezielte Weiterentwicklung könnte deinen Fit deutlich heben.'};
+
+    const resourcesHtml = (data.resources || []).map(r => {
+        const icn = resourceIcon(r.kind);
+        return `<div class="resource-card">
+            <div class="resource-icon">${iconSvg(icn, 'var(--accent)')}</div>
+            <div style="flex:1;min-width:0;">
+                <div class="resource-for">Für: ${r.for || ''}</div>
+                <div class="resource-title">${r.title}</div>
+                <div class="resource-meta">${r.author || ''} · ${r.price || ''}</div>
+                <button class="resource-cta">${r.cta || 'Mehr erfahren'}${iconSvg('arrowright','var(--accent)')}</button>
+            </div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('premiumScreen').innerHTML = `
+        <div class="premium-topbar">
+            <span class="premium-logo">
+                <span class="premium-logo-mark">M</span>
+                Work Mentor
+            </span>
+            <span class="unlocked-pill">
+                ${iconSvg('check','#2D6A4F')}
+                Voller Report
+            </span>
+        </div>
+
+        <div class="premium-context">${jobName} · Dein vollständiges Fit-Ergebnis</div>
+
+        <div class="score-arc-wrap">
+            ${buildScoreArcSVG(score)}
+            <div class="score-arc-inner">
+                <div class="score-number">${score}<span class="score-pct">%</span></div>
+                <div class="score-label">FIT</div>
+            </div>
+        </div>
+
+        <div style="height:24px;"></div>
+
+        <!-- Stärken -->
+        <div class="report-section" style="background:#E7F0EB;">
+            <div class="report-section-head">
+                ${iconSvg('check','#2D6A4F')}
+                <span class="report-section-label" style="color:#2D6A4F;">Was du mitbringst</span>
+            </div>
+            ${strengthsHtml}
+        </div>
+
+        <!-- Gaps -->
+        <div class="report-section" style="background:#F5EDE0;">
+            <div class="report-section-head">
+                ${iconSvg('alert','#A86A2D')}
+                <span class="report-section-label" style="color:#A86A2D;">Wo es eng wird</span>
+            </div>
+            ${gapsHtml}
+        </div>
+
+        <!-- Lever -->
+        <div class="lever-card">
+            <div class="lever-head">
+                ${iconSvg('lightbulb','#fff')}
+                <span class="lever-label">Dein größter Hebel</span>
+            </div>
+            <p class="lever-text">${leverData.text}</p>
+        </div>
+
+        <!-- Resources -->
+        <div class="report-section" style="background:var(--bg-card);border:1px solid var(--border-light);">
+            <div class="report-section-head">
+                ${iconSvg('bookmark','var(--text-primary)')}
+                <span class="report-section-label" style="color:var(--text-primary);">Was dir konkret hilft</span>
+            </div>
+            ${resourcesHtml}
+        </div>
+
+        <!-- Actions -->
+        <div class="premium-actions">
+            <button class="btn btn-primary" onclick="alert('PDF-Download kommt bald.')">
+                ${iconSvg('download','#fff')}&nbsp; Als PDF speichern
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='/jobs'">
+                Anderen Job testen
+            </button>
+        </div>
+    `;
+}
+</script>
+{% endblock %}

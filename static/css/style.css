@@ -6,16 +6,16 @@
    0. Design Tokens
    -------------------------------------------------------------------------- */
 :root {
-    --bg: #F7F5EF;
+    --bg: #FAF9F6;
     --bg-card: #FFFFFF;
-    --bg-soft: #F0EDE6;
+    --bg-soft: #F2F1EC;
     --text-primary: #141414;
-    --text-secondary: #6B6B6B;
-    --text-muted: #9B9B95;
+    --text-secondary: #5C5A55;
+    --text-muted: #9B9892;
     --accent: #1A3A5C;
     --accent-hover: #14304D;
     --border: #D9D9D4;
-    --border-light: #E8E8E3;
+    --border-light: #E6E4DC;
     --radius: 14px;
     --radius-sm: 8px;
     --radius-lg: 24px;
@@ -25,13 +25,20 @@
     --font: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --transition: all 0.2s ease;
 
-    /* Tier Colors */
-    --tier-gray: #9CA3AF;
-    --tier-blue: #3B82F6;
+    /* Tier Colors (V3) */
+    --tier-wolf:    #475569;
+    --tier-eule:    #4338CA;
+    --tier-fuchs:   #F59E0B;
+    --tier-delphin: #0D9488;
+    --tier-adler:   #EA580C;
+    --tier-oktopus: #7C3AED;
+    /* Legacy aliases kept for any inline references */
+    --tier-gray: #475569;
+    --tier-blue: #4338CA;
     --tier-yellow: #F59E0B;
-    --tier-teal: #14B8A6;
-    --tier-orange: #E85A1A;
-    --tier-purple: #8B5CF6;
+    --tier-teal: #0D9488;
+    --tier-orange: #EA580C;
+    --tier-purple: #7C3AED;
 
     /* Semantic */
     --green: #1F6B4E;

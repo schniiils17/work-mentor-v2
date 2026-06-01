@@ -5,8 +5,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from typing import List
+from typing import List, Dict
 import os
+import json
+import re
 
 from app.holland import ITEMS, assess, get_shuffled_items, _dim_label
 import anthropic
@@ -29,10 +31,16 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 class Answer(BaseModel):
     item_id: int
-    value: int  # -3 to +3 (Likert scale)
+    value: int  # -2 to +2 (Likert scale)
 
 class AssessmentRequest(BaseModel):
     answers: List[Answer]
+
+class FitRequest(BaseModel):
+    job_name: str
+    scores: Dict[str, int]
+    code: str
+    fit_answers: List[Dict] = []  # [{question, value}] from post-payment check
 
 
 @app.get("/api/items")
@@ -102,6 +110,76 @@ Regeln fuer JOB_TEASER:
     return result
 
 
+@app.post("/api/fit")
+async def post_fit(req: FitRequest):
+    """Generiere job-spezifische Fit-Analyse via Claude."""
+    dim_labels = {"R": "Realistisch", "I": "Forschend", "A": "Kreativ",
+                  "S": "Sozial", "E": "Unternehmerisch", "C": "Organisierend"}
+    scores_str = ", ".join([f"{dim_labels.get(k, k)}: {v}" for k, v in req.scores.items()])
+
+    # Build fit-answers section if provided
+    answers_section = ""
+    if req.fit_answers:
+        scale = {-2: "Stimmt gar nicht", -1: "Eher nicht", 0: "Teils-teils", 1: "Eher ja", 2: "Stimmt voll"}
+        lines = [f'- "{a["question"]}": {scale.get(a["value"], str(a["value"]))}' for a in req.fit_answers]
+        answers_section = "\n\nSelbsteinschätzung des Users (8 Fragen zum Job-Fit):\n" + "\n".join(lines)
+        answers_note = "- Nutze die Selbsteinschätzung als Hauptquelle fuer Staerken und Gaps — sie ist direktes Signal"
+    else:
+        answers_note = "- Leite Staerken und Gaps aus den RIASEC-Scores ab"
+
+    prompt = f"""Analysiere den Job-Fit fuer den Job "{req.job_name}".
+
+RIASEC-Profil: {req.code}
+Dimension-Scores (Rohwerte -12 bis +12): {scores_str}{answers_section}
+
+Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
+
+{{
+  "fit_score": <Zahl 50-88, realistisch auf Basis aller vorliegenden Daten>,
+  "fit_headline": "<1 Satz, stärkste Verbindung zwischen Profil und Job, Du-Form>",
+  "strengths": [
+    {{"name": "...", "body": "..."}},
+    {{"name": "...", "body": "..."}},
+    {{"name": "...", "body": "..."}}
+  ],
+  "gaps": [
+    {{"name": "...", "body": "...", "tag": "lernbar"}},
+    {{"name": "...", "body": "...", "tag": "steuerbar"}}
+  ],
+  "lever": {{
+    "skill": "...",
+    "text": "... koennte deinen Fit um ~X% heben."
+  }},
+  "resources": [
+    {{"kind": "book", "title": "...", "author": "...", "price": "ca. €X", "cta": "Auf Amazon ansehen", "for": "..."}},
+    {{"kind": "coach", "title": "...", "author": "1:1 Coaching", "price": "ab €120/Session", "cta": "Coach finden", "for": "..."}}
+  ]
+}}
+
+Regeln:
+- fit_score: ehrlich, 60-80 ist realistisch
+- strengths: 3 Staerken, je 2 Saetze body, konkret auf den Job bezogen
+- gaps: 2 ehrliche Luecken. tag: "lernbar" = Skill, "steuerbar" = Persoenlichkeit, "mismatch" = Interessens-Mismatch
+- lever: wichtigster Hebel, mit geschaetzter Fit-Verbesserung in Prozent
+- resources: echte Buecher/Kurse, maximal 2
+- {answers_note}
+- Deutsch, Du-Form, kein HR-Jargon, kurze Saetze, NIEMALS als-wie"""
+
+    try:
+        msg = claude.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=900,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        text = msg.content[0].text.strip()
+        match = re.search(r'\{.*\}', text, re.DOTALL)
+        if match:
+            return json.loads(match.group())
+        return {"error": "parse_error", "raw": text[:200]}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 # ─── Frontend Routes ─────────────────────────────────────────────────
 
 @app.get("/", response_class=HTMLResponse)
@@ -130,6 +208,26 @@ async def story(request: Request):
 @app.get("/jobs", response_class=HTMLResponse)
 async def jobs(request: Request):
     return templates.TemplateResponse("jobs.html", {"request": request})
+
+
+@app.get("/fit-check-post", response_class=HTMLResponse)
+async def fit_check_post(request: Request):
+    return templates.TemplateResponse("fit-check-post.html", {"request": request})
+
+
+@app.get("/fit-intro", response_class=HTMLResponse)
+async def fit_intro(request: Request):
+    return templates.TemplateResponse("fit-intro.html", {"request": request})
+
+
+@app.get("/teaser", response_class=HTMLResponse)
+async def teaser(request: Request):
+    return templates.TemplateResponse("teaser.html", {"request": request})
+
+
+@app.get("/premium", response_class=HTMLResponse)
+async def premium(request: Request):
+    return templates.TemplateResponse("premium.html", {"request": request})
 
 
 @app.get("/favicon.ico")

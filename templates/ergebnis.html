@@ -18,16 +18,16 @@
 <script>
 // Tier-Tiere basierend auf Top-RIASEC-Dimension
 const TIERS = {
-    R: { name: "Der Wolf", label: "REALISTISCH", svg: "/static/img/wolf.svg", color: "#9CA3AF", colorLight: "#F0F0F0", quote: "Weniger reden. Mehr machen.", tagline: "praktischem Instinkt", superkraft: "Dinge zum Laufen bringen, die andere nur besprechen.", kryptonit: "Stundenlange Meetings, in denen nichts passiert." },
-    I: { name: "Die Eule", label: "FORSCHEND", svg: "/static/img/eule.svg", color: "#3B82F6", colorLight: "#EBF2FF", quote: "Warum? ist vermutlich deine Lieblingsfrage.", tagline: "analytischem Blick", superkraft: "Zusammenh\u00e4nge sehen, die anderen entgehen.", kryptonit: "Entscheidungen treffen, wenn die Datenlage d\u00fcnn ist." },
-    A: { name: "Der Fuchs", label: "KREATIV", svg: "/static/img/fuchs.svg", color: "#F59E0B", colorLight: "#FFF8E1", quote: "Wahrscheinlich hast du schon drei Ideen, bevor andere das Problem sehen.", tagline: "kreativem Touch", superkraft: "L\u00f6sungen finden, an die sich noch keiner rangetraut hat.", kryptonit: "Starre Prozesse, in denen Kreativit\u00e4t keinen Platz hat." },
-    S: { name: "Der Delphin", label: "SOZIAL", svg: "/static/img/delphin.svg", color: "#14B8A6", colorLight: "#E6FAF5", quote: "Du sp\u00fcrst wahrscheinlich schnell, wie es anderen geht.", tagline: "empathischer St\u00e4rke", superkraft: "R\u00e4ume schaffen, in denen sich Menschen \u00f6ffnen.", kryptonit: "Situationen, in denen niemand ehrlich miteinander redet." },
-    E: { name: "Der Adler", label: "UNTERNEHMERISCH", svg: "/static/img/adler.svg", color: "#E85A1A", colorLight: "#FDEEE3", quote: "Wo andere Risiko sehen, seh ich Chancen.", tagline: "unternehmerischem Drive", superkraft: "Leute begeistern, bevor du selbst weißt, wovon du redest.", kryptonit: "Jemand sagt: Das haben wir schon immer so gemacht." },
-    C: { name: "Der Oktopus", label: "ORGANISIEREND", svg: "/static/img/oktopus.svg", color: "#8B5CF6", colorLight: "#F3EEFF", quote: "Du bist vermutlich die Person, die den \u00dcberblick beh\u00e4lt, wenn alle anderen ihn verlieren.", tagline: "systematischem Verstand", superkraft: "Chaos in Struktur verwandeln \u2014 ohne dass es jemand merkt.", kryptonit: "Wenn alle einfach mal schauen wollen, statt einen Plan zu machen." }
+    R: { name: "Der Wolf",    label: "REALISTISCH",     svg: "/static/img/wolf.svg",    color: "#475569", colorLight: "#E8ECF1", quote: "Ich rede nicht drüber. Ich mach's einfach.",           tagline: "handfestem Realitätssinn",   superkraft: "Aus dem Nichts etwas Funktionierendes bauen — bevor andere überhaupt verstanden haben, wie das Problem aussieht.", kryptonit: "Endlose Meetings, in denen geredet wird statt gemacht." },
+    I: { name: "Die Eule",    label: "FORSCHEND",       svg: "/static/img/eule.svg",    color: "#4338CA", colorLight: "#E8E7F8", quote: "Ich seh, was andere übersehen.",                        tagline: "analytischer Tiefe",             superkraft: "Muster erkennen, wo andere nur Chaos sehen — und das so erklären, dass es plötzlich offensichtlich wirkt.",    kryptonit: "Jemand sagt 'Glaub mir einfach' ohne Daten zu zeigen." },
+    A: { name: "Der Fuchs",   label: "KREATIV",         svg: "/static/img/fuchs.svg",   color: "#F59E0B", colorLight: "#FCF1DA", quote: "Die besten Ideen passen in keine Box.",                   tagline: "kreativem Instinkt",             superkraft: "Bestehende Ideen so neu kombinieren, dass alle denken: Klar, warum hat das nicht schon jemand gemacht?",               kryptonit: "Eine Vorlage in PowerPoint, die du ausfüllen sollst." },
+    S: { name: "Der Delphin", label: "SOZIAL",          svg: "/static/img/delphin.svg", color: "#0D9488", colorLight: "#DBF2EE", quote: "Menschen sind mein Projekt.",                              tagline: "sozialem Gespür",                superkraft: "Eine Gruppe so führen, dass sich jeder einzelne gesehen fühlt — und am Ende mehr leistet als gedacht.",  kryptonit: "Allein in einem Co-Working zwischen 30 Headphones." },
+    E: { name: "Der Adler",   label: "UNTERNEHMERISCH", svg: "/static/img/adler.svg",   color: "#EA580C", colorLight: "#FCE5D2", quote: "Wo andere Risiko sehen, seh ich Chancen.",                 tagline: "unternehmerischem Drive",        superkraft: "Leute begeistern, bevor du selbst weißt, wovon du redest.",                                                         kryptonit: "Jemand sagt: Das haben wir schon immer so gemacht." },
+    C: { name: "Der Oktopus", label: "ORGANISIEREND",   svg: "/static/img/oktopus.svg", color: "#7C3AED", colorLight: "#ECE2FA", quote: "Der Plan steht. Immer.",                                   tagline: "strukturiertem Kopf",            superkraft: "Aus Datenchaos eine saubere Struktur machen, die so logisch wirkt, als wäre sie schon immer da gewesen.",           kryptonit: "Lass uns das spontan entscheiden." }
 };
 
 function buildHexagon(scores, color) {
-    // Rohwerte -12 bis +12 (7-Punkt-Skala, 4 Items pro Dim)
+    // Rohwerte -12 bis +12 (5-Punkt-Skala -2 bis +2, 6 Items pro Dim)
     const dims = ['R', 'I', 'A', 'S', 'E', 'C'];
     const cx = 140, cy = 140, r = 110;
     
@@ -102,7 +102,7 @@ function render() {
     const code = data.code || 'EA';
     const topKey = code[0];
     const secondKey = code[1];
-        const CHAMELEON = { name: "Das Cham\u00e4leon", label: "ANPASSUNGSF\u00c4HIG", svg: "/static/img/chamaeleon.svg", color: "#7C3AED", colorLight: "#F3EEFF", quote: "Ich passe mich an \u2014 und genau das ist meine St\u00e4rke.", tagline: "vielseitigem Instinkt", superkraft: "Zwischen Welten \u00fcbersetzen, die sonst nicht miteinander reden.", kryptonit: "Auf EINE Schiene festgelegt werden." };
+        const CHAMELEON = { name: "Das Cham\u00e4leon", label: "ANPASSUNGSF\u00c4HIG", svg: "/static/img/chamaeleon.svg", color: "#3D5A6C", colorLight: "#E6EAEE", quote: "Ich passe mich an \u2014 und genau das ist meine St\u00e4rke.", tagline: "vielseitigem Instinkt", superkraft: "Zwischen Welten \u00fcbersetzen, die sonst nicht miteinander reden.", kryptonit: "Auf EINE Schiene festgelegt werden." };
     const tier = data.is_generalist ? CHAMELEON : TIERS[topKey];
     const secondTier = TIERS[secondKey];
     
