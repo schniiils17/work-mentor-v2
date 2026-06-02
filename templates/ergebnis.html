@@ -94,7 +94,7 @@ function buildProfileBars(normalizedScores, code, TIERS) {
         return `
             <div style="margin-bottom:16px;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:7px;">
-                    <img src="${tierSvg}" alt="" style="width:26px; height:26px; object-fit:contain; flex-shrink:0;">
+                    <span style="width:28px; height:28px; min-width:28px; border-radius:50%; background:${tierColor}; display:inline-flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; opacity:${isTop ? 1 : 0.7};"><img src="${tierSvg}" alt="" style="width:30px; height:30px; object-fit:contain;"></span>
                     <div style="flex:1; min-width:0; display:flex; align-items:center; gap:8px;">
                         <span style="font-size:14px; font-weight:500; color:${isTop ? '#141414' : 'var(--text-secondary)'};">${meta.word}</span>
                         ${rankLabel}
@@ -104,7 +104,7 @@ function buildProfileBars(normalizedScores, code, TIERS) {
                 <div style="height:${isTop ? 8 : 6}px; background:#EFEDE6; border-radius:4px; overflow:hidden; margin-bottom:6px;">
                     <div style="height:100%; width:${pct}%; background:${tierColor}; border-radius:4px; opacity:${isTop ? 1 : 0.55};"></div>
                 </div>
-                <div style="font-size:12px; color:var(--text-muted); line-height:1.4; padding-left:36px;">${meta.meaning}</div>
+                <div style="font-size:12px; color:var(--text-muted); line-height:1.4; padding-left:38px;">${meta.meaning}</div>
             </div>`;
     }).join('');
 }
