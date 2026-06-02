@@ -26,53 +26,87 @@ const TIERS = {
     C: { name: "Der Oktopus", label: "ORGANISIEREND",   svg: "/static/img/oktopus.svg", color: "#7C3AED", colorLight: "#ECE2FA", quote: "Der Plan steht. Immer.",                                   tagline: "strukturiertem Kopf",            superkraft: "Aus Datenchaos eine saubere Struktur machen, die so logisch wirkt, als wäre sie schon immer da gewesen.",           kryptonit: "Lass uns das spontan entscheiden." }
 };
 
-function buildHexagon(scores, color) {
-    // Rohwerte -12 bis +12 (5-Punkt-Skala -2 bis +2, 6 Items pro Dim)
-    const dims = ['R', 'I', 'A', 'S', 'E', 'C'];
-    const cx = 140, cy = 140, r = 110;
-    
-    // Normalisierung: -12 → 0, +12 → 1
-    function normalize(val) {
-        return Math.max(0, Math.min(1, (val + 12) / 24));
-    }
-    
-    function getPoint(index, normVal) {
-        const angle = (Math.PI * 2 * index / 6) - Math.PI / 2;
-        const dist = r * normVal * 0.85;
-        return [cx + dist * Math.cos(angle), cy + dist * Math.sin(angle)];
-    }
-    
-    function getOuterPoint(index) {
-        const angle = (Math.PI * 2 * index / 6) - Math.PI / 2;
-        return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
-    }
+// RIASEC-Dimensionen — volles Wort + 1 Satz Bedeutung (Produkt-Labels)
+const DIM_META = {
+    R: { word: 'Realistisch',     meaning: 'du packst an und baust Dinge, die halten' },
+    I: { word: 'Forschend',       meaning: 'du willst verstehen, bevor du urteilst' },
+    A: { word: 'Kreativ',         meaning: 'du erschaffst und denkst um die Ecke' },
+    S: { word: 'Sozial',          meaning: 'du arbeitest mit und für Menschen' },
+    E: { word: 'Unternehmerisch', meaning: 'du willst gestalten und überzeugen' },
+    C: { word: 'Organisierend',   meaning: 'du schaffst Ordnung und Struktur' },
+};
 
-    let gridLines = '';
-    for (let level = 0.33; level <= 1.01; level += 0.33) {
-        const points = dims.map((_, i) => {
-            const angle = (Math.PI * 2 * i / 6) - Math.PI / 2;
-            return `${cx + r * level * Math.cos(angle)},${cy + r * level * Math.sin(angle)}`;
-        }).join(' ');
-        gridLines += `<polygon points="${points}" fill="none" stroke="#E8E8E3" stroke-width="1"/>`;
-    }
-    
-    let axisLines = dims.map((_, i) => {
-        const [x, y] = getOuterPoint(i);
-        return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#E8E8E3" stroke-width="1"/>`;
-    }).join('');
-    
-    const dataPoints = dims.map((d, i) => getPoint(i, normalize(scores[d] || 0)));
-    const dataPolygon = `<polygon points="${dataPoints.map(p => p.join(',')).join(' ')}" fill="${color}" fill-opacity="0.15" stroke="${color}" stroke-width="2.5"/>`;
-    const dataDots = dataPoints.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4" fill="${color}"/>`).join('');
-    
-    const labelEls = dims.map((d, i) => {
-        const angle = (Math.PI * 2 * i / 6) - Math.PI / 2;
-        const lx = cx + (r + 24) * Math.cos(angle);
-        const ly = cy + (r + 24) * Math.sin(angle);
-        return `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#9B9B95" font-family="var(--font)">${d}</text>`;
-    }).join('');
+function iconSvg(name, color, size, stroke) {
+    const paths = {
+        zap: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+        skull: '<circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/>',
+        share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>',
+    };
+    return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="${stroke || 2}" stroke-linecap="round" stroke-linejoin="round">${paths[name] || ''}</svg>`;
+}
 
-    return `<svg viewBox="-10 -10 300 300" class="hexagon-chart" style="width:100%;max-width:280px;">${gridLines}${axisLines}${dataPolygon}${dataDots}${labelEls}</svg>`;
+// PowerCard — Superkraft (gefüllt, Tier-Farbe) vs Kryptonit (dunkel) — starker Kontrast
+function buildPowerCard(variant, label, body, tierColor) {
+    const isSuper = variant === 'super';
+    const bg = isSuper ? tierColor : '#141414';
+    const icon = isSuper ? 'zap' : 'skull';
+    const shadow = isSuper
+        ? `0 10px 28px -14px ${tierColor}`
+        : '0 10px 28px -16px rgba(0,0,0,0.6)';
+    return `
+        <div style="border-radius:18px; padding:18px; background:${bg}; color:#fff; position:relative; overflow:hidden; box-shadow:${shadow};">
+            <div aria-hidden style="position:absolute; top:-14px; right:-10px; opacity:0.12;">
+                ${iconSvg(icon, '#fff', 92, 1.4)}
+            </div>
+            <div style="display:flex; align-items:center; gap:9px; margin-bottom:10px; position:relative;">
+                <span style="width:28px; height:28px; border-radius:8px; background:rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:center;">
+                    ${iconSvg(icon, '#fff', 15, 2)}
+                </span>
+                <span style="font-size:10.5px; text-transform:uppercase; letter-spacing:0.12em; font-weight:600; color:rgba(255,255,255,0.85);">${label}</span>
+            </div>
+            <div style="font-size:15.5px; color:#fff; line-height:1.4; font-weight:500; position:relative;">${body}</div>
+        </div>`;
+}
+
+// ProfileBars — lesbare horizontale Balken, hoch→niedrig sortiert, volle Wörter
+function buildProfileBars(normalizedScores, code, TIERS) {
+    const order = ['R', 'I', 'A', 'S', 'E', 'C'];
+    const sorted = order
+        .map(k => ({ key: k, val: normalizedScores[k] != null ? normalizedScores[k] : 0 }))
+        .sort((a, b) => b.val - a.val);
+
+    const primaryColor = (TIERS[code[0]] || {}).color || '#1A3A5C';
+    const accentColor = (TIERS[code[1]] || {}).color || '#1A3A5C';
+
+    return sorted.map((s, i) => {
+        const meta = DIM_META[s.key] || {};
+        const tierColor = (TIERS[s.key] || {}).color || '#9B9B95';
+        const tierSvg = (TIERS[s.key] || {}).svg || '';
+        const isPrimary = i === 0;
+        const isSecondary = i === 1;
+        const isTop = isPrimary || isSecondary;
+        const pct = Math.round(s.val);
+
+        let rankLabel = '';
+        if (isPrimary) rankLabel = `<span style="font-size:9.5px; font-weight:600; color:${primaryColor}; background:${primaryColor}14; padding:2px 7px; border-radius:100px; letter-spacing:0.04em; white-space:nowrap;">Haupttyp</span>`;
+        else if (isSecondary) rankLabel = `<span style="font-size:9.5px; font-weight:600; color:${accentColor}; background:${accentColor}14; padding:2px 7px; border-radius:100px; letter-spacing:0.04em; white-space:nowrap;">Zweittyp</span>`;
+
+        return `
+            <div style="margin-bottom:16px;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:7px;">
+                    <img src="${tierSvg}" alt="" style="width:26px; height:26px; object-fit:contain; flex-shrink:0;">
+                    <div style="flex:1; min-width:0; display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:14px; font-weight:500; color:${isTop ? '#141414' : 'var(--text-secondary)'};">${meta.word}</span>
+                        ${rankLabel}
+                    </div>
+                    <span style="font-size:13px; font-variant-numeric:tabular-nums; color:${isTop ? '#141414' : 'var(--text-muted)'}; font-weight:${isTop ? 600 : 400};">${pct}%</span>
+                </div>
+                <div style="height:${isTop ? 8 : 6}px; background:#EFEDE6; border-radius:4px; overflow:hidden; margin-bottom:6px;">
+                    <div style="height:100%; width:${pct}%; background:${tierColor}; border-radius:4px; opacity:${isTop ? 1 : 0.55};"></div>
+                </div>
+                <div style="font-size:12px; color:var(--text-muted); line-height:1.4; padding-left:36px;">${meta.meaning}</div>
+            </div>`;
+    }).join('');
 }
 
 function render() {
@@ -138,23 +172,21 @@ function render() {
             ${(data.strengths || []).map(s => '<span style="display: inline-block; font-size: 13px; font-weight: 500; background: var(--bg-soft, #F0EDE6); color: var(--text-primary, #141414); padding: 6px 14px; border-radius: 100px;">' + s + '</span>').join('')}
         </div>
         
-        <!-- Hexagon -->
-        <div class="hexagon-container">
-            ${buildHexagon(scores, tier.color)}
+        <!-- Superkraft / Kryptonit — das Herzstück (starker Kontrast) -->
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 28px;">
+            ${buildPowerCard('super', 'Deine Superkraft', tier.superkraft, tier.color)}
+            ${buildPowerCard('krypto', 'Dein Kryptonit', tier.kryptonit, tier.color)}
         </div>
-        
-        <!-- Superkraft -->
-        <div class="trait-card superkraft" style="margin-top: 24px;">
-            <div class="trait-card-label" style="color: ${tier.color};">⚡ SUPERKRAFT</div>
-            <div class="trait-card-text">${tier.superkraft}</div>
+
+        <!-- Dein Profil — lesbare Balken statt Spinnennetz -->
+        <div style="margin-top: 36px;">
+            <div class="section-label">Dein Profil</div>
+            <p style="font-size: 13px; color: var(--text-secondary); margin: 6px 0 18px; line-height: 1.5;">
+                Sechs Dimensionen der Berufspsychologie — so verteilen sich deine.
+            </p>
+            ${buildProfileBars(data.normalized_scores || {}, code, TIERS)}
         </div>
-        
-        <!-- Kryptonit -->
-        <div class="trait-card kryptonit" style="margin-top: 12px;">
-            <div class="trait-card-label">💀 KRYPTONIT</div>
-            <div class="trait-card-text">${tier.kryptonit}</div>
-        </div>
-        
+
         <!-- Story CTA -->
         <div class="story-cta" style="background: ${tier.color}; margin-top: 24px;">
             <div class="story-cta-label">STORY-KARTE</div>
