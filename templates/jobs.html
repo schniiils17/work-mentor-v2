@@ -84,30 +84,24 @@ function noResult() {
         </div>`;
 }
 
-async function loadJobs() {
-    const section = document.getElementById('jobsSection');
-    section.innerHTML = loadingHtml('Wir suchen Jobs, die zu deinem Profil passen …');
-    let result;
+// Cache an das aktuelle Profil gebunden — neuer Test (anderes Profil) invalidiert.
+function jobsCacheSig() {
+    return JSON.stringify(data.normalized_scores || data.scores || {});
+}
+function getCachedJobs() {
     try {
-        const resp = await fetch('/api/jobs', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ scores: data.normalized_scores || data.scores, code: data.code || 'EA' })
-        });
-        result = await resp.json();
-    } catch(e) { result = { error: e.message }; }
+        const c = JSON.parse(sessionStorage.getItem('wm_jobs') || 'null');
+        if (c && c.sig === jobsCacheSig() && Array.isArray(c.jobs) && c.jobs.length) return c.jobs;
+    } catch(e) {}
+    return null;
+}
+function setCachedJobs(jobs) {
+    try { sessionStorage.setItem('wm_jobs', JSON.stringify({ sig: jobsCacheSig(), jobs: jobs })); } catch(e) {}
+}
 
-    if (!result || result.error || !result.jobs || !result.jobs.length) {
-        section.innerHTML = `
-            <div style="padding: 40px 0; text-align: center;">
-                <p style="color: var(--text-secondary); margin-bottom: 16px;">Konnte die Jobs gerade nicht laden.</p>
-                <button class="btn btn-primary" onclick="loadJobs()">Nochmal versuchen</button>
-            </div>`;
-        return;
-    }
-
-    section.innerHTML = `
-        <div class="jobs-list">${result.jobs.map(jobCard).join('')}</div>
+function renderJobsSection(jobs) {
+    document.getElementById('jobsSection').innerHTML = `
+        <div class="jobs-list">${jobs.map(jobCard).join('')}</div>
 
         <div class="oder-section">
             <div class="oder-divider"><span>ODER</span></div>
@@ -129,6 +123,38 @@ async function loadJobs() {
     const cBtn = document.getElementById('customJobBtn');
     cInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkCustomJob(); });
     cInput.addEventListener('input', () => { cBtn.classList.toggle('active', cInput.value.trim().length > 0); });
+}
+
+async function loadJobs(forceRefresh) {
+    const section = document.getElementById('jobsSection');
+
+    if (!forceRefresh) {
+        const cached = getCachedJobs();
+        if (cached) { renderJobsSection(cached); return; }
+    }
+
+    section.innerHTML = loadingHtml('Wir suchen Jobs, die zu deinem Profil passen …');
+    let result;
+    try {
+        const resp = await fetch('/api/jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ scores: data.normalized_scores || data.scores, code: data.code || 'EA' })
+        });
+        result = await resp.json();
+    } catch(e) { result = { error: e.message }; }
+
+    if (!result || result.error || !result.jobs || !result.jobs.length) {
+        section.innerHTML = `
+            <div style="padding: 40px 0; text-align: center;">
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Konnte die Jobs gerade nicht laden.</p>
+                <button class="btn btn-primary" onclick="loadJobs(true)">Nochmal versuchen</button>
+            </div>`;
+        return;
+    }
+
+    setCachedJobs(result.jobs);
+    renderJobsSection(result.jobs);
 }
 
 async function checkCustomJob() {
