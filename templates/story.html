@@ -29,6 +29,8 @@ const TIERS = {
     C: { name: "Der Oktopus", svg: "/static/img/oktopus.svg", color: "#7C3AED", quote: "Der Plan steht. Immer.",                                   superkraft: "Aus Datenchaos eine saubere Struktur machen, die so logisch wirkt, als wäre sie schon immer da gewesen.",           kryptonit: "Lass uns das spontan entscheiden." }
 };
 
+const CHAMELEON = { name: "Das Chamäleon", svg: "/static/img/chamaeleon.svg", color: "#3D5A6C", quote: "Ich passe mich an — und genau das ist meine Stärke.", superkraft: "Zwischen Welten übersetzen, die sonst nicht miteinander reden.", kryptonit: "Auf EINE Schiene festgelegt werden." };
+
 function render() {
     const data = JSON.parse(sessionStorage.getItem('wm_result') || '{}');
     
@@ -38,7 +40,7 @@ function render() {
     }
     
     const topKey = data.code ? data.code[0] : 'E';
-    const tier = TIERS[topKey];
+    const tier = data.is_generalist ? CHAMELEON : TIERS[topKey];
     
     document.getElementById('storyContainer').innerHTML = `
         <div class="story-card" style="background: ${tier.color};">
