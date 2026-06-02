@@ -123,23 +123,30 @@ Typische Superkraft: "{anchor['superkraft']}"
 Typisches Kryptonit: "{anchor['kryptonit']}"
 
 SO INDIVIDUALISIERST DU:
-- superkraft: Nimm die Identitaet von "{d1}" und faerbe sie mit "{d2}" ein. Konkret und
-  ueberraschend — der Satz soll sich anfuehlen wie "woher wissen die das?".
+- superkraft: Nimm die Identitaet von "{d1}" und faerbe sie mit "{d2}" ein. Konkret und ueberraschend.
 - kryptonit: Leite es aus der schwaechsten Richtung ("{d_low}") ab — das, was diese Person
   am ehesten nervt oder auslaugt. Lustig aber wahr.
 - beschreibung: Was treibt die Person an, was nervt sie. Wie ein Kumpel, der sie gut kennt.
 - job_teaser: Neugierig auf die Jobs machen, mit Bezug zum Profil.
 
-REGELN (streng):
+STIL von superkraft & kryptonit (WICHTIG):
+- Genau wie die Anker oben: eine kurze, knackige Phrase im Praesens.
+- KEIN "Du koenntest ...", KEINE Weichmacher (kein "wahrscheinlich/vielleicht/duerfte").
+  Es ist eine Archetyp-Zeile, kein Gutachten.
+- superkraft = eine Faehigkeit als Infinitiv-Phrase. kryptonit = eine Situation, die auslaugt.
+✅ superkraft: "Ideen vorantreiben, ohne den Bezug zur Realitaet zu verlieren."
+❌ superkraft: "Du koenntest Projekte vorantreiben, ohne dabei den Bezug zur Realitaet zu verlieren." (zu weich, klingt schief)
+✅ kryptonit: "Endlose Detailarbeit ohne den grossen Zusammenhang."
+❌ kryptonit: "Detailarbeit raubt dir vermutlich die Motivation." (Weichmacher, kein Archetyp)
+
+REGELN fuer beschreibung & job_teaser:
 - Deutsch, Du-Form, einfache Sprache, Berufsschulniveau, keine Fachbegriffe.
 - Vermutend: "koennte", "scheint", "wahrscheinlich" — KEINE absoluten Aussagen.
 - KEINE Vorhersagen ueber ungetestete Faehigkeiten. Nichts erfinden, nur was aus dem Profil folgt.
-- Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken (nicht "nur 8% ...").
+✅ beschreibung: "Du ueberzeugst Leute wahrscheinlich eher durch Begeisterung als durch Druck."
+❌ beschreibung: "Du wirst jeden Raum erobern." (zu absolut)
 
-✅ "Du ueberzeugst Leute wahrscheinlich eher durch Begeisterung als durch Druck."
-✅ "Routine und starre Vorgaben duerften dir schnell die Energie rauben."
-❌ "Du wirst jeden Raum erobern." (zu absolut)
-❌ "Kaltakquise liegt dir nicht." (Urteil ueber ungetestete Faehigkeit)"""
+GILT IMMER: Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken (nicht "nur 8% ...")."""
 
         msg = claude.messages.create(
             model="claude-sonnet-4-20250514",
