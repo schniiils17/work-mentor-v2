@@ -21,94 +21,14 @@
 
 {% block scripts %}
 <script>
-const TIERS = {
-    R: { name: "Der Wolf", label: "REALISTISCH", color: "#475569", bg: "#E8ECF1", emoji: "🐺" },
-    I: { name: "Die Eule", label: "FORSCHEND", color: "#4338CA", bg: "#E8E7F8", emoji: "🦉" },
-    A: { name: "Der Fuchs", label: "KREATIV", color: "#F59E0B", bg: "#FFFBEB", emoji: "🦊" },
-    S: { name: "Der Delphin", label: "SOZIAL", color: "#0D9488", bg: "#DBF2EE", emoji: "🐬" },
-    E: { name: "Der Adler", label: "UNTERNEHMERISCH", color: "#EA580C", bg: "#FCE5D2", emoji: "🦅" },
-    C: { name: "Der Oktopus", label: "ORGANISIEREND", color: "#7C3AED", bg: "#ECE2FA", emoji: "🐙" }
-};
+const data = (() => { try { return JSON.parse(sessionStorage.getItem('wm_result') || 'null'); } catch(e){ return null; } })();
 
-const CHAMELEON = { name: "Das Chamäleon", label: "ANPASSUNGSFÄHIG", color: "#3D5A6C", bg: "#E6EAEE", emoji: "🦎" };
-
-const JOB_DATABASE = {
-    "RI": [
-        {title: "Ingenieur", match: 91, salary: "52.000 - 78.000", desc: "Entwickle und optimiere technische Systeme und Produkte."},
-        {title: "IT-Systemadministrator", match: 85, salary: "42.000 - 65.000", desc: "Halte komplexe IT-Systeme am Laufen."},
-        {title: "Datenanalyst", match: 79, salary: "45.000 - 68.000", desc: "Finde Muster in Daten und leite Handlungen ab."}
-    ],
-    "IA": [
-        {title: "UX Researcher", match: 89, salary: "48.000 - 75.000", desc: "Erforsche wie Menschen Produkte nutzen."},
-        {title: "Wissenschaftsjournalist", match: 83, salary: "38.000 - 58.000", desc: "Mach komplexe Themen verständlich."},
-        {title: "Innovationsmanager", match: 80, salary: "55.000 - 85.000", desc: "Entwickle neue Ideen und bring sie zur Marktreife."}
-    ],
-    "IS": [
-        {title: "Psychologe", match: 90, salary: "42.000 - 68.000", desc: "Verstehe menschliches Verhalten und hilf Menschen wachsen."},
-        {title: "Sozialforscher", match: 84, salary: "40.000 - 60.000", desc: "Erforsche gesellschaftliche Zusammenhänge."},
-        {title: "Pädagoge", match: 79, salary: "38.000 - 55.000", desc: "Begleite Menschen auf ihrem Bildungsweg."}
-    ],
-    "IE": [
-        {title: "Unternehmensberater", match: 90, salary: "55.000 - 95.000", desc: "Analysiere Unternehmen und entwickle Strategien."},
-        {title: "Data Scientist", match: 86, salary: "52.000 - 82.000", desc: "Nutze Daten für bessere Entscheidungen."},
-        {title: "Produktmanager", match: 82, salary: "55.000 - 85.000", desc: "Bringe Ideen vom Konzept zur Realität."}
-    ],
-    "IC": [
-        {title: "Wirtschaftsprüfer", match: 88, salary: "52.000 - 85.000", desc: "Prüfe Unternehmen auf Herz und Nieren."},
-        {title: "Forschungsingenieur", match: 84, salary: "50.000 - 78.000", desc: "Entwickle neue Technologien mit Präzision."},
-        {title: "Pharmazeut", match: 79, salary: "48.000 - 72.000", desc: "Sorge für sichere Medikamente."}
-    ],
-    "AS": [
-        {title: "Therapeut (Kunst/Musik)", match: 87, salary: "35.000 - 55.000", desc: "Nutze Kunst als Werkzeug zum Helfen."},
-        {title: "Lehrer (Kunst/Musik)", match: 84, salary: "42.000 - 62.000", desc: "Inspiriere junge Menschen durch Kreativität."},
-        {title: "Social Media Manager", match: 78, salary: "35.000 - 55.000", desc: "Erzähle Geschichten die verbinden."}
-    ],
-    "AE": [
-        {title: "Produktmanager", match: 91, salary: "52.000 - 78.000", desc: "Du entwickelst Produkte, die Menschen lieben."},
-        {title: "UX Designer", match: 87, salary: "45.000 - 72.000", desc: "Du machst Software, die sich richtig anfühlt."},
-        {title: "Marketing-Manager", match: 79, salary: "48.000 - 78.000", desc: "Du erzählst Geschichten, die hängen bleiben."},
-        {title: "Creative Director", match: 74, salary: "65.000 - 110.000", desc: "Du gibst kreativen Teams Richtung."},
-        {title: "Startup-Gründer", match: 68, salary: "Variabel", desc: "Du baust dein eigenes Ding von Null auf."}
-    ],
-    "AC": [
-        {title: "Grafikdesigner", match: 88, salary: "35.000 - 58.000", desc: "Gestalte visuelle Kommunikation."},
-        {title: "Art Director", match: 83, salary: "50.000 - 80.000", desc: "Leite kreative Teams."},
-        {title: "Webdesigner", match: 79, salary: "38.000 - 60.000", desc: "Baue Websites die begeistern."}
-    ],
-    "SE": [
-        {title: "Personalmanager (HR)", match: 89, salary: "48.000 - 75.000", desc: "Finde und fördere die besten Talente."},
-        {title: "Teamleiter", match: 85, salary: "50.000 - 78.000", desc: "Führe dein Team zu Höchstleistungen."},
-        {title: "Trainer / Coach", match: 80, salary: "40.000 - 70.000", desc: "Entwickle Menschen und hilf ihnen wachsen."}
-    ],
-    "SC": [
-        {title: "Verwaltungsfachangestellter", match: 85, salary: "35.000 - 52.000", desc: "Sorge für geregelte Abläufe."},
-        {title: "Sozialarbeiter", match: 82, salary: "36.000 - 52.000", desc: "Unterstütze Menschen systematisch."},
-        {title: "Medizinische Fachangestellte", match: 78, salary: "30.000 - 42.000", desc: "Organisiere den Praxisalltag."}
-    ],
-    "EC": [
-        {title: "Projektmanager", match: 90, salary: "50.000 - 78.000", desc: "Bringe Projekte strukturiert ins Ziel."},
-        {title: "Vertriebsleiter", match: 85, salary: "55.000 - 90.000", desc: "Baue Vertriebsteams auf."},
-        {title: "Finanzberater", match: 80, salary: "48.000 - 75.000", desc: "Hilf bei klugen finanziellen Entscheidungen."}
-    ]
-};
-
-const GENERALIST_JOBS = [
-    {title: "Projektmanager", match: 85, salary: "50.000 - 78.000", desc: "Deine Vielseitigkeit macht dich ideal."},
-    {title: "Management-Assistent", match: 82, salary: "40.000 - 60.000", desc: "Zwischen den Welten navigieren."},
-    {title: "Unternehmensberater", match: 78, salary: "55.000 - 95.000", desc: "Vielseitige Perspektiven."}
-];
-
-function getJobsForCode(code) {
-    if (!code || code.length < 2) return GENERALIST_JOBS;
-    const jobs = JOB_DATABASE[code];
-    if (jobs && jobs.length > 0) return jobs;
-    return GENERALIST_JOBS;
-}
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function formatSalary(s) {
     if (!s || s === 'Variabel') return s;
     const parts = s.split(' - ');
-    if (parts.length === 2) return `€${parts[0].trim()} \u2013 €${parts[1].trim()}`;
+    if (parts.length === 2) return `€${parts[0].trim()} – €${parts[1].trim()}`;
     return s;
 }
 
@@ -117,92 +37,131 @@ function getMatchBadge(match) {
     return `<span class="match-badge ${cls}">${match}% Match</span>`;
 }
 
-function selectJob(e, title, match) {
-    e.preventDefault();
-    sessionStorage.setItem('wm_selected_job', JSON.stringify({name: title, match: match}));
-    window.location.href = '/fit-intro';
+function jobCard(job, i) {
+    return `
+        <div class="job-card animate-in animate-in--d${Math.min((i||0)+1,6)}">
+            <div class="job-card-top">
+                <div class="job-title">${esc(job.title)}</div>
+                ${getMatchBadge(job.match)}
+            </div>
+            <div class="job-desc">${esc(job.desc)}</div>
+            <div class="job-divider"></div>
+            <div class="job-card-bottom">
+                <div class="job-salary">${esc(formatSalary(job.salary))}</div>
+                <a href="#" class="job-check-link" data-title="${esc(job.title)}" data-match="${job.match}">
+                    Passe ich wirklich dahin? →
+                </a>
+            </div>
+        </div>`;
 }
 
-function checkCustomJob() {
-    const val = document.getElementById('customJobInput').value.trim();
-    if (!val) return;
-    const btn = document.getElementById('customJobBtn');
-    btn.textContent = 'Wird geprüft...';
-    btn.disabled = true;
-    setTimeout(() => { btn.textContent = 'Checken →'; btn.disabled = false; }, 2000);
+function wireJobLinks() {
+    document.querySelectorAll('.job-check-link[data-title]').forEach(a => {
+        if (a._wired) return; a._wired = true;
+        a.addEventListener('click', (e) => {
+            e.preventDefault();
+            sessionStorage.setItem('wm_selected_job', JSON.stringify({
+                name: a.dataset.title, match: parseInt(a.dataset.match, 10)
+            }));
+            window.location.href = '/fit-intro';
+        });
+    });
 }
 
-function render() {
-    let data;
+function loadingHtml(text) {
+    return `<div style="text-align:center; padding:56px 0; color:var(--text-muted);">
+        <div class="loading-pulse" style="margin:0 auto 18px;"></div>
+        ${esc(text)}
+    </div>`;
+}
+
+function noResult() {
+    document.getElementById('jobsSection').innerHTML = `
+        <div style="text-align: center; padding: 60px 0;">
+            <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 12px;">Noch kein Ergebnis</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">Mach erst den Karriere-Check.</p>
+            <a href="/assessment" class="btn btn-primary">Karriere-Check starten →</a>
+        </div>`;
+}
+
+async function loadJobs() {
+    const section = document.getElementById('jobsSection');
+    section.innerHTML = loadingHtml('Wir suchen Jobs, die zu deinem Profil passen …');
+    let result;
     try {
-        const raw = sessionStorage.getItem('wm_result');
-        data = raw ? JSON.parse(raw) : null;
-    } catch(e) { data = null; }
+        const resp = await fetch('/api/jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ scores: data.normalized_scores || data.scores, code: data.code || 'EA' })
+        });
+        result = await resp.json();
+    } catch(e) { result = { error: e.message }; }
 
-    if (!data || !data.scores) {
-        document.getElementById('jobsSection').innerHTML = `
-            <div style="text-align: center; padding: 60px 0;">
-                <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 12px;">Noch kein Ergebnis</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 24px;">Mach erst den Karriere-Check.</p>
-                <a href="/assessment" class="btn btn-primary">Karriere-Check starten →</a>
+    if (!result || result.error || !result.jobs || !result.jobs.length) {
+        section.innerHTML = `
+            <div style="padding: 40px 0; text-align: center;">
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Konnte die Jobs gerade nicht laden.</p>
+                <button class="btn btn-primary" onclick="loadJobs()">Nochmal versuchen</button>
             </div>`;
         return;
     }
 
-    try {
-        const code = data.code || 'EA';
-        const isGeneralist = data.is_generalist || false;
-        // Primär: vom Backend berechnete Jobs (matched den Code korrekt, inkl.
-        // Reverse + Fallback). Lokale Tabelle nur als Notnagel, falls data.jobs fehlt.
-        const jobs = (data.jobs && data.jobs.length)
-            ? data.jobs
-            : (isGeneralist ? GENERALIST_JOBS : getJobsForCode(code));
-        const sortedJobs = [...jobs].sort((a, b) => b.match - a.match);
+    section.innerHTML = `
+        <div class="jobs-list">${result.jobs.map(jobCard).join('')}</div>
 
-        const jobsHtml = sortedJobs.map((job, i) => `
-            <div class="job-card animate-in animate-in--d${i + 1}">
-                <div class="job-card-top">
-                    <div class="job-title">${job.title}</div>
-                    ${getMatchBadge(job.match)}
-                </div>
-                <div class="job-desc">${job.desc}</div>
-                <div class="job-divider"></div>
-                <div class="job-card-bottom">
-                    <div class="job-salary">${formatSalary(job.salary)}</div>
-                    <a href="#" class="job-check-link" onclick="selectJob(event, '${job.title}', ${job.match})">
-                        Passe ich wirklich dahin? →
-                    </a>
-                </div>
+        <div class="oder-section">
+            <div class="oder-divider"><span>ODER</span></div>
+            <div class="custom-job-card">
+                <div class="custom-job-title">Ich hab einen anderen Job im Kopf</div>
+                <input type="text" class="custom-job-input" id="customJobInput" placeholder="z. B. Vertriebsleiter, Erzieherin …">
+                <button class="custom-job-btn" id="customJobBtn">Checken →</button>
+                <div id="customResult"></div>
             </div>
-        `).join('');
+        </div>
 
-        document.getElementById('jobsSection').innerHTML = `
-            <div class="jobs-list">${jobsHtml}</div>
+        <div class="footer-links">
+            <a href="#">Impressum</a> · <a href="#">Datenschutz</a>
+        </div>`;
 
-            <div class="oder-section">
-                <div class="oder-divider"><span>ODER</span></div>
-                <div class="custom-job-card">
-                    <div class="custom-job-title">Ich hab einen anderen Job im Kopf</div>
-                    <input type="text" class="custom-job-input" id="customJobInput" placeholder="z. B. Vertriebsleiter, UX Designer …">
-                    <button class="custom-job-btn" id="customJobBtn" onclick="checkCustomJob()">Checken →</button>
-                </div>
-            </div>
-
-
-            <div class="footer-links">
-                <a href="#">Impressum</a> · <a href="#">Datenschutz</a>
-            </div>
-        `;
-    } catch(err) {
-        document.getElementById('jobsSection').innerHTML = `
-            <div style="padding: 40px 0; text-align: center;">
-                <p style="color: red; margin-bottom: 16px;">Fehler: ${err.message}</p>
-                <a href="/assessment" class="btn btn-primary">Nochmal versuchen</a>
-            </div>`;
-    }
+    wireJobLinks();
+    document.getElementById('customJobBtn').addEventListener('click', checkCustomJob);
+    document.getElementById('customJobInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkCustomJob(); });
 }
 
-render();
+async function checkCustomJob() {
+    const input = document.getElementById('customJobInput');
+    const val = (input.value || '').trim();
+    if (!val) return;
+    const btn = document.getElementById('customJobBtn');
+    const out = document.getElementById('customResult');
+    btn.disabled = true; btn.textContent = 'Wird geprüft …';
+    out.innerHTML = '';
+
+    let result;
+    try {
+        const resp = await fetch('/api/jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ scores: data.normalized_scores || data.scores, code: data.code || 'EA', custom_job: val })
+        });
+        result = await resp.json();
+    } catch(e) { result = { error: e.message }; }
+
+    btn.disabled = false; btn.textContent = 'Checken →';
+
+    if (!result || result.error || !result.jobs || !result.jobs.length) {
+        out.innerHTML = `<p style="color:var(--text-muted); font-size:13px; margin-top:12px;">Konnte gerade keinen Fit berechnen. Versuch's nochmal.</p>`;
+        return;
+    }
+    out.innerHTML = `<div style="margin-top:16px;">${jobCard(result.jobs[0], 0)}</div>`;
+    wireJobLinks();
+}
+
+if (!data || !data.scores) {
+    noResult();
+} else {
+    loadJobs();
+}
 </script>
 
 <style>

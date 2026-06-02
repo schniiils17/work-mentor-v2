@@ -9,6 +9,7 @@ from typing import List
 import os
 import json
 import re
+import math
 
 from app.holland import ITEMS, assess, get_shuffled_items, _dim_label
 import anthropic
@@ -44,6 +45,11 @@ class FitRequest(BaseModel):
     scores: dict
     code: str
     fit_answers: list = []  # [{question, value}] aus dem Post-Payment-Check
+
+class JobsRequest(BaseModel):
+    scores: dict          # normalisiert 0-100 pro Dimension (R,I,A,S,E,C)
+    code: str
+    custom_job: str = ""  # gesetzt = nur diesen einen Job bewerten
 
 
 # Kanonische Tier-Sprüche — Ton-Anker im Prompt UND Fallback, falls der
@@ -236,6 +242,85 @@ Regeln:
         if match:
             return json.loads(match.group())
         return {"error": "parse_error", "raw": text[:200]}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# RIASEC-Congruenz: deterministischer Match-Score aus Profil-Ähnlichkeit.
+# Cosinus zwischen User-Profil und dem vom Job geforderten Profil, gemappt auf
+# 60–96 % (Produkt-Philosophie: keine 0/100 %, Minimum 60). Gleicher User +
+# gleicher Job ergibt IMMER denselben Wert — das ist der Glaubwürdigkeits-Kern.
+def _match_score(user_scores: dict, job_riasec: dict) -> int:
+    dims = ["R", "I", "A", "S", "E", "C"]
+    u = [max(0.0, float(user_scores.get(d, 0) or 0)) for d in dims]
+    j = [max(0.0, float(job_riasec.get(d, 0) or 0)) for d in dims]
+    nu = math.sqrt(sum(a * a for a in u))
+    nj = math.sqrt(sum(b * b for b in j))
+    if nu == 0 or nj == 0:
+        return 60
+    cos = sum(a * b for a, b in zip(u, j)) / (nu * nj)  # ~0.5 .. 1.0
+    score = 60 + (cos - 0.60) / (1.0 - 0.60) * 36         # 0.60->60, 1.0->96
+    return int(max(60, min(96, round(score))))
+
+
+@app.post("/api/jobs")
+async def post_jobs(req: JobsRequest):
+    """Generiere profilpassende Archetyp-Jobs (Claude) und berechne den
+    Match-Score deterministisch aus der RIASEC-Congruenz."""
+    dim_labels = {"R": "Realistisch", "I": "Forschend", "A": "Kreativ",
+                  "S": "Sozial", "E": "Unternehmerisch", "C": "Organisierend"}
+    profile = ", ".join([f"{dim_labels.get(k, k)}: {v}" for k, v in req.scores.items()])
+
+    if req.custom_job:
+        task = f'''Bewerte EINEN konkreten Beruf: "{req.custom_job}".
+Gib genau ein Job-Objekt zurueck. Sei ehrlich — wenn der Job schlecht zum Profil passt,
+schaetze sein RIASEC-Profil trotzdem realistisch (der Score wird separat berechnet).'''
+        shape = '{ "jobs": [ {"title": "...", "riasec": {"R":0,"I":0,"A":0,"S":0,"E":0,"C":0}, "salary": "...", "desc": "..."} ] }'
+        n_note = "- Genau 1 Job (der genannte). Titel ggf. sauber ausformuliert."
+    else:
+        task = "Schlage 7 konkrete Berufe (Archetypen, keine offenen Stellen) vor, die zu diesem Profil passen."
+        shape = '{ "jobs": [ {"title": "...", "riasec": {"R":0,"I":0,"A":0,"S":0,"E":0,"C":0}, "salary": "...", "desc": "..."}, ... ] }'
+        n_note = "- 7 Jobs. Mix: 4-5 starke Treffer + 2-3 die spannend, aber weniger offensichtlich sind (Range, nicht nur das Naheliegende)."
+
+    prompt = f"""{task}
+
+User-RIASEC-Profil (0-100, hoch = stark ausgepraegt): {profile}
+Top-2: {req.code}
+
+Antworte NUR mit diesem JSON, kein Text davor oder danach:
+{shape}
+
+Regeln:
+- riasec = welches Profil DER JOB verlangt (NICHT das des Users). Schaetze realistisch
+  aus deinem O*NET-/Berufskunde-Wissen, 0-100 pro Dimension.
+- salary: realistische deutsche Brutto-Jahresspanne, grob (z.B. "45.000 - 72.000").
+  Keine erfundene Praezision, kein Euro-Zeichen.
+- desc: 1 kurzer Satz, Du-Form, was man da konkret tut. Kein HR-Jargon.
+- Deutsche Berufsbezeichnungen. Keine erfundenen Statistiken.
+{n_note}"""
+
+    try:
+        msg = claude.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=1200,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        text = msg.content[0].text.strip()
+        m = re.search(r'\{.*\}', text, re.DOTALL)
+        if not m:
+            return {"error": "parse_error", "raw": text[:200]}
+        data = json.loads(m.group())
+        jobs = []
+        for j in data.get("jobs", []):
+            score = _match_score(req.scores, j.get("riasec", {}))
+            jobs.append({
+                "title": j.get("title", ""),
+                "match": score,
+                "salary": j.get("salary", ""),
+                "desc": j.get("desc", ""),
+            })
+        jobs.sort(key=lambda x: x["match"], reverse=True)
+        return {"jobs": jobs}
     except Exception as e:
         return {"error": str(e)}
 
