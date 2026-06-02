@@ -1,7 +1,4 @@
 """Work Mentor 2.0 — FastAPI Backend + Frontend"""
-import sys, os
-print(f"[STARTUP] Python {sys.version}", flush=True)
-print(f"[STARTUP] CWD: {os.getcwd()}", flush=True)
 
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
@@ -10,18 +7,18 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import List
 import os
+import json
+import re
 
 from app.holland import ITEMS, assess, get_shuffled_items, _dim_label
 import anthropic
-import os
 
 app = FastAPI(title="Work Mentor 3.0")
 
+# Anthropic-Client robust initialisieren (kein Crash bei fehlendem Key)
 try:
     claude = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY") or None)
-    print("[STARTUP] Anthropic client OK", flush=True)
-except Exception as e:
-    print(f"[STARTUP] Anthropic client FAILED: {e}", flush=True)
+except Exception:
     claude = None
 
 # Paths
@@ -37,10 +34,36 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 class Answer(BaseModel):
     item_id: int
-    value: int  # -3 to +3 (Likert scale)
+    value: int  # -2 to +2 (Likert scale)
 
 class AssessmentRequest(BaseModel):
     answers: List[Answer]
+
+class FitRequest(BaseModel):
+    job_name: str
+    scores: dict
+    code: str
+    fit_answers: list = []  # [{question, value}] aus dem Post-Payment-Check
+
+
+# Kanonische Tier-Sprüche — Ton-Anker im Prompt UND Fallback, falls der
+# Claude-Call scheitert. Keyed nach Haupt-Dimension (+ Generalist "G").
+TIER_ANCHORS = {
+    "R": {"superkraft": "Aus dem Nichts etwas Funktionierendes bauen — bevor andere überhaupt verstanden haben, wie das Problem aussieht.",
+          "kryptonit": "Endlose Meetings, in denen geredet wird statt gemacht."},
+    "I": {"superkraft": "Muster erkennen, wo andere nur Chaos sehen — und das so erklären, dass es plötzlich offensichtlich wirkt.",
+          "kryptonit": "Jemand sagt 'Glaub mir einfach' ohne Daten zu zeigen."},
+    "A": {"superkraft": "Bestehende Ideen so neu kombinieren, dass alle denken: Klar, warum hat das nicht schon jemand gemacht?",
+          "kryptonit": "Eine Vorlage in PowerPoint, die du nur noch ausfüllen sollst."},
+    "S": {"superkraft": "Eine Gruppe so führen, dass sich jeder Einzelne gesehen fühlt — und am Ende mehr leistet als gedacht.",
+          "kryptonit": "Allein in einem Co-Working zwischen 30 Headphones."},
+    "E": {"superkraft": "Leute begeistern, bevor du selbst weißt, wovon du redest.",
+          "kryptonit": "Jemand sagt: Das haben wir schon immer so gemacht."},
+    "C": {"superkraft": "Aus Datenchaos eine saubere Struktur machen, die so logisch wirkt, als wäre sie schon immer da gewesen.",
+          "kryptonit": "Lass uns das einfach spontan entscheiden."},
+    "G": {"superkraft": "Zwischen Welten übersetzen, die sonst nicht miteinander reden.",
+          "kryptonit": "Auf EINE Schiene festgelegt werden."},
+}
 
 
 @app.get("/api/items")
@@ -51,63 +74,163 @@ async def get_items():
 
 @app.post("/api/assess")
 async def post_assess(req: AssessmentRequest):
-    """Berechne das Ergebnis aus den Likert-Antworten + KI-Beschreibung."""
+    """Berechne das Ergebnis + personalisierte KI-Texte (Beschreibung,
+    Job-Teaser, Superkraft, Kryptonit) — gegründet auf dem vollen Profil."""
     answers = [{"item_id": a.item_id, "value": a.value} for a in req.answers]
     result = assess(answers)
-    
-    # KI-Beschreibung generieren
+
+    code = result["code"]
+    is_gen = result.get("is_generalist", False)
+    anchor_key = "G" if is_gen else code[0]
+    anchor = TIER_ANCHORS.get(anchor_key, TIER_ANCHORS["E"])
+
+    # Statischer Fallback — nie schlechter als vorher
+    result["ai_superkraft"] = None
+    result["ai_kryptonit"] = None
+    result["fallback_superkraft"] = anchor["superkraft"]
+    result["fallback_kryptonit"] = anchor["kryptonit"]
+
     try:
-        scores = result["scores"]
-        code = result["code"]
+        norm = result.get("normalized_scores", result["scores"])
+        sorted_dims = sorted(norm.items(), key=lambda x: x[1], reverse=True)
+        profile = ", ".join([f"{_dim_label(d)}: {v}" for d, v in sorted_dims])
+
         d1 = _dim_label(code[0])
         d2 = _dim_label(code[1])
-        is_gen = result.get("is_generalist", False)
-        
-        sorted_dims = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-        profile = ", ".join([f"{_dim_label(d)}:{v}" for d, v in sorted_dims])
-        
+        d_low = _dim_label(sorted_dims[-1][0])
+        type_name = result.get("type_name", "")
         jobs_list = ", ".join([j["title"] for j in result.get("jobs", [])])
-        
-        prompt = f"""Zwei Aufgaben. Antworte in genau diesem Format:
 
-BESCHREIBUNG: [2-3 kurze Saetze]
-JOB_TEASER: [1 Satz]
+        prompt = f"""Du schreibst das Ergebnis fuer einen Karriere-Test. Antworte NUR mit diesem JSON, kein Text davor oder danach:
 
-Profil-Scores: {profile}
-Typ: {d1}-{d2}{" (Generalist)" if is_gen else ""}
+{{
+  "beschreibung": "<2-3 kurze Saetze>",
+  "job_teaser": "<1 Satz>",
+  "superkraft": "<1 Satz>",
+  "kryptonit": "<1 Satz>"
+}}
+
+DATEN DER PERSON:
+Karriere-Typ: {type_name} ({d1}-{d2}){" (Generalist)" if is_gen else ""}
+Profil (0-100, hoch = stark ausgepraegt): {profile}
+Staerkste Richtung: {d1}
+Zweitstaerkste: {d2}
+Schwaechste Richtung: {d_low}
 Passende Jobs: {jobs_list}
 
-Regeln fuer BESCHREIBUNG:
-- Einfache Sprache. Kurze Saetze. Wie ein Kumpel der dich gut einschaetzt.
-- Vermutend: wahrscheinlich, vermutlich, koennte sein
-- Sag was die Person antreibt und was sie eher nervt
-- Max 3 Saetze, keine Fachbegriffe
-- Deutsch, Du-Form
+ANKER (Ton & Identitaet des Typs — als Vorlage fuer den Stil, NICHT 1:1 abschreiben):
+Typische Superkraft: "{anchor['superkraft']}"
+Typisches Kryptonit: "{anchor['kryptonit']}"
 
-Regeln fuer JOB_TEASER:
-- 1 kurzer Satz der neugierig auf die Job-Matches macht
-- Bezieh dich auf das konkrete Profil
-- Kein gelogen-klingendes Zeug wie nur 8 Prozent haben dein Profil"""
-        
+SO INDIVIDUALISIERST DU:
+- superkraft: Nimm die Identitaet von "{d1}" und faerbe sie mit "{d2}" ein. Konkret und
+  ueberraschend — der Satz soll sich anfuehlen wie "woher wissen die das?".
+- kryptonit: Leite es aus der schwaechsten Richtung ("{d_low}") ab — das, was diese Person
+  am ehesten nervt oder auslaugt. Lustig aber wahr.
+- beschreibung: Was treibt die Person an, was nervt sie. Wie ein Kumpel, der sie gut kennt.
+- job_teaser: Neugierig auf die Jobs machen, mit Bezug zum Profil.
+
+REGELN (streng):
+- Deutsch, Du-Form, einfache Sprache, Berufsschulniveau, keine Fachbegriffe.
+- Vermutend: "koennte", "scheint", "wahrscheinlich" — KEINE absoluten Aussagen.
+- KEINE Vorhersagen ueber ungetestete Faehigkeiten. Nichts erfinden, nur was aus dem Profil folgt.
+- Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken (nicht "nur 8% ...").
+
+✅ "Du ueberzeugst Leute wahrscheinlich eher durch Begeisterung als durch Druck."
+✅ "Routine und starre Vorgaben duerften dir schnell die Energie rauben."
+❌ "Du wirst jeden Raum erobern." (zu absolut)
+❌ "Kaltakquise liegt dir nicht." (Urteil ueber ungetestete Faehigkeit)"""
+
         msg = claude.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=250,
+            max_tokens=500,
             messages=[{"role": "user", "content": prompt}]
         )
-        text = msg.content[0].text
-        
-        if "BESCHREIBUNG:" in text and "JOB_TEASER:" in text:
-            parts = text.split("JOB_TEASER:")
-            result["ai_description"] = parts[0].replace("BESCHREIBUNG:", "").strip()
-            result["ai_job_teaser"] = parts[1].strip()
+        text = msg.content[0].text.strip()
+        match = re.search(r'\{.*\}', text, re.DOTALL)
+        if match:
+            data = json.loads(match.group())
+            result["ai_description"] = data.get("beschreibung")
+            result["ai_job_teaser"] = data.get("job_teaser")
+            result["ai_superkraft"] = data.get("superkraft")
+            result["ai_kryptonit"] = data.get("kryptonit")
         else:
             result["ai_description"] = text
             result["ai_job_teaser"] = None
     except Exception as e:
         result["ai_description"] = None
         result["ai_error"] = str(e)
-    
+
     return result
+
+
+@app.post("/api/fit")
+async def post_fit(req: FitRequest):
+    """Generiere job-spezifische Fit-Analyse via Claude."""
+    dim_labels = {"R": "Realistisch", "I": "Forschend", "A": "Kreativ",
+                  "S": "Sozial", "E": "Unternehmerisch", "C": "Organisierend"}
+    scores_str = ", ".join([f"{dim_labels.get(k, k)}: {v}" for k, v in req.scores.items()])
+
+    answers_section = ""
+    if req.fit_answers:
+        scale = {-2: "Stimmt gar nicht", -1: "Eher nicht", 0: "Teils-teils", 1: "Eher ja", 2: "Stimmt voll"}
+        lines = [f'- "{a["question"]}": {scale.get(a["value"], str(a["value"]))}' for a in req.fit_answers]
+        answers_section = "\n\nSelbsteinschätzung des Users (8 Fragen zum Job-Fit):\n" + "\n".join(lines)
+        answers_note = "- Nutze die Selbsteinschätzung als Hauptquelle fuer Staerken und Gaps — sie ist direktes Signal"
+    else:
+        answers_note = "- Leite Staerken und Gaps aus den RIASEC-Scores ab"
+
+    prompt = f"""Analysiere den Job-Fit fuer den Job "{req.job_name}".
+
+RIASEC-Profil: {req.code}
+Dimension-Scores (Rohwerte -12 bis +12): {scores_str}{answers_section}
+
+Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
+
+{{
+  "fit_score": <Zahl 50-88, realistisch auf Basis aller vorliegenden Daten>,
+  "fit_headline": "<1 Satz, stärkste Verbindung zwischen Profil und Job, Du-Form>",
+  "strengths": [
+    {{"name": "...", "body": "..."}},
+    {{"name": "...", "body": "..."}},
+    {{"name": "...", "body": "..."}}
+  ],
+  "gaps": [
+    {{"name": "...", "body": "...", "tag": "lernbar"}},
+    {{"name": "...", "body": "...", "tag": "steuerbar"}}
+  ],
+  "lever": {{
+    "skill": "...",
+    "text": "... koennte deinen Fit um ~X% heben."
+  }},
+  "resources": [
+    {{"kind": "book", "title": "...", "author": "...", "price": "ca. €X", "cta": "Auf Amazon ansehen", "for": "..."}},
+    {{"kind": "coach", "title": "...", "author": "1:1 Coaching", "price": "ab €120/Session", "cta": "Coach finden", "for": "..."}}
+  ]
+}}
+
+Regeln:
+- fit_score: ehrlich, 60-80 ist realistisch
+- strengths: 3 Staerken, je 2 Saetze body, konkret auf den Job bezogen
+- gaps: 2 ehrliche Luecken. tag: "lernbar" = Skill, "steuerbar" = Persoenlichkeit, "mismatch" = Interessens-Mismatch
+- lever: wichtigster Hebel, mit geschaetzter Fit-Verbesserung in Prozent
+- resources: echte Buecher/Kurse, maximal 2
+- {answers_note}
+- Deutsch, Du-Form, kein HR-Jargon, kurze Saetze, NIEMALS als-wie"""
+
+    try:
+        msg = claude.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=900,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        text = msg.content[0].text.strip()
+        match = re.search(r'\{.*\}', text, re.DOTALL)
+        if match:
+            return json.loads(match.group())
+        return {"error": "parse_error", "raw": text[:200]}
+    except Exception as e:
+        return {"error": str(e)}
 
 
 # ─── Frontend Routes ─────────────────────────────────────────────────
@@ -172,4 +295,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.0.0"}
+    return {"status": "ok", "version": "3.1.0"}

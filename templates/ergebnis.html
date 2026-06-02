@@ -174,8 +174,8 @@ function render() {
         
         <!-- Superkraft / Kryptonit — das Herzstück (starker Kontrast) -->
         <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 28px;">
-            ${buildPowerCard('super', 'Deine Superkraft', tier.superkraft, tier.color)}
-            ${buildPowerCard('krypto', 'Dein Kryptonit', tier.kryptonit, tier.color)}
+            ${buildPowerCard('super', 'Deine Superkraft', data.ai_superkraft || tier.superkraft, tier.color)}
+            ${buildPowerCard('krypto', 'Dein Kryptonit', data.ai_kryptonit || tier.kryptonit, tier.color)}
         </div>
 
         <!-- Dein Profil — lesbare Balken statt Spinnennetz -->
