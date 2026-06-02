@@ -41,9 +41,14 @@ function render() {
     
     const topKey = data.code ? data.code[0] : 'E';
     const tier = data.is_generalist ? CHAMELEON : TIERS[topKey];
-    
+
+    const TIER_ACCENTS = { R: '#334155', I: '#3730A3', A: '#D97706', S: '#0F766E', E: '#C2410C', C: '#6D28D9' };
+    const heroBg = data.is_generalist
+        ? 'linear-gradient(135deg, #1A3A5C 0%, #4338CA 25%, #7C3AED 50%, #EA580C 75%, #F59E0B 100%)'
+        : `linear-gradient(135deg, ${tier.color} 0%, ${TIER_ACCENTS[topKey] || tier.color} 100%)`;
+
     document.getElementById('storyContainer').innerHTML = `
-        <div class="story-card" style="background: ${tier.color};">
+        <div class="story-card" style="background: ${heroBg};">
             <img src="${tier.svg}" alt="" style="position:absolute;right:-20px;bottom:10%;width:65%;opacity:0.08;z-index:0;pointer-events:none;">
             <div class="story-card-header">
                 <span class="story-card-brand">WORK MENTOR</span>

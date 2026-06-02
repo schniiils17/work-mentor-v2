@@ -149,11 +149,17 @@ function render() {
     const description = data.description || '';
     const tagline = secondTier ? `mit ${secondTier.tagline}` : `mit ${tier.tagline}`;
 
+    // Hero-Verlauf wie im Design: 6 Tiere primary→accent, Chamäleon Regenbogen
+    const TIER_ACCENTS = { R: '#334155', I: '#3730A3', A: '#D97706', S: '#0F766E', E: '#C2410C', C: '#6D28D9' };
+    const heroBg = data.is_generalist
+        ? 'linear-gradient(135deg, #1A3A5C 0%, #4338CA 25%, #7C3AED 50%, #EA580C 75%, #F59E0B 100%)'
+        : `linear-gradient(135deg, ${tier.color} 0%, ${TIER_ACCENTS[topKey] || tier.color} 100%)`;
+
     document.getElementById('resultSection').innerHTML = `
         <div class="section-label" style="margin-top: 8px;">Dein Karriere-Tier</div>
-        
+
         <!-- Hero Card -->
-        <div class="tier-hero-card" style="background: ${tier.color}; color: white; margin-top: 12px;">
+        <div class="tier-hero-card" style="background: ${heroBg}; color: white; margin-top: 12px;">
             <div class="tier-label-pill">${tier.label}</div>
             <img class="tier-illustration" src="${tier.svg}" alt="${tier.name}">
         </div>
