@@ -258,8 +258,8 @@ def _match_score(user_scores: dict, job_riasec: dict) -> int:
     nj = math.sqrt(sum(b * b for b in j))
     if nu == 0 or nj == 0:
         return 60
-    cos = sum(a * b for a, b in zip(u, j)) / (nu * nj)  # ~0.5 .. 1.0
-    score = 60 + (cos - 0.60) / (1.0 - 0.60) * 36         # 0.60->60, 1.0->96
+    cos = sum(a * b for a, b in zip(u, j)) / (nu * nj)  # RIASEC-Vektoren: ~0.70 .. 1.0
+    score = 60 + (cos - 0.70) / (1.0 - 0.70) * 36         # 0.70->60, 1.0->96
     return int(max(60, min(96, round(score))))
 
 
@@ -280,14 +280,10 @@ schaetze sein RIASEC-Profil trotzdem realistisch (der Score wird separat berechn
     else:
         task = "Schlage 5 konkrete Berufe (Archetypen, keine offenen Stellen) vor."
         shape = '{ "jobs": [ {"title": "...", "riasec": {"R":0,"I":0,"A":0,"S":0,"E":0,"C":0}, "salary": "...", "desc": "..."}, ... ] }'
-        n_note = """- Genau 5 Jobs, nach Passung absteigend, mit GLEITENDEM Gefaelle (kein Absturz):
-  * 3 starke Treffer — geforderte riasec liegt nah am User-Profil.
-  * 2 "weiter gedacht" — Berufe, die die HAUPTSTAERKE des Users teilen, sich aber in EINE
-    andere Richtung lehnen (anderer Sekundaer-Schwerpunkt). Weniger offensichtlich, aber immer
-    noch plausibel — sie sollen inspirieren, nicht abschrecken. Solides, kein perfektes Match
-    (typischerweise high 70er / low 80er), NICHT am Boden.
-  * Vermeide Berufe, deren Profil dem User komplett entgegengesetzt ist.
-  * Schaetze die riasec ehrlich; der Score wird daraus berechnet, also keine Schoenfaerberei."""
+        n_note = """- Genau 5 Jobs, nach Passung absteigend:
+  * 3-4 klare Treffer + 1-2 weniger offensichtliche, inspirierende Berufe (Range, nicht nur
+    das Naheliegende). Vermeide Berufe, deren Profil dem User komplett entgegengesetzt ist.
+  * Schaetze die riasec jedes Jobs ehrlich; der Score wird daraus berechnet."""
 
     prompt = f"""{task}
 
