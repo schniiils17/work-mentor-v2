@@ -152,7 +152,11 @@ function render() {
     try {
         const code = data.code || 'EA';
         const isGeneralist = data.is_generalist || false;
-        const jobs = isGeneralist ? GENERALIST_JOBS : getJobsForCode(code);
+        // Primär: vom Backend berechnete Jobs (matched den Code korrekt, inkl.
+        // Reverse + Fallback). Lokale Tabelle nur als Notnagel, falls data.jobs fehlt.
+        const jobs = (data.jobs && data.jobs.length)
+            ? data.jobs
+            : (isGeneralist ? GENERALIST_JOBS : getJobsForCode(code));
         const sortedJobs = [...jobs].sort((a, b) => b.match - a.match);
 
         const jobsHtml = sortedJobs.map((job, i) => `
