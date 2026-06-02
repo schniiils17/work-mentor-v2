@@ -696,12 +696,22 @@ h2 {
     margin: 0 auto;
 }
 
+.story-card-eyebrow {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: #FFFFFF;
+    opacity: 0.8;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
 .story-card-name {
-    font-size: 36px;
+    font-size: 40px;
     font-weight: 700;
     color: #FFFFFF;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
 }
 
 .story-card-quote {
@@ -710,6 +720,31 @@ h2 {
     font-size: 15px;
     line-height: 1.4;
     opacity: 0.9;
+    margin-top: 6px;
+}
+
+/* Viral-Hook: Challenge + CTA (Optimal-Distinctiveness / Add-Yours-Mechanik) */
+.story-card-challenge {
+    border-top: 1px solid rgba(255, 255, 255, 0.28);
+    padding-top: 14px;
+    text-align: center;
+}
+
+.story-card-challenge-q {
+    font-size: 18px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+}
+
+.story-card-challenge-url {
+    font-size: 13px;
+    color: #FFFFFF;
+    opacity: 0.85;
+    margin-top: 5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
 .story-card-trait {
