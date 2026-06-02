@@ -678,7 +678,8 @@ h2 {
 
 .story-card-header {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 3px;
     align-items: flex-start;
 }
 
@@ -688,6 +689,14 @@ h2 {
     color: #FFFFFF;
     letter-spacing: 0.12em;
     font-weight: 600;
+}
+
+.story-card-tagline {
+    font-size: 13px;
+    color: #FFFFFF;
+    opacity: 0.85;
+    font-weight: 500;
+    letter-spacing: -0.01em;
 }
 
 .story-card-illustration {
