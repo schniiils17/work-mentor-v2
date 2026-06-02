@@ -125,7 +125,10 @@ async function loadJobs() {
 
     wireJobLinks();
     document.getElementById('customJobBtn').addEventListener('click', checkCustomJob);
-    document.getElementById('customJobInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkCustomJob(); });
+    const cInput = document.getElementById('customJobInput');
+    const cBtn = document.getElementById('customJobBtn');
+    cInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkCustomJob(); });
+    cInput.addEventListener('input', () => { cBtn.classList.toggle('active', cInput.value.trim().length > 0); });
 }
 
 async function checkCustomJob() {
@@ -356,10 +359,19 @@ if (!data || !data.scores) {
     font-weight: 600;
     cursor: pointer;
     font-family: inherit;
-    transition: background 0.2s;
+    transition: background 0.2s, color 0.2s;
 }
 
-.custom-job-btn:not(:disabled):hover {
+.custom-job-btn.active {
+    background: var(--accent);
+    color: #FFFFFF;
+}
+
+.custom-job-btn.active:not(:disabled):hover {
+    background: var(--accent-hover);
+}
+
+.custom-job-btn:not(.active):not(:disabled):hover {
     background: #D1D5DB;
 }
 
