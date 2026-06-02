@@ -10,8 +10,10 @@ E = Enterprising (Unternehmerisch/Führend)
 C = Conventional (Konventionell/Organisierend)
 
 36 Aussagen (6 pro Dimension) auf 5-Punkte Likert-Skala.
-Items basieren auf dem O*NET Interest Profiler des US Department of Labor (Public Domain),
-übersetzt und für den deutschen Sprachraum adaptiert.
+Items sind an den O*NET Interest Profiler des US Department of Labor (Public Domain)
+angelehnt, für den deutschen Sprachraum und eine berufstätige Zielgruppe (25–40)
+adaptiert. R und I wurden bewusst entakademisiert/enthandwerklicht, damit Büro-/
+Wissensarbeiter nicht systematisch bei allen R/I-Items "nein" sagen (flache Profile).
 
 Methodik:
 - User bewertet jede Aussage: "Wie sehr wuerde dir das Spass machen?"
@@ -31,20 +33,20 @@ from collections import Counter
 
 ITEMS = [
     # --- R (Realistic) --- Praktisch-handwerklich
-    {"id": 1,  "dim": "R", "text": "Mit Werkzeug etwas selbst bauen — z.B. Möbel oder einen Schrank"},
-    {"id": 2,  "dim": "R", "text": "Ein kaputtes Gerät selbst auseinandernehmen und reparieren"},
-    {"id": 3,  "dim": "R", "text": "Im Freien arbeiten — zum Beispiel im Garten, auf dem Bau oder in der Natur"},
-    {"id": 4,  "dim": "R", "text": "Tiere versorgen oder mit ihnen arbeiten"},
-    {"id": 5,  "dim": "R", "text": "Sportgeräte, Fahrräder oder technische Geräte warten und pflegen"},
-    {"id": 6,  "dim": "R", "text": "Ein Auto oder Fahrrad selbst warten und reparieren"},
+    {"id": 1,  "dim": "R", "text": "Mit Werkzeug etwas selbst bauen oder zusammenbauen — Möbel, Regale oder Deko"},
+    {"id": 2,  "dim": "R", "text": "Ein kaputtes Gerät selbst reparieren, statt es wegzugeben"},
+    {"id": 3,  "dim": "R", "text": "Körperlich anpacken und etwas mit den eigenen Händen schaffen"},
+    {"id": 4,  "dim": "R", "text": "Draußen arbeiten — im Garten, mit Pflanzen oder mit Tieren"},
+    {"id": 5,  "dim": "R", "text": "Technische Geräte oder Maschinen bedienen und am Laufen halten"},
+    {"id": 6,  "dim": "R", "text": "Zu Hause selbst Hand anlegen — streichen, montieren, eine Lampe anschließen"},
     
     # --- I (Investigative) --- Forschend-analytisch
-    {"id": 7,  "dim": "I", "text": "Ein komplexes Problem Schritt für Schritt analysieren"},
-    {"id": 8,  "dim": "I", "text": "Erforschen wie man Umweltverschmutzung reduzieren kann"},
-    {"id": 9,  "dim": "I", "text": "Eine Theorie aufstellen und systematisch überprüfen"},
-    {"id": 10, "dim": "I", "text": "Daten auswerten um ein Muster oder eine Antwort zu finden"},
-    {"id": 11, "dim": "I", "text": "Wissenschaftliche Artikel lesen um ein Problem zu verstehen"},
-    {"id": 12, "dim": "I", "text": "Eine Studie planen und durchführen"},
+    {"id": 7,  "dim": "I", "text": "Einem Problem auf den Grund gehen, bis du genau weißt woran es liegt"},
+    {"id": 8,  "dim": "I", "text": "Herausfinden wie etwas funktioniert, indem du es genau unter die Lupe nimmst"},
+    {"id": 9,  "dim": "I", "text": "Dich in ein neues Thema reinfuchsen, bis du es wirklich durchblickst"},
+    {"id": 10, "dim": "I", "text": "Daten und Zahlen auswerten, um ein Muster oder eine Antwort zu finden"},
+    {"id": 11, "dim": "I", "text": "Knifflige Rätsel oder Denksportaufgaben knacken"},
+    {"id": 12, "dim": "I", "text": "Hinterfragen, warum etwas so ist, wie es ist"},
     
     # --- A (Artistic) --- Künstlerisch-kreativ
     {"id": 13, "dim": "A", "text": "Ein Buch, eine Geschichte oder ein Drehbuch schreiben"},
@@ -57,7 +59,7 @@ ITEMS = [
     # --- S (Social) --- Helfend-sozial
     {"id": 19, "dim": "S", "text": "Menschen mit persönlichen oder emotionalen Problemen helfen"},
     {"id": 20, "dim": "S", "text": "Andere bei ihrer Berufswahl oder Karriere beraten"},
-    {"id": 21, "dim": "S", "text": "Eine Schulklasse oder Gruppe unterrichten"},
+    {"id": 21, "dim": "S", "text": "Einem neuen Kollegen alles zeigen und ihn einarbeiten"},
     {"id": 22, "dim": "S", "text": "Kindern oder Jugendlichen etwas beibringen"},
     {"id": 23, "dim": "S", "text": "Ältere Menschen oder Kranke betreuen und unterstützen"},
     {"id": 24, "dim": "S", "text": "In einem Team Konflikte lösen und vermitteln"},
@@ -74,7 +76,7 @@ ITEMS = [
     {"id": 31, "dim": "C", "text": "Eine Excel-Tabelle aufbauen und mit Formeln arbeiten"},
     {"id": 32, "dim": "C", "text": "Dokumente Korrektur lesen und Fehler finden"},
     {"id": 33, "dim": "C", "text": "Die Buchhaltung oder Finanzen einer Firma führen"},
-    {"id": 34, "dim": "C", "text": "Finanzen, Budgets oder Investments verwalten und analysieren"},
+    {"id": 34, "dim": "C", "text": "Ein Ablage- oder Ordnungssystem aufbauen, in dem alles seinen Platz hat"},
     {"id": 35, "dim": "C", "text": "Abläufe und Prozesse in einem Unternehmen optimieren"},
     {"id": 36, "dim": "C", "text": "Termine, Reisen oder Veranstaltungen planen und koordinieren"},
 ]
