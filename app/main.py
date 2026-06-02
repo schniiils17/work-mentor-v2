@@ -280,11 +280,13 @@ schaetze sein RIASEC-Profil trotzdem realistisch (der Score wird separat berechn
     else:
         task = "Schlage 5 konkrete Berufe (Archetypen, keine offenen Stellen) vor."
         shape = '{ "jobs": [ {"title": "...", "riasec": {"R":0,"I":0,"A":0,"S":0,"E":0,"C":0}, "salary": "...", "desc": "..."}, ... ] }'
-        n_note = """- Genau 5 Jobs:
+        n_note = """- Genau 5 Jobs, nach Passung absteigend, mit GLEITENDEM Gefaelle (kein Absturz):
   * 3 starke Treffer — geforderte riasec liegt nah am User-Profil.
-  * 2 Wildcards — interessante, weniger offensichtliche Berufe, deren geforderte riasec SPUERBAR
-    vom User-Profil abweicht (andere Schwerpunkte). Sie sollen inspirieren ("daran haette ich nie
-    gedacht"), nicht perfekt passen — ein niedrigerer Score ist hier ausdruecklich erwuenscht.
+  * 2 "weiter gedacht" — Berufe, die die HAUPTSTAERKE des Users teilen, sich aber in EINE
+    andere Richtung lehnen (anderer Sekundaer-Schwerpunkt). Weniger offensichtlich, aber immer
+    noch plausibel — sie sollen inspirieren, nicht abschrecken. Solides, kein perfektes Match
+    (typischerweise high 70er / low 80er), NICHT am Boden.
+  * Vermeide Berufe, deren Profil dem User komplett entgegengesetzt ist.
   * Schaetze die riasec ehrlich; der Score wird daraus berechnet, also keine Schoenfaerberei."""
 
     prompt = f"""{task}
