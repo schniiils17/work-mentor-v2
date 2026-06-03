@@ -12,7 +12,7 @@ import re
 import math
 
 from app.holland import ITEMS, assess, get_shuffled_items, _dim_label
-from app.traits import POLES, TRAIT_ITEMS, score_traits, get_trait_items
+from app.traits import DIMENSIONS, TRAIT_ITEMS, score_traits, get_trait_items
 import anthropic
 
 app = FastAPI(title="Work Mentor 3.0")
@@ -45,7 +45,7 @@ class FitRequest(BaseModel):
     job_name: str
     scores: dict
     code: str
-    trait_scores: dict = {}  # {pole: count} aus der Trait-Stufe (Stufe 2)
+    trait_scores: dict = {}  # {dim: Mittel 1-5} aus der Trait-Stufe (Stufe 2)
 
 class JobsRequest(BaseModel):
     scores: dict          # normalisiert 0-100 pro Dimension (R,I,A,S,E,C)
@@ -53,7 +53,7 @@ class JobsRequest(BaseModel):
     custom_job: str = ""  # gesetzt = nur diesen einen Job bewerten
 
 class InsightRequest(BaseModel):
-    answers: list         # [{"item_id": int, "choice": "a"|"b"}]
+    answers: list         # [{"item_id": int, "value": 1..5}]
     code: str = ""        # RIASEC-Code (optional, zum Einfärben)
     type_name: str = ""   # Tier-/Typname (optional)
 
@@ -193,8 +193,8 @@ async def post_fit(req: FitRequest):
     traits_section = ""
     if req.trait_scores:
         ranked = sorted(req.trait_scores.items(), key=lambda x: x[1], reverse=True)
-        lines = [f"- {POLES[k]['name']} ({POLES[k]['desc']}): {v}" for k, v in ranked if k in POLES]
-        traits_section = "\n\nPersoenlichkeits-Profil (Forced-Choice, relativ, hoeher = staerker):\n" + "\n".join(lines)
+        lines = [f"- {DIMENSIONS[k]['name']} ({DIMENSIONS[k]['desc']}): {v} von 5" for k, v in ranked if k in DIMENSIONS]
+        traits_section = "\n\nPersoenlichkeits-Profil (7 Eigenschaften, je 1-5, hoeher = staerker ausgepraegt):\n" + "\n".join(lines)
         answers_note = "- Nutze das Persoenlichkeits-Profil als Hauptquelle fuer Staerken und Gaps — wie die Person tickt vs. was der Job verlangt"
     else:
         answers_note = "- Leite Staerken und Gaps aus den RIASEC-Scores ab"
@@ -337,20 +337,20 @@ async def post_insight(req: InsightRequest):
     EINE benannte Charakter-Wahrheit aus der schärfsten Spannung."""
     scores = score_traits(req.answers)
     ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-    profile = "\n".join([f"- {POLES[k]['name']} ({POLES[k]['desc']}): {v}" for k, v in ranked])
+    profile = "\n".join([f"- {DIMENSIONS[k]['name']} ({DIMENSIONS[k]['desc']}): {v} von 5" for k, v in ranked])
 
     typ = f"\nKarriere-Typ (Interessen): {req.type_name} ({req.code})" if req.type_name else ""
 
     prompt = f"""Du formulierst die zentrale "das bin so ich"-Erkenntnis fuer einen Karriere-Selbsttest.
 
-Die Person hat 12 Entweder-oder-Fragen beantwortet. Daraus ergeben sich 5 Arbeits-Pole
-(relativ, Summe 12 — hoeher = staerker ausgepraegt):
+Die Person hat 18 Aussagen auf einer Skala von 1-5 bewertet. Daraus ergeben sich 7 Eigenschaften
+(1 = schwach, 5 = stark ausgepraegt):
 {profile}{typ}
 
 Die schaerfste Erkenntnis liegt in einer SPANNUNG. Zwei moegliche Muster — nimm das, das die
 treffendste Zeile ergibt:
-1. Zwei hohe Pole, die sich reiben.
-2. Ein hoher Pol und das, was du dafuer opferst (ein klar niedriger Pol).
+1. Zwei hohe Eigenschaften (4-5), die sich reiben.
+2. Eine hohe Eigenschaft und das, was du dafuer opferst (eine klar niedrige, 1-2).
 
 AUFBAU der Erkenntnis (1-2 kurze Saetze):
 - Erst die Spannung benennen.
@@ -371,7 +371,7 @@ Regeln:
 - Mutige Beobachtung im Praesens. KEINE Weichmacher (kein "vielleicht/koennte/vermutlich") —
   Spiegel, keine Vorhersage.
 - Leicht unbequem, aber nie verletzend oder herablassend.
-- Du-Form, Berufsschulniveau, kein Fachjargon. Nenne KEINE Pol-Namen (Macher/Verbinder/...) im Text.
+- Du-Form, Berufsschulniveau, kein Fachjargon. Nenne KEINE der Eigenschafts-Namen (Durchsetzung, Menschen, Struktur, Neugier, Kontakt, Ruhe, Eigenständigkeit) im Text.
 - Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken.
 
 ✅ "Du willst schnell vorankommen — aber niemanden zuruecklassen. Also wartest du auf Leute, die du
@@ -459,4 +459,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.1.0"}
+    return {"status": "ok", "version": "3.2.0"}

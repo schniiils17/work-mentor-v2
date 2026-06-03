@@ -42,18 +42,18 @@
 .tc-dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-4px); opacity: 1; } }
 
-.tc-choice-sheet { background: var(--bg); border-top: 1px solid var(--border-light); padding: 16px 20px 24px; }
-.tc-choice-q { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; margin-bottom: 12px; }
-.tc-choice {
-    display: block; width: 100%; text-align: left;
+.tc-choice-sheet { background: var(--bg); border-top: 1px solid var(--border-light); padding: 18px 20px 26px; }
+.tc-statement { font-size: 17px; font-weight: 600; line-height: 1.4; color: var(--text-primary); margin-bottom: 18px; }
+.tc-scale { display: flex; justify-content: space-between; gap: 8px; }
+.tc-pt {
+    flex: 1; height: 52px; border-radius: 12px;
     background: var(--bg-card); border: 1.5px solid var(--border);
-    border-radius: 14px; padding: 16px 18px; margin-bottom: 10px;
-    font-family: var(--font); font-size: 15px; font-weight: 500; line-height: 1.35;
-    color: var(--text-primary); cursor: pointer;
-    transition: all 0.15s ease; -webkit-tap-highlight-color: transparent;
+    font-family: var(--font); font-size: 16px; font-weight: 600; color: var(--text-secondary);
+    cursor: pointer; transition: all 0.15s ease; -webkit-tap-highlight-color: transparent;
 }
-.tc-choice:active { transform: scale(0.98); border-color: var(--accent); }
-.tc-choice.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tc-pt:active { transform: scale(0.94); border-color: var(--accent); }
+.tc-pt.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tc-scale-labels { display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; color: var(--text-muted); }
 
 .tc-loading { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 60px 20px; }
 .tc-loading-dots { display: flex; gap: 8px; }
@@ -72,19 +72,25 @@
             <span class="tc-job-dot"></span>
             <span id="tcJobName">Dein Fit-Check</span>
         </span>
-        <span class="tc-counter" id="tcCounter">1 von 12</span>
+        <span class="tc-counter" id="tcCounter">1 von 18</span>
     </div>
 
     <div class="tc-progress">
-        <div class="tc-progress-bar"><div class="tc-progress-fill" id="tcProgressFill" style="width: 8%"></div></div>
+        <div class="tc-progress-bar"><div class="tc-progress-fill" id="tcProgressFill" style="width: 6%"></div></div>
     </div>
 
     <div class="tc-chat" id="tcChat"></div>
 
     <div class="tc-choice-sheet" id="tcChoiceSheet" style="display:none;">
-        <div class="tc-choice-q">Was bist du eher?</div>
-        <button class="tc-choice" id="tcChoiceA"></button>
-        <button class="tc-choice" id="tcChoiceB"></button>
+        <div class="tc-statement" id="tcStatement"></div>
+        <div class="tc-scale" id="tcScale">
+            <button class="tc-pt" data-v="1">1</button>
+            <button class="tc-pt" data-v="2">2</button>
+            <button class="tc-pt" data-v="3">3</button>
+            <button class="tc-pt" data-v="4">4</button>
+            <button class="tc-pt" data-v="5">5</button>
+        </div>
+        <div class="tc-scale-labels"><span>Stimmt gar nicht</span><span>Stimmt völlig</span></div>
     </div>
 </div>
 {% endblock %}
@@ -97,10 +103,10 @@ const jobName = selectedJob.name || '';
 if (jobName) document.getElementById('tcJobName').textContent = jobName;
 
 const MAGIC = {
-    4: "Interessant. Bei dir ist das nicht schwarz-weiß.",
-    8: "Fast geschafft. Die letzten zeigen am meisten."
+    6: "Interessant. Bei dir ist das nicht schwarz-weiß.",
+    13: "Fast geschafft. Die letzten zeigen am meisten."
 };
-const PROMPTS = ["Was bist du eher?", "Und hier?", "Was trifft eher zu?", "Spontan — was eher?"];
+const VAL_LABELS = { 1: 'Stimmt gar nicht', 2: 'Eher nicht', 3: 'Teils teils', 4: 'Eher schon', 5: 'Stimmt völlig' };
 
 let items = [];
 let currentIndex = 0;
@@ -108,9 +114,8 @@ let answers = [];
 
 const chat = document.getElementById('tcChat');
 const sheet = document.getElementById('tcChoiceSheet');
-const choiceA = document.getElementById('tcChoiceA');
-const choiceB = document.getElementById('tcChoiceB');
-const sheetQ = sheet.querySelector('.tc-choice-q');
+const statementEl = document.getElementById('tcStatement');
+const scaleBtns = Array.from(document.querySelectorAll('.tc-pt'));
 
 function scrollDown() { setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 50); }
 
@@ -137,31 +142,28 @@ function addUser(text) {
 async function showItem(index) {
     if (MAGIC[index]) { await addMentor(MAGIC[index], 500); await new Promise(r => setTimeout(r, 200)); }
     const item = items[index];
-    sheetQ.textContent = PROMPTS[index % PROMPTS.length];
-    choiceA.textContent = item.a;
-    choiceB.textContent = item.b;
-    choiceA.classList.remove('selected');
-    choiceB.classList.remove('selected');
+    statementEl.textContent = item.text;
+    scaleBtns.forEach(b => b.classList.remove('selected'));
     sheet.style.display = 'block';
     document.getElementById('tcCounter').textContent = (index + 1) + ' von ' + items.length;
     document.getElementById('tcProgressFill').style.width = (((index + 1) / items.length) * 100) + '%';
     scrollDown();
 }
 
-function pick(choice, btn, otherBtn) {
+function pickValue(value, btn) {
+    scaleBtns.forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
-    answers[currentIndex] = { item_id: items[currentIndex].id, choice: choice };
+    answers[currentIndex] = { item_id: items[currentIndex].id, value: value };
     setTimeout(async () => {
         sheet.style.display = 'none';
-        addUser(btn.textContent);
+        addUser(VAL_LABELS[value]);
         currentIndex++;
         if (currentIndex >= items.length) { await submitInsight(); }
         else { await showItem(currentIndex); }
     }, 200);
 }
 
-choiceA.addEventListener('click', () => pick('a', choiceA, choiceB));
-choiceB.addEventListener('click', () => pick('b', choiceB, choiceA));
+scaleBtns.forEach(b => b.addEventListener('click', () => pickValue(parseInt(b.dataset.v, 10), b)));
 
 async function submitInsight() {
     await addMentor("Okay. Ich hab dich.", 600);

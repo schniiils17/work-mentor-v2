@@ -9,7 +9,7 @@ S = Social (Sozial/Helfend)
 E = Enterprising (Unternehmerisch/Führend)
 C = Conventional (Konventionell/Organisierend)
 
-36 Aussagen (6 pro Dimension) auf 5-Punkte Likert-Skala.
+24 Aussagen (4 pro Dimension) auf 5-Punkte Likert-Skala.
 Items sind an den O*NET Interest Profiler des US Department of Labor (Public Domain)
 angelehnt, für den deutschen Sprachraum und eine berufstätige Zielgruppe (25–40)
 adaptiert. R und I wurden bewusst entakademisiert/enthandwerklicht, damit Büro-/
@@ -18,7 +18,7 @@ Wissensarbeiter nicht systematisch bei allen R/I-Items "nein" sagen (flache Prof
 Methodik:
 - User bewertet jede Aussage: "Wie sehr wuerde dir das Spass machen?"
 - Skala: -2 (nein) bis +2 (sehr)
-- Pro Dimension werden 6 Items addiert -> Rohwert -12 bis +12
+- Pro Dimension werden 4 Items addiert -> Rohwert -8 bis +8
 - Top-2 Dimensionen ergeben den Holland-Code (z.B. "EA")
 - Generalist-Erkennung: wenn Profil zu flach -> Chamäleon
 """
@@ -28,7 +28,7 @@ from typing import List, Dict
 from collections import Counter
 
 
-# === Items (36 Aussagen, 6 pro Dimension) ===
+# === Items (24 Aussagen, 4 pro Dimension) ===
 # Quelle: O*NET Interest Profiler (Public Domain, US Department of Labor)
 
 ITEMS = [
@@ -36,49 +36,37 @@ ITEMS = [
     {"id": 1,  "dim": "R", "text": "Mit Werkzeug etwas selbst bauen oder zusammenbauen — Möbel, Regale oder Deko"},
     {"id": 2,  "dim": "R", "text": "Ein kaputtes Gerät selbst reparieren, statt es wegzugeben"},
     {"id": 3,  "dim": "R", "text": "Körperlich anpacken und etwas mit den eigenen Händen schaffen"},
-    {"id": 4,  "dim": "R", "text": "Draußen arbeiten — im Garten, mit Pflanzen oder mit Tieren"},
     {"id": 5,  "dim": "R", "text": "Technische Geräte oder Maschinen bedienen und am Laufen halten"},
-    {"id": 6,  "dim": "R", "text": "Zu Hause selbst Hand anlegen — streichen, montieren, eine Lampe anschließen"},
-    
+
     # --- I (Investigative) --- Forschend-analytisch
     {"id": 7,  "dim": "I", "text": "Einem Problem auf den Grund gehen, bis du genau weißt woran es liegt"},
     {"id": 8,  "dim": "I", "text": "Herausfinden wie etwas funktioniert, indem du es genau unter die Lupe nimmst"},
     {"id": 9,  "dim": "I", "text": "Dich in ein neues Thema reinfuchsen, bis du es wirklich durchblickst"},
     {"id": 10, "dim": "I", "text": "Daten und Zahlen auswerten, um ein Muster oder eine Antwort zu finden"},
-    {"id": 11, "dim": "I", "text": "Knifflige Rätsel oder Denksportaufgaben knacken"},
-    {"id": 12, "dim": "I", "text": "Hinterfragen, warum etwas so ist, wie es ist"},
-    
+
     # --- A (Artistic) --- Künstlerisch-kreativ
-    {"id": 13, "dim": "A", "text": "Ein Buch, eine Geschichte oder ein Drehbuch schreiben"},
     {"id": 14, "dim": "A", "text": "Texte schreiben die Menschen berühren — Blogs, Songs oder Stories"},
     {"id": 15, "dim": "A", "text": "Visuelle Inhalte gestalten — Grafiken, Videos oder Animationen"},
     {"id": 16, "dim": "A", "text": "Neue Konzepte oder ungewöhnliche Lösungsansätze entwickeln"},
-    {"id": 17, "dim": "A", "text": "Fotos machen und künstlerisch bearbeiten"},
     {"id": 18, "dim": "A", "text": "Räume, Möbel oder Mode designen"},
-    
+
     # --- S (Social) --- Helfend-sozial
     {"id": 19, "dim": "S", "text": "Menschen mit persönlichen oder emotionalen Problemen helfen"},
     {"id": 20, "dim": "S", "text": "Andere bei ihrer Berufswahl oder Karriere beraten"},
-    {"id": 21, "dim": "S", "text": "Einem neuen Kollegen alles zeigen und ihn einarbeiten"},
     {"id": 22, "dim": "S", "text": "Kindern oder Jugendlichen etwas beibringen"},
-    {"id": 23, "dim": "S", "text": "Ältere Menschen oder Kranke betreuen und unterstützen"},
     {"id": 24, "dim": "S", "text": "In einem Team Konflikte lösen und vermitteln"},
-    
+
     # --- E (Enterprising) --- Unternehmerisch-führend
     {"id": 25, "dim": "E", "text": "Ein eigenes Unternehmen oder Startup gründen"},
     {"id": 26, "dim": "E", "text": "Eine Abteilung oder ein Team in einer Firma leiten"},
-    {"id": 27, "dim": "E", "text": "Ein Projekt von der Idee bis zum Launch durchziehen"},
     {"id": 28, "dim": "E", "text": "Geschäftsverträge oder größere Deals verhandeln"},
     {"id": 29, "dim": "E", "text": "Andere von einer Idee oder einem Produkt überzeugen"},
-    {"id": 30, "dim": "E", "text": "Entscheidungen treffen die ein ganzes Projekt beeinflussen"},
-    
+
     # --- C (Conventional) --- Organisierend-strukturiert
     {"id": 31, "dim": "C", "text": "Eine Excel-Tabelle aufbauen und mit Formeln arbeiten"},
-    {"id": 32, "dim": "C", "text": "Dokumente Korrektur lesen und Fehler finden"},
     {"id": 33, "dim": "C", "text": "Die Buchhaltung oder Finanzen einer Firma führen"},
     {"id": 34, "dim": "C", "text": "Ein Ablage- oder Ordnungssystem aufbauen, in dem alles seinen Platz hat"},
     {"id": 35, "dim": "C", "text": "Abläufe und Prozesse in einem Unternehmen optimieren"},
-    {"id": 36, "dim": "C", "text": "Termine, Reisen oder Veranstaltungen planen und koordinieren"},
 ]
 
 
@@ -310,19 +298,20 @@ def is_generalist(scores: Dict[str, int]) -> bool:
     """
     Prüfe ob das Profil zu flach ist für einen klaren Typ.
     Generalist = Chamäleon wenn:
-    - Der hoechste Score unter 3 liegt (kaum positive Tendenz), ODER
-    - Die Differenz zwischen Top-1 und Top-3 kleiner als 4 ist (alles aehnlich)
+    - Der hoechste Score unter 2 liegt (kaum positive Tendenz), ODER
+    - Die Differenz zwischen Top-1 und Top-3 kleiner als 3 ist (alles aehnlich)
+    (Schwellen auf 4 Items/Dimension skaliert, Rohwert-Range jetzt -8..+8.)
     """
     sorted_vals = sorted(scores.values(), reverse=True)
     top1 = sorted_vals[0]
     top3 = sorted_vals[2]
-    
+
     # Schwellenwerte
-    if top1 < 3:
+    if top1 < 2:
         return True
-    if (top1 - top3) < 4:
+    if (top1 - top3) < 3:
         return True
-    
+
     return False
 
 
@@ -387,9 +376,9 @@ def assess(answers: List[Dict]) -> Dict:
     jobs = get_matching_jobs(code)
     
     # Normalisiere Scores auf 0-100 für das Hexagon
-    # Maximum pro Dimension: 6 Items x 2 Punkte = 12
-    max_possible = 12
-    min_possible = -12
+    # Maximum pro Dimension: 4 Items x 2 Punkte = 8
+    max_possible = 8
+    min_possible = -8
     normalized_scores = {}
     for dim, val in scores.items():
         normalized = ((val - min_possible) / (max_possible - min_possible)) * 100
