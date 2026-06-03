@@ -208,34 +208,25 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
 
 {{
   "fit_score": <Zahl 50-88, realistisch auf Basis aller vorliegenden Daten>,
-  "fit_headline": "<1 Satz, stärkste Verbindung zwischen Profil und Job, Du-Form>",
-  "strengths": [
-    {{"name": "...", "body": "..."}},
-    {{"name": "...", "body": "..."}},
-    {{"name": "...", "body": "..."}}
+  "fit_headline": "<1 ermutigender Satz, Du-Form>",
+  "requirements": [
+    {{"name": "<Kern-Anforderung des Jobs, 2-5 Woerter>", "badge": "passt_gut|solide_basis|dein_hebel", "body": "<1 Satz: deine Auspraegung dazu, ehrlich, Du-Form>"}}
   ],
-  "gaps": [
-    {{"name": "...", "body": "...", "tag": "lernbar"}},
-    {{"name": "...", "body": "...", "tag": "steuerbar"}}
-  ],
-  "lever": {{
-    "skill": "...",
-    "text": "... koennte deinen Fit um ~X% heben."
-  }},
-  "resources": [
-    {{"kind": "book", "title": "...", "author": "...", "price": "ca. €X", "cta": "Auf Amazon ansehen", "for": "..."}},
-    {{"kind": "coach", "title": "...", "author": "1:1 Coaching", "price": "ab €120/Session", "cta": "Coach finden", "for": "..."}}
-  ]
+  "strength": {{"name": "<deine staerkste Eigenschaft, 1 Wort>", "body": "<1 Satz, was sie fuer diesen Job bringt>"}},
+  "lever": {{"name": "<dein groesster Hebel, 1 Wort>", "body": "<1 Satz, woran du fuer diesen Job arbeiten koenntest>"}},
+  "resource": {{"kind": "book", "title": "...", "author": "...", "body": "<1 Satz warum genau das>", "cta": "Auf Amazon ansehen"}}
 }}
 
 Regeln:
-- fit_score: ehrlich, 60-80 ist realistisch
-- strengths: 3 Staerken, je 2 Saetze body, konkret auf den Job bezogen
-- gaps: 2 ehrliche Luecken. tag: "lernbar" = Skill, "steuerbar" = Persoenlichkeit, "mismatch" = Interessens-Mismatch
-- lever: wichtigster Hebel, mit geschaetzter Fit-Verbesserung in Prozent
-- resources: echte Buecher/Kurse, maximal 2
+- requirements: GENAU 5 echte Kern-Anforderungen DIESES Jobs (was der Job wirklich verlangt — kein generisches Bla).
+  badge: "passt_gut" = klare Staerke | "solide_basis" = okay, ausbaufaehig | "dein_hebel" = hier hakt es am meisten.
+  Pro Person hoechstens 1-2 "dein_hebel". Verteile ehrlich, nicht alles gruen.
+  body je Anforderung: 1 kurzer Satz, der deine Auspraegung ehrlich spiegelt (aus Persoenlichkeit + Interessen). Du-Form.
+- fit_score spiegelt die Summe der Badges ehrlich (viele passt_gut = hoch, mehrere Hebel = niedriger).
+- strength: deine staerkste Eigenschaft (Trait-Ebene). lever: dein groesster Hebel (Trait-Ebene).
+- resource: EIN echtes Buch, das genau am groessten Hebel ansetzt.
 - {answers_note}
-- Deutsch, Du-Form, kein HR-Jargon, kurze Saetze, NIEMALS als-wie"""
+- Deutsch, Du-Form, Berufsschulniveau, kein HR-Jargon, kurze Saetze, NIEMALS als-wie"""
 
     try:
         msg = claude.messages.create(

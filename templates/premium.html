@@ -247,41 +247,41 @@ function resourceIcon(kind) {
     return 'laptop';
 }
 
+function reqBadgeClass(badge) {
+    return badge === 'passt_gut' ? 'req-badge--gut' : badge === 'dein_hebel' ? 'req-badge--hebel' : 'req-badge--basis';
+}
+function reqBadgeLabel(badge) {
+    return badge === 'passt_gut' ? 'Passt gut' : badge === 'dein_hebel' ? 'Dein Hebel' : 'Solide Basis';
+}
+
 function renderPremium(data) {
     const jobName = data.job_name || 'Produktmanager';
     const score = data.fit_score || 67;
 
-    const strengthsHtml = (data.strengths || []).map(s => `
-        <div class="report-item">
-            <div class="report-item-title">${s.name}</div>
-            <p class="report-item-body">${s.body}</p>
+    // Das braucht dein Zieljob — volle Anforderungs-Liste
+    const reqsHtml = (data.requirements || []).map(r => `
+        <div class="req-card">
+            <div class="req-head">
+                <span class="req-name">${r.name}</span>
+                <span class="req-badge ${reqBadgeClass(r.badge)}">${reqBadgeLabel(r.badge)}</span>
+            </div>
+            <p class="req-body">${r.body || ''}</p>
         </div>`).join('');
 
-    const gapsHtml = (data.gaps || []).map(g => {
-        const tm = tagMeta(g.tag);
-        return `<div class="report-item">
-            <div class="gap-item-header">
-                <span class="report-item-title" style="margin:0;">${g.name}</span>
-                <span class="gap-tag ${tm.cls}">${iconSvg(tm.icon, tm.color)}${tm.label}</span>
-            </div>
-            <p class="report-item-body">${g.body}</p>
-        </div>`;
-    }).join('');
-
-    const leverData = data.lever || {text: 'Gezielte Weiterentwicklung könnte deinen Fit deutlich heben.'};
-
-    const resourcesHtml = (data.resources || []).map(r => {
-        const icn = resourceIcon(r.kind);
-        return `<div class="resource-card">
-            <div class="resource-icon">${iconSvg(icn, 'var(--accent)')}</div>
+    const strength = data.strength || {};
+    const lever = data.lever || {};
+    const res = data.resource || {};
+    const resourceHtml = res.title ? `
+        <div class="resource-card">
+            <div class="resource-icon">${iconSvg('book', 'var(--accent)')}</div>
             <div style="flex:1;min-width:0;">
-                <div class="resource-for">Für: ${r.for || ''}</div>
-                <div class="resource-title">${r.title}</div>
-                <div class="resource-meta">${r.author || ''} · ${r.price || ''}</div>
-                <button class="resource-cta">${r.cta || 'Mehr erfahren'}${iconSvg('arrowright','var(--accent)')}</button>
+                <div class="resource-for">Buch</div>
+                <div class="resource-title">${res.title}</div>
+                <div class="resource-meta">${res.author || ''}</div>
+                <div class="report-item-body" style="margin:6px 0 8px;">${res.body || ''}</div>
+                <button class="resource-cta">${res.cta || 'Auf Amazon ansehen'}${iconSvg('arrowright','var(--accent)')}</button>
             </div>
-        </div>`;
-    }).join('');
+        </div>` : '';
 
     document.getElementById('premiumScreen').innerHTML = `
         <div class="premium-topbar">
@@ -297,7 +297,7 @@ function renderPremium(data) {
 
         ${wmInsight ? `<div style="margin:0 20px 22px;padding:18px 20px;background:var(--bg-card);border:1px solid var(--border-light);border-left:3px solid var(--accent);border-radius:var(--radius);"><div style="font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--accent);font-weight:700;margin-bottom:8px;">Das bist du</div><p style="font-size:17px;line-height:1.4;color:var(--text-primary);font-weight:500;margin:0;">${wmInsight}</p></div>` : ''}
 
-        <div class="premium-context">Und so passt das zu ${jobName}</div>
+        <div class="premium-context">So nah dran bist du an ${jobName}</div>
 
         <div class="score-arc-wrap">
             ${buildScoreArcSVG(score)}
@@ -309,40 +309,44 @@ function renderPremium(data) {
 
         <div style="height:24px;"></div>
 
-        <!-- Stärken -->
+        <!-- Das braucht dein Zieljob -->
+        <div style="padding:0 20px;">
+            <div class="report-section-head" style="margin-bottom:14px;">
+                ${iconSvg('check','var(--accent)')}
+                <span class="report-section-label" style="color:var(--accent);">Das braucht ${jobName}</span>
+            </div>
+            ${reqsHtml}
+        </div>
+
+        <div style="height:14px;"></div>
+
+        <!-- Das kannst du -->
         <div class="report-section" style="background:#E7F0EB;">
             <div class="report-section-head">
                 ${iconSvg('check','#2D6A4F')}
-                <span class="report-section-label" style="color:#2D6A4F;">Was du mitbringst</span>
+                <span class="report-section-label" style="color:#2D6A4F;">Wo du stark bist</span>
             </div>
-            ${strengthsHtml}
+            <div class="report-item-title">${strength.name || 'Deine Stärke'}</div>
+            <p class="report-item-body">${strength.body || ''}</p>
         </div>
 
-        <!-- Gaps -->
-        <div class="report-section" style="background:#F5EDE0;">
-            <div class="report-section-head">
-                ${iconSvg('alert','#A86A2D')}
-                <span class="report-section-label" style="color:#A86A2D;">Wo es eng wird</span>
-            </div>
-            ${gapsHtml}
-        </div>
-
-        <!-- Lever -->
+        <!-- Dein größter Hebel -->
         <div class="lever-card">
             <div class="lever-head">
                 ${iconSvg('lightbulb','#fff')}
                 <span class="lever-label">Dein größter Hebel</span>
             </div>
-            <p class="lever-text">${leverData.text}</p>
+            <div style="font-weight:700;font-size:16px;margin-bottom:4px;">${lever.name || ''}</div>
+            <p class="lever-text" style="font-size:15px;">${lever.body || ''}</p>
         </div>
 
-        <!-- Resources -->
+        <!-- Dein nächster Schritt -->
         <div class="report-section" style="background:var(--bg-card);border:1px solid var(--border-light);">
             <div class="report-section-head">
                 ${iconSvg('bookmark','var(--text-primary)')}
-                <span class="report-section-label" style="color:var(--text-primary);">Was dir konkret hilft</span>
+                <span class="report-section-label" style="color:var(--text-primary);">Dein nächster Schritt</span>
             </div>
-            ${resourcesHtml}
+            ${resourceHtml}
         </div>
 
         <!-- Actions -->

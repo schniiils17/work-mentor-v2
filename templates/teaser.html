@@ -284,20 +284,28 @@ function blurCard(lines = 2) {
     </div></div>`;
 }
 
+function reqBadgeClass(badge) {
+    return badge === 'passt_gut' ? 'req-badge--gut' : badge === 'dein_hebel' ? 'req-badge--hebel' : 'req-badge--basis';
+}
+function reqBadgeLabel(badge) {
+    return badge === 'passt_gut' ? 'Passt gut' : badge === 'dein_hebel' ? 'Dein Hebel' : 'Solide Basis';
+}
+
 function renderTeaser(data, wm) {
     const jobName = data.job_name || 'Produktmanager';
     const topKey = (wm.code || 'EA')[0];
     const tierColors = {R:'#475569',I:'#4338CA',A:'#F59E0B',S:'#0D9488',E:'#EA580C',C:'#7C3AED'};
     const tierColor = tierColors[topKey] || '#1A3A5C';
 
-    const strengths = (data.strengths || []).map(s => `
-        <div class="strength-card">
-            <div class="strength-name">${s.name}</div>
-            <div class="strength-body">${s.body}</div>
+    // Anforderungen: Name + Badge sichtbar, Begründung geblurrt (das Warum ist Premium)
+    const reqs = (data.requirements || []).map(r => `
+        <div class="req-card">
+            <div class="req-head">
+                <span class="req-name">${r.name}</span>
+                <span class="req-badge ${reqBadgeClass(r.badge)}">${reqBadgeLabel(r.badge)}</span>
+            </div>
+            <div class="req-body-blur"><span style="width:92%"></span><span style="width:64%"></span></div>
         </div>`).join('');
-
-    const gapsBlurred = (data.gaps || [{},{},{}]).map(() => blurCard(2)).join('');
-    const leverBlurred = blurCard(2);
 
     document.getElementById('teaserScreen').innerHTML = `
         <div class="teaser-logo-bar">
@@ -309,7 +317,7 @@ function renderTeaser(data, wm) {
 
         ${wmInsight ? `<div class="teaser-insight"><div class="teaser-insight-label">Das bist du</div><p class="teaser-insight-text">${wmInsight}</p></div>` : ''}
 
-        <div class="teaser-context">Und so passt das zu ${jobName}</div>
+        <div class="teaser-context">So nah dran bist du an ${jobName}</div>
 
         <div class="score-arc-wrap">
             ${buildScoreArcSVG(0)}
@@ -319,31 +327,19 @@ function renderTeaser(data, wm) {
             </div>
         </div>
 
-        <p class="fit-headline" style="color:${tierColor}">${data.fit_headline || 'Dein Profil passt gut zu diesem Job.'}</p>
+        <p class="fit-headline" style="color:${tierColor}">${data.fit_headline || 'Vieles passt schon — und es gibt einen klaren Punkt zum Anpacken.'}</p>
 
         <div class="teaser-section-head">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2D6A4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <span class="teaser-section-label" style="color:#2D6A4F;">Was du mitbringst</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            <span class="teaser-section-label" style="color:var(--accent);">Das braucht ${jobName}</span>
         </div>
-        <div class="teaser-cards">${strengths}</div>
-
-        <div class="teaser-section-head">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A86A2D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            <span class="teaser-section-label" style="color:#A86A2D;">Wo es eng werden könnte</span>
-        </div>
-        <div class="teaser-cards">${gapsBlurred}</div>
-
-        <div class="teaser-section-head">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-            <span class="teaser-section-label" style="color:var(--accent);">Was deinen Fit am meisten heben würde</span>
-        </div>
-        <div class="teaser-cards">${leverBlurred}</div>
+        <div class="teaser-cards">${reqs}</div>
 
         <div class="paywall-divider"></div>
 
         <div class="paywall-text">
-            <div class="paywall-headline">Du hast 8 Minuten investiert.</div>
-            <div class="paywall-sub">Dein vollständiges Ergebnis ist fertig.</div>
+            <div class="paywall-headline">Du siehst, wo du stehst.</div>
+            <div class="paywall-sub">Das ganze Bild — warum, und was du tun kannst — ist fertig.</div>
         </div>
 
         <a href="/premium" class="btn-pay">
