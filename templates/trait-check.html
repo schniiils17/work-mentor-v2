@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block title %}Wer bist du wirklich? — Work Mentor{% endblock %}
+
+{% block head %}
+<style>
+.tc-screen { min-height: 100dvh; display: flex; flex-direction: column; background: var(--bg); }
+.tc-header { padding: 16px 20px 0; display: flex; justify-content: space-between; align-items: center; }
+.tc-job-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px 4px 8px; background: var(--bg-card);
+    border: 1px solid var(--border-light); border-radius: var(--radius-full);
+    font-size: 12px; font-weight: 500; color: var(--text-primary);
+}
+.tc-job-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.tc-counter { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+.tc-progress { padding: 10px 20px 0; }
+.tc-progress-bar { height: 3px; background: var(--border-light); border-radius: 2px; overflow: hidden; }
+.tc-progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; }
+.tc-chat { flex: 1; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; max-height: 42vh; }
+.tc-mentor-row { display: flex; gap: 8px; align-items: flex-end; align-self: flex-start; max-width: 88%; }
+.tc-avatar {
+    width: 28px; height: 28px; min-width: 28px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+}
+.tc-bubble-mentor {
+    background: var(--bg-card); border: 1px solid var(--border-light);
+    border-radius: 16px 16px 16px 4px; padding: 12px 16px;
+    font-size: 15px; line-height: 1.5; color: var(--text-primary);
+    animation: fadeInUp 0.3s ease forwards;
+}
+.tc-bubble-user {
+    background: var(--accent); color: #fff;
+    border-radius: 16px 16px 4px 16px; align-self: flex-end; max-width: 85%;
+    padding: 10px 16px; font-size: 14px; line-height: 1.4;
+    animation: fadeInUp 0.3s ease forwards;
+}
+.tc-typing { display: inline-flex; gap: 4px; padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 16px 16px 16px 4px; }
+.tc-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); animation: typingBounce 1.4s infinite; }
+.tc-dot:nth-child(2) { animation-delay: 0.2s; }
+.tc-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce { 0%,60%,100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+.tc-choice-sheet { background: var(--bg); border-top: 1px solid var(--border-light); padding: 16px 20px 24px; }
+.tc-choice-q { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; margin-bottom: 12px; }
+.tc-choice {
+    display: block; width: 100%; text-align: left;
+    background: var(--bg-card); border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 16px 18px; margin-bottom: 10px;
+    font-family: var(--font); font-size: 15px; font-weight: 500; line-height: 1.35;
+    color: var(--text-primary); cursor: pointer;
+    transition: all 0.15s ease; -webkit-tap-highlight-color: transparent;
+}
+.tc-choice:active { transform: scale(0.98); border-color: var(--accent); }
+.tc-choice.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.tc-loading { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 60px 20px; }
+.tc-loading-dots { display: flex; gap: 8px; }
+.tc-loading-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); opacity: 0.3; animation: loadPulse 1.4s infinite; }
+.tc-loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.tc-loading-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes loadPulse { 0%,60%,100% { opacity: 0.3; transform: scale(0.8); } 30% { opacity: 1; transform: scale(1); } }
+.tc-loading-text { font-size: 15px; color: var(--text-secondary); text-align: center; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container tc-screen" id="tcApp">
+    <div class="tc-header">
+        <span class="tc-job-pill">
+            <span class="tc-job-dot"></span>
+            <span id="tcJobName">Dein Fit-Check</span>
+        </span>
+        <span class="tc-counter" id="tcCounter">1 von 12</span>
+    </div>
+
+    <div class="tc-progress">
+        <div class="tc-progress-bar"><div class="tc-progress-fill" id="tcProgressFill" style="width: 8%"></div></div>
+    </div>
+
+    <div class="tc-chat" id="tcChat"></div>
+
+    <div class="tc-choice-sheet" id="tcChoiceSheet" style="display:none;">
+        <div class="tc-choice-q">Was bist du eher?</div>
+        <button class="tc-choice" id="tcChoiceA"></button>
+        <button class="tc-choice" id="tcChoiceB"></button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const wmResult = JSON.parse(sessionStorage.getItem('wm_result') || '{}');
+const selectedJob = JSON.parse(sessionStorage.getItem('wm_selected_job') || '{}');
+const jobName = selectedJob.name || '';
+if (jobName) document.getElementById('tcJobName').textContent = jobName;
+
+const MAGIC = {
+    4: "Interessant. Bei dir ist das nicht schwarz-weiß.",
+    8: "Fast geschafft. Die letzten zeigen am meisten."
+};
+const PROMPTS = ["Was bist du eher?", "Und hier?", "Was trifft eher zu?", "Spontan — was eher?"];
+
+let items = [];
+let currentIndex = 0;
+let answers = [];
+
+const chat = document.getElementById('tcChat');
+const sheet = document.getElementById('tcChoiceSheet');
+const choiceA = document.getElementById('tcChoiceA');
+const choiceB = document.getElementById('tcChoiceB');
+const sheetQ = sheet.querySelector('.tc-choice-q');
+
+function scrollDown() { setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 50); }
+
+function addMentor(text, delay) {
+    return new Promise(resolve => {
+        const row = document.createElement('div');
+        row.className = 'tc-mentor-row';
+        row.innerHTML = '<div class="tc-avatar">M</div><div class="tc-typing"><div class="tc-dot"></div><div class="tc-dot"></div><div class="tc-dot"></div></div>';
+        chat.appendChild(row); scrollDown();
+        setTimeout(() => {
+            row.innerHTML = '<div class="tc-avatar">M</div><div class="tc-bubble-mentor">' + text + '</div>';
+            scrollDown(); resolve();
+        }, delay || 600);
+    });
+}
+
+function addUser(text) {
+    const b = document.createElement('div');
+    b.className = 'tc-bubble-user';
+    b.textContent = text;
+    chat.appendChild(b); scrollDown();
+}
+
+async function showItem(index) {
+    if (MAGIC[index]) { await addMentor(MAGIC[index], 500); await new Promise(r => setTimeout(r, 200)); }
+    const item = items[index];
+    sheetQ.textContent = PROMPTS[index % PROMPTS.length];
+    choiceA.textContent = item.a;
+    choiceB.textContent = item.b;
+    choiceA.classList.remove('selected');
+    choiceB.classList.remove('selected');
+    sheet.style.display = 'block';
+    document.getElementById('tcCounter').textContent = (index + 1) + ' von ' + items.length;
+    document.getElementById('tcProgressFill').style.width = (((index + 1) / items.length) * 100) + '%';
+    scrollDown();
+}
+
+function pick(choice, btn, otherBtn) {
+    btn.classList.add('selected');
+    answers[currentIndex] = { item_id: items[currentIndex].id, choice: choice };
+    setTimeout(async () => {
+        sheet.style.display = 'none';
+        addUser(btn.textContent);
+        currentIndex++;
+        if (currentIndex >= items.length) { await submitInsight(); }
+        else { await showItem(currentIndex); }
+    }, 200);
+}
+
+choiceA.addEventListener('click', () => pick('a', choiceA, choiceB));
+choiceB.addEventListener('click', () => pick('b', choiceB, choiceA));
+
+async function submitInsight() {
+    await addMentor("Okay. Ich hab dich.", 600);
+    sheet.style.display = 'none';
+
+    const app = document.getElementById('tcApp');
+    const load = document.createElement('div');
+    load.className = 'tc-loading';
+    load.innerHTML = '<div class="tc-loading-dots"><div class="tc-loading-dot"></div><div class="tc-loading-dot"></div><div class="tc-loading-dot"></div></div><div class="tc-loading-text" id="tcLoadText">Ich lese, wie du tickst…</div>';
+    app.appendChild(load);
+
+    const texts = ['Ich lese, wie du tickst…', 'Ich finde dein Muster…', 'Gleich hast du\'s…'];
+    let ti = 0;
+    const iv = setInterval(() => { ti++; const el = document.getElementById('tcLoadText'); if (el && ti < texts.length) el.textContent = texts[ti]; }, 1800);
+
+    try {
+        const resp = await fetch('/api/insight', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ answers: answers.filter(Boolean), code: wmResult.code || '', type_name: wmResult.type_name || '' })
+        });
+        const data = await resp.json();
+        clearInterval(iv);
+        if (data.error) throw new Error(data.error);
+        sessionStorage.setItem('wm_traits', JSON.stringify(data.scores || {}));
+        sessionStorage.setItem('wm_insight', data.insight || '');
+        window.location.href = '/teaser';
+    } catch(e) {
+        clearInterval(iv);
+        const el = document.getElementById('tcLoadText');
+        if (el) el.textContent = 'Hat nicht geklappt — bitte nochmal versuchen.';
+    }
+}
+
+// Start
+(async function() {
+    try {
+        const resp = await fetch('/api/trait-items');
+        const data = await resp.json();
+        items = data.items || [];
+    } catch(e) { items = []; }
+    if (!items.length) {
+        document.getElementById('tcChat').innerHTML = '<p style="color:var(--text-muted);padding:40px 0;text-align:center;">Konnte nicht laden. <a href="/jobs">Zurück</a></p>';
+        return;
+    }
+    await addMentor(jobName ? ('Bevor ich dir sage, ob du als ' + jobName + ' taugst — wer bist du eigentlich?') : 'Wer bist du eigentlich? Lass uns das rausfinden.', 700);
+    await new Promise(r => setTimeout(r, 200));
+    showItem(0);
+})();
+</script>
+{% endblock %}

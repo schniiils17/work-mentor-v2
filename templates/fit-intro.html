@@ -118,10 +118,9 @@
     </span>
 
     <div class="fit-intro-center">
-        <h1>Profil-Match ist nicht alles.</h1>
+        <h1>Passt du als Mensch dahin?</h1>
         <p class="fit-intro-body" id="introBody">
-            91% heißt: deine Interessen passen. Aber ob <strong>du als Mensch</strong>
-            wirklich dort reinpasst — Persönlichkeit, Stärken, Gaps — ist eine andere Frage.
+            Dein Profil zeigt, WAS dir liegt. Ob du wirklich dort reinpasst, hängt davon ab, WER du bist.
         </p>
 
         <div class="fit-info-card">
@@ -148,7 +147,7 @@
 
     <div class="fit-cta">
         <button class="btn-fit" id="analyzeBtn">
-            Meinen Fit analysieren
+            Los geht's — 12 Fragen
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
     </div>
@@ -169,40 +168,11 @@ const matchPct = selectedJob.match || 91;
 document.getElementById('jobName').textContent = jobName;
 document.getElementById('matchPct').textContent = matchPct + '% Profil-Match';
 document.getElementById('introBody').innerHTML =
-    matchPct + '% heißt: deine Interessen passen. Aber ob <strong>du als Mensch</strong> ' +
-    'wirklich dort reinpasst — Persönlichkeit, Stärken, Gaps — ist eine andere Frage.';
+    'Dein Profil zeigt, WAS dir liegt. Ob du als <strong>' + jobName + '</strong> wirklich taugst, ' +
+    'hängt davon ab, WER du bist — wie du tickst und entscheidest. 12 schnelle Fragen, dann weißt du\'s.';
 
-document.getElementById('analyzeBtn').addEventListener('click', async function() {
-    const btn = this;
-    btn.disabled = true;
-    btn.querySelector('span, svg') && null;
-    btn.innerHTML = 'Wird analysiert…';
-
-    try {
-        const scores = result.scores || {};
-        const code = result.code || 'EA';
-
-        const resp = await fetch('/api/fit', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({job_name: jobName, scores: scores, code: code})
-        });
-        const fitData = await resp.json();
-
-        if (fitData.error) throw new Error(fitData.error);
-
-        sessionStorage.setItem('wm_fit_result', JSON.stringify({
-            ...fitData,
-            job_name: jobName,
-            match_pct: matchPct
-        }));
-
-        window.location.href = '/teaser';
-    } catch(e) {
-        console.error(e);
-        btn.disabled = false;
-        btn.textContent = 'Meinen Fit analysieren →';
-    }
+document.getElementById('analyzeBtn').addEventListener('click', function() {
+    window.location.href = '/trait-check';
 });
 </script>
 {% endblock %}

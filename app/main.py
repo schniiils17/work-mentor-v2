@@ -45,7 +45,7 @@ class FitRequest(BaseModel):
     job_name: str
     scores: dict
     code: str
-    fit_answers: list = []  # [{question, value}] aus dem Post-Payment-Check
+    trait_scores: dict = {}  # {pole: count} aus der Trait-Stufe (Stufe 2)
 
 class JobsRequest(BaseModel):
     scores: dict          # normalisiert 0-100 pro Dimension (R,I,A,S,E,C)
@@ -190,19 +190,19 @@ async def post_fit(req: FitRequest):
                   "S": "Sozial", "E": "Unternehmerisch", "C": "Organisierend"}
     scores_str = ", ".join([f"{dim_labels.get(k, k)}: {v}" for k, v in req.scores.items()])
 
-    answers_section = ""
-    if req.fit_answers:
-        scale = {-2: "Stimmt gar nicht", -1: "Eher nicht", 0: "Teils-teils", 1: "Eher ja", 2: "Stimmt voll"}
-        lines = [f'- "{a["question"]}": {scale.get(a["value"], str(a["value"]))}' for a in req.fit_answers]
-        answers_section = "\n\nSelbsteinschätzung des Users (8 Fragen zum Job-Fit):\n" + "\n".join(lines)
-        answers_note = "- Nutze die Selbsteinschätzung als Hauptquelle fuer Staerken und Gaps — sie ist direktes Signal"
+    traits_section = ""
+    if req.trait_scores:
+        ranked = sorted(req.trait_scores.items(), key=lambda x: x[1], reverse=True)
+        lines = [f"- {POLES[k]['name']} ({POLES[k]['desc']}): {v}" for k, v in ranked if k in POLES]
+        traits_section = "\n\nPersoenlichkeits-Profil (Forced-Choice, relativ, hoeher = staerker):\n" + "\n".join(lines)
+        answers_note = "- Nutze das Persoenlichkeits-Profil als Hauptquelle fuer Staerken und Gaps — wie die Person tickt vs. was der Job verlangt"
     else:
         answers_note = "- Leite Staerken und Gaps aus den RIASEC-Scores ab"
 
     prompt = f"""Analysiere den Job-Fit fuer den Job "{req.job_name}".
 
 RIASEC-Profil: {req.code}
-Dimension-Scores (Rohwerte -12 bis +12): {scores_str}{answers_section}
+Dimension-Scores (Rohwerte -12 bis +12): {scores_str}{traits_section}
 
 Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
 
@@ -441,9 +441,9 @@ async def fit_intro(request: Request):
     return templates.TemplateResponse("fit-intro.html", {"request": request})
 
 
-@app.get("/fit-check-post", response_class=HTMLResponse)
-async def fit_check_post(request: Request):
-    return templates.TemplateResponse("fit-check-post.html", {"request": request})
+@app.get("/trait-check", response_class=HTMLResponse)
+async def trait_check(request: Request):
+    return templates.TemplateResponse("trait-check.html", {"request": request})
 
 
 @app.get("/teaser", response_class=HTMLResponse)

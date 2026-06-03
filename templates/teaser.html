@@ -10,6 +10,13 @@
     padding-bottom: 40px;
 }
 .teaser-logo-bar { padding: 10px 20px 8px; }
+.teaser-insight {
+    margin: 6px 20px 26px; padding: 18px 20px;
+    background: var(--bg-card); border: 1px solid var(--border-light);
+    border-left: 3px solid var(--accent); border-radius: var(--radius);
+}
+.teaser-insight-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); font-weight: 700; margin-bottom: 8px; }
+.teaser-insight-text { font-size: 17px; line-height: 1.4; color: var(--text-primary); font-weight: 500; margin: 0; }
 .teaser-context {
     font-size: 11px;
     text-transform: uppercase;
@@ -176,16 +183,44 @@
 
 {% block scripts %}
 <script>
-const fitData = JSON.parse(sessionStorage.getItem('wm_fit_result') || 'null');
 const wmResult = JSON.parse(sessionStorage.getItem('wm_result') || '{}');
+const wmTraits = JSON.parse(sessionStorage.getItem('wm_traits') || '{}');
+const wmInsight = sessionStorage.getItem('wm_insight') || '';
+const selectedJob = JSON.parse(sessionStorage.getItem('wm_selected_job') || '{}');
 
-if (!fitData) {
-    document.getElementById('teaserScreen').innerHTML = `
-        <div style="text-align:center;padding:80px 20px;">
-            <p style="color:var(--text-muted);margin-bottom:24px;">Kein Ergebnis gefunden.</p>
-            <a href="/assessment" class="btn btn-primary">Karriere-Check starten →</a>
-        </div>`;
-} else {
+initTeaser();
+
+async function initTeaser() {
+    if (!wmResult || !wmResult.scores) {
+        document.getElementById('teaserScreen').innerHTML = `
+            <div style="text-align:center;padding:80px 20px;">
+                <p style="color:var(--text-muted);margin-bottom:24px;">Kein Ergebnis gefunden.</p>
+                <a href="/assessment" class="btn btn-primary">Karriere-Check starten →</a>
+            </div>`;
+        return;
+    }
+    // Job-Fit ggf. frisch berechnen (mit Traits)
+    let fitData = JSON.parse(sessionStorage.getItem('wm_fit_result') || 'null');
+    if (!fitData || fitData.job_name !== (selectedJob.name || fitData.job_name)) {
+        document.getElementById('teaserScreen').innerHTML = `<div style="text-align:center;padding:90px 0;color:var(--text-muted);">Ich gleiche dich mit ${selectedJob.name || 'dem Job'} ab…</div>`;
+        try {
+            const resp = await fetch('/api/fit', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ job_name: selectedJob.name || 'Produktmanager', scores: wmResult.scores, code: wmResult.code || 'EA', trait_scores: wmTraits })
+            });
+            const d = await resp.json();
+            if (d.error) throw new Error(d.error);
+            fitData = { ...d, job_name: selectedJob.name || 'Produktmanager', match_pct: selectedJob.match || 0 };
+            sessionStorage.setItem('wm_fit_result', JSON.stringify(fitData));
+        } catch(e) {
+            document.getElementById('teaserScreen').innerHTML = `
+                <div style="padding:60px 20px;text-align:center;">
+                    <p style="color:var(--text-secondary);margin-bottom:16px;">Konnte den Fit nicht berechnen.</p>
+                    <button class="btn btn-primary" onclick="initTeaser()">Nochmal versuchen</button>
+                </div>`;
+            return;
+        }
+    }
     renderTeaser(fitData, wmResult);
 }
 
@@ -272,7 +307,9 @@ function renderTeaser(data, wm) {
             </span>
         </div>
 
-        <div class="teaser-context">${jobName} · Dein Fit-Ergebnis</div>
+        ${wmInsight ? `<div class="teaser-insight"><div class="teaser-insight-label">Das bist du</div><p class="teaser-insight-text">${wmInsight}</p></div>` : ''}
+
+        <div class="teaser-context">Und so passt das zu ${jobName}</div>
 
         <div class="score-arc-wrap">
             ${buildScoreArcSVG(0)}
@@ -309,7 +346,7 @@ function renderTeaser(data, wm) {
             <div class="paywall-sub">Dein vollständiges Ergebnis ist fertig.</div>
         </div>
 
-        <a href="/fit-check-post" class="btn-pay">
+        <a href="/premium" class="btn-pay">
             Vollständiges Ergebnis — 19 €
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
