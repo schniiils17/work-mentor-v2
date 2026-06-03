@@ -363,14 +363,18 @@ treffendste Zeile ergibt:
 
 AUFBAU der Erkenntnis (1-2 kurze Saetze):
 - Erst die Spannung benennen.
-- Dann — das ist das Entscheidende — eine KONKRETE, leicht entlarvende Stelle, wo sich die Person
-  bei genau diesem Muster ertappt. Eine spezifische Handlung oder Gewohnheit, bei der man denkt
-  "oh Gott, das mache ich wirklich".
+- Dann eine leicht unbequeme, selbst-entlarvende KONSEQUENZ — die Stelle, wo man sich ertappt.
 
-Das ist der Unterschied zwischen "stimmt schon" und "woher wissen die das?":
-- VERBOTEN als Schluss: vage Kosten-Floskeln wie "kostet Zeit und Nerven", "bremst dich aus",
-  "raubt Energie", "faellt dir schwer", "zieht dich in zwei Richtungen". Zu allgemein.
-- STATTDESSEN: eine konkrete, beobachtbare Szene oder Gewohnheit aus dem echten Arbeits-/Alltag.
+ENTSCHEIDEND — konkret, aber NICHT erfunden:
+- Die Schaerfe kommt aus der unbequemen Konsequenz, NICHT aus einem ausgedachten Requisit.
+- ERFINDE KEINE konkreten Gegenstaende oder Szenen, die nicht jeder hat: keine "Browser-Tabs",
+  "E-Mails", "Kalender", "Post-its", "To-do-Listen", "Meetings". Die treffen nur manche — und wer
+  sie nicht hat, fuehlt sich NICHT erkannt, sondern falsch eingeschaetzt. Das zerstoert den Moment.
+- Werde praezise im MUSTER und im GEFUEHL — formuliere das, was fuer JEDEN mit diesem Muster wahr
+  ist, scharf und unbequem. Praezise, nicht bebildert.
+
+VERBOTEN als Schluss: vage Floskeln wie "kostet Zeit und Nerven", "bremst dich aus", "raubt
+Energie", "faellt dir schwer", "zieht dich in zwei Richtungen". Zu allgemein.
 
 Regeln:
 - Mutige Beobachtung im Praesens. KEINE Weichmacher (kein "vielleicht/koennte/vermutlich") —
@@ -381,12 +385,12 @@ Regeln:
 
 ✅ "Du willst schnell vorankommen — aber niemanden zuruecklassen. Also wartest du auf Leute, die du
    laengst ueberholt hast, und machst es am Ende doch selbst."
-✅ "Anfangen ist deine Staerke. Aber kaum wird es Routine, bist du schon beim naechsten Ding — und
-   hinter dir stapeln sich die Sachen, die nie ganz fertig wurden."
+✅ "Du bist schon bei der naechsten Idee, bevor die letzte fertig ist — und die Haelfte deiner
+   Anfaenge sieht nie das Tageslicht."
 ✅ "Du sagst ja, obwohl du innerlich laengst nein denkst — und keiner merkt, wie oft du dich dabei
    selbst uebergehst."
+❌ "Dein Browser hat zwanzig Tabs mit halbfertigen Ideen offen." (erfundenes Requisit — trifft nur manche)
 ❌ "Du willst alles richtig machen und alle mitnehmen — das kostet dich Zeit und Nerven." (vage Floskel)
-❌ "Du bist vielleicht eher der Macher-Typ." (Weichmacher + Pol-Name)
 ❌ "Du wirst als Fuehrungskraft erfolgreich sein." (Vorhersage)
 
 Antworte NUR mit der Erkenntnis, kein Vorspann."""
