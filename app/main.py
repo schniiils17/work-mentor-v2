@@ -12,6 +12,7 @@ import re
 import math
 
 from app.holland import ITEMS, assess, get_shuffled_items, _dim_label
+from app.traits import POLES, TRAIT_ITEMS, score_traits, get_trait_items
 import anthropic
 
 app = FastAPI(title="Work Mentor 3.0")
@@ -50,6 +51,11 @@ class JobsRequest(BaseModel):
     scores: dict          # normalisiert 0-100 pro Dimension (R,I,A,S,E,C)
     code: str
     custom_job: str = ""  # gesetzt = nur diesen einen Job bewerten
+
+class InsightRequest(BaseModel):
+    answers: list         # [{"item_id": int, "choice": "a"|"b"}]
+    code: str = ""        # RIASEC-Code (optional, zum Einfärben)
+    type_name: str = ""   # Tier-/Typname (optional)
 
 
 # Kanonische Tier-Sprüche — Ton-Anker im Prompt UND Fallback, falls der
@@ -326,6 +332,59 @@ Regeln:
         return {"jobs": jobs}
     except Exception as e:
         return {"error": str(e)}
+
+
+@app.get("/api/trait-items")
+async def trait_items():
+    """Forced-Choice-Items für Stufe 2 (ohne Pol-Tags)."""
+    return {"items": get_trait_items()}
+
+
+@app.post("/api/insight")
+async def post_insight(req: InsightRequest):
+    """Stufe-2-Engine (Prototyp): Forced-Choice → ipsative Pol-Scores →
+    EINE benannte Charakter-Wahrheit aus der schärfsten Spannung."""
+    scores = score_traits(req.answers)
+    ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    profile = "\n".join([f"- {POLES[k]['name']} ({POLES[k]['desc']}): {v}" for k, v in ranked])
+
+    typ = f"\nKarriere-Typ (Interessen): {req.type_name} ({req.code})" if req.type_name else ""
+
+    prompt = f"""Du formulierst die zentrale "das bin so ich"-Erkenntnis fuer einen Karriere-Selbsttest.
+
+Die Person hat 12 Entweder-oder-Fragen beantwortet. Daraus ergeben sich 5 Arbeits-Pole
+(relativ, Summe 12 — hoeher = staerker ausgepraegt):
+{profile}{typ}
+
+Die schaerfste Erkenntnis liegt in einer SPANNUNG. Zwei moegliche Muster — nimm das, das die
+treffendste, konkreteste Zeile ergibt:
+1. Zwei hohe Pole, die sich reiben ("du bist beides stark — und das zieht dich in zwei Richtungen").
+2. Ein hoher Pol und das, was du dafuer opferst (ein klar niedriger Pol).
+
+Schreibe GENAU EINE Erkenntnis (1-2 kurze Saetze):
+- Mutige Beobachtung im Praesens. KEINE Weichmacher (kein "vielleicht/koennte/vermutlich") —
+  es ist ein Spiegel, keine Vorhersage.
+- Benenne die Spannung konkret und leicht unbequem — der "woher wissen die das?"-Moment.
+  Aber nie verletzend.
+- Du-Form, Berufsschulniveau, kein Fachjargon. Nenne KEINE Pol-Namen (Macher/Verbinder/...) im Text.
+- Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken.
+
+✅ "Du willst schnell vorankommen — aber niemanden zuruecklassen. Und genau das bremst dich manchmal selbst."
+✅ "Anfangen ist deine Staerke. Aber sobald es Routine wird, bist du innerlich schon beim naechsten Ding."
+❌ "Du bist vielleicht eher der Macher-Typ." (Weichmacher + Pol-Name)
+❌ "Du wirst als Fuehrungskraft erfolgreich sein." (Vorhersage)
+
+Antworte NUR mit der Erkenntnis, kein Vorspann."""
+
+    try:
+        msg = claude.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=200,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return {"insight": msg.content[0].text.strip(), "scores": scores, "ranked": [k for k, _ in ranked]}
+    except Exception as e:
+        return {"error": str(e), "scores": scores}
 
 
 # ─── Frontend Routes ─────────────────────────────────────────────────
