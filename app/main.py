@@ -357,20 +357,35 @@ Die Person hat 12 Entweder-oder-Fragen beantwortet. Daraus ergeben sich 5 Arbeit
 {profile}{typ}
 
 Die schaerfste Erkenntnis liegt in einer SPANNUNG. Zwei moegliche Muster — nimm das, das die
-treffendste, konkreteste Zeile ergibt:
-1. Zwei hohe Pole, die sich reiben ("du bist beides stark — und das zieht dich in zwei Richtungen").
+treffendste Zeile ergibt:
+1. Zwei hohe Pole, die sich reiben.
 2. Ein hoher Pol und das, was du dafuer opferst (ein klar niedriger Pol).
 
-Schreibe GENAU EINE Erkenntnis (1-2 kurze Saetze):
+AUFBAU der Erkenntnis (1-2 kurze Saetze):
+- Erst die Spannung benennen.
+- Dann — das ist das Entscheidende — eine KONKRETE, leicht entlarvende Stelle, wo sich die Person
+  bei genau diesem Muster ertappt. Eine spezifische Handlung oder Gewohnheit, bei der man denkt
+  "oh Gott, das mache ich wirklich".
+
+Das ist der Unterschied zwischen "stimmt schon" und "woher wissen die das?":
+- VERBOTEN als Schluss: vage Kosten-Floskeln wie "kostet Zeit und Nerven", "bremst dich aus",
+  "raubt Energie", "faellt dir schwer", "zieht dich in zwei Richtungen". Zu allgemein.
+- STATTDESSEN: eine konkrete, beobachtbare Szene oder Gewohnheit aus dem echten Arbeits-/Alltag.
+
+Regeln:
 - Mutige Beobachtung im Praesens. KEINE Weichmacher (kein "vielleicht/koennte/vermutlich") —
-  es ist ein Spiegel, keine Vorhersage.
-- Benenne die Spannung konkret und leicht unbequem — der "woher wissen die das?"-Moment.
-  Aber nie verletzend.
+  Spiegel, keine Vorhersage.
+- Leicht unbequem, aber nie verletzend oder herablassend.
 - Du-Form, Berufsschulniveau, kein Fachjargon. Nenne KEINE Pol-Namen (Macher/Verbinder/...) im Text.
 - Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken.
 
-✅ "Du willst schnell vorankommen — aber niemanden zuruecklassen. Und genau das bremst dich manchmal selbst."
-✅ "Anfangen ist deine Staerke. Aber sobald es Routine wird, bist du innerlich schon beim naechsten Ding."
+✅ "Du willst schnell vorankommen — aber niemanden zuruecklassen. Also wartest du auf Leute, die du
+   laengst ueberholt hast, und machst es am Ende doch selbst."
+✅ "Anfangen ist deine Staerke. Aber kaum wird es Routine, bist du schon beim naechsten Ding — und
+   hinter dir stapeln sich die Sachen, die nie ganz fertig wurden."
+✅ "Du sagst ja, obwohl du innerlich laengst nein denkst — und keiner merkt, wie oft du dich dabei
+   selbst uebergehst."
+❌ "Du willst alles richtig machen und alle mitnehmen — das kostet dich Zeit und Nerven." (vage Floskel)
 ❌ "Du bist vielleicht eher der Macher-Typ." (Weichmacher + Pol-Name)
 ❌ "Du wirst als Fuehrungskraft erfolgreich sein." (Vorhersage)
 
