@@ -57,6 +57,10 @@ class InsightRequest(BaseModel):
     code: str = ""        # RIASEC-Code (optional, zum Einfärben)
     type_name: str = ""   # Tier-/Typname (optional)
 
+class JobContextRequest(BaseModel):
+    job_name: str
+    scores: dict = {}     # RIASEC-Scores (optional, für die "unsicher"-Empfehlung)
+
 
 # Kanonische Tier-Sprüche — Ton-Anker im Prompt UND Fallback, falls der
 # Claude-Call scheitert. Keyed nach Haupt-Dimension (+ Generalist "G").
@@ -325,6 +329,70 @@ Regeln:
         return {"error": str(e)}
 
 
+@app.post("/api/job-context")
+async def post_job_context(req: JobContextRequest):
+    """Karriereberater-Schritt: erkennt den Job und liefert die 2-3 Achsen, die
+    ihn am staerksten unterscheiden — in Alltagssprache, als Chip-Fragen. Damit
+    schaerfen wir gemeinsam mit dem User, welche Variante des Jobs gemeint ist,
+    bevor der Fit berechnet wird."""
+    prompt = f"""Du bist ein erfahrener, lockerer Karriereberater. Du sprichst mit einer normalen
+berufstaetigen Person ohne Studium (Berufsschulniveau).
+
+Die Person interessiert sich fuer den Beruf: "{req.job_name}".
+
+Denselben Beruf gibt es in sehr verschiedenen Varianten — der Alltag UND die noetigen Eigenschaften
+gehen je nach Variante weit auseinander. Finde die 2-3 Achsen, die DIESEN Beruf am staerksten
+unterscheiden, und stell sie als kurze Gespraechsfragen.
+
+Antworte NUR mit diesem JSON, kein Text davor oder danach:
+{{
+  "erkannt": "<wie du den Beruf verstehst, 1 kurzer lockerer Satz, Du-Form>",
+  "achsen": [
+    {{
+      "frage": "<kurze, lockere Berater-Frage, Du-Form>",
+      "optionen": [
+        {{"label": "<Antwort in Alltagssprache, 1-5 Woerter>", "hinweis": "<intern, 2-4 Woerter: welche Richtung das zeigt>"}}
+      ]
+    }}
+  ]
+}}
+
+SPRACHE — das Allerwichtigste:
+- Deutsch, Du-Form, Berufsschulniveau. Kurze, klare Saetze.
+- NULL Fachbegriffe, NULL englische Woerter. Faellt dir eins ein, uebersetze es in Alltagssprache.
+  ❌ verboten: "Stakeholder", "B2B", "Corporate", "Reporting", "Pipeline", "Lead", "skalieren",
+     "Akquise", "Agentur", "Kennzahlen", "agil"
+  ✅ stattdessen: "die vielen Leute, mit denen du dich absprichst", "grosse Firma",
+     "kleine Firma oder selbststaendig", "Zahlen im Blick behalten", "neue Kunden ansprechen"
+- Keine Emoji.
+
+INHALT:
+- 2-3 Achsen, die WIRKLICH unterscheiden — wo Alltag und noetige Eigenschaften am meisten kippen.
+  Frag NICHT "magst du den Job?".
+- Gute Achsen sind oft: Machst du es eher selbst (am Menschen, am Werk) oder leitest du andere an?
+  Allein oder viel mit Leuten? Grosse Firma oder klein/selbststaendig? In welchem Bereich?
+- Pro Achse 2-3 ECHTE Optionen (die Auswahl "Bin mir unsicher" fuegen wir selbst hinzu — gib sie NICHT).
+- Ist der Beruf sehr vage (z.B. "irgendwas mit Medien"), mach die erste Achse zur Eingrenzung.
+
+✅ gute Frage: "Wenn du an Projektmanager denkst — willst du eher selbst mittendrin sein und
+   Aufgaben verteilen, oder lieber im Hintergrund alles in Ruhe planen?"
+❌ schlechte Frage: "Bevorzugst du agiles oder klassisches Stakeholder-Management?" (Fachjargon)"""
+
+    try:
+        msg = claude.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=800,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        text = msg.content[0].text.strip()
+        m = re.search(r'\{.*\}', text, re.DOTALL)
+        if m:
+            return json.loads(m.group())
+        return {"error": "parse_error", "raw": text[:200]}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @app.get("/api/trait-items")
 async def trait_items():
     """Forced-Choice-Items für Stufe 2 (ohne Pol-Tags)."""
@@ -459,4 +527,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.2.0"}
+    return {"status": "ok", "version": "3.3.0"}
