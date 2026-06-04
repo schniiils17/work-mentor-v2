@@ -246,10 +246,12 @@ async def post_fit(req: FitRequest):
     variant_section = ""
     if req.variante:
         variant_section = (f"\n\nWICHTIG — GEWAEHLTE VARIANTE (so und NUR so fuehrt die Person den Job aus): "
-                           f"{req.variante}\nDie 5 Anforderungen MUESSEN zu GENAU dieser Variante passen. "
-                           "Schliesse Aufgaben AUS, die in dieser Variante nicht vorkommen — z.B. wenn die Person "
-                           "ein Team FUEHRT und NICHT selbst am Kunden ist, dann KEINE Anforderung ueber eigene "
-                           "Kundengespraeche, Akquise oder Kundentermine. Die Variante schlaegt das Klischee des Jobs.")
+                           f"{req.variante}\nDURCHGAENGIG fuer ALLE Texte (fit_headline, requirements, strength, lever): "
+                           "Illustriere alles mit den KONKRETEN Alltags-Situationen DIESER Variante. Fuehrt die Person "
+                           "z.B. ein Team, kommen ihre Staerken/Anforderungen in FUEHRUNGS-Situationen vor (Team steuern, "
+                           "Ziele setzen, Leute coachen, Zahlen pruefen) — NICHT in Frontline-Situationen (eigene "
+                           "Kundengespraeche, Akquise, Verkaufssituationen). Schliesse variant-fremde Aufgaben AUS. "
+                           "Greife NIE auf das Klischee des Jobtitels zurueck, wenn die Variante etwas anderes sagt.")
 
     prompt = f"""Analysiere den Job-Fit fuer den Job "{req.job_name}".
 
@@ -284,6 +286,9 @@ Regeln:
   body je Anforderung: 1 kurzer Satz, der deine Auspraegung ehrlich spiegelt. Du-Form.
 - fit_score spiegelt die Summe der Badges ehrlich (viele passt_gut = hoch, mehrere Hebel = niedriger).
 - strength: deine staerkste Eigenschaft (Trait-Ebene). lever: dein groesster Hebel (Trait-Ebene).
+  METHODISCH: Illustriere strength UND lever mit einer KONKRETEN Situation aus dem ECHTEN Alltag
+  DIESER Variante (bzw. des Jobs) — niemals mit einem Job-Klischee oder einer Frontline-Taetigkeit,
+  die die Person in ihrer Variante gar nicht macht. Lieber allgemein-treffend als falsch-konkret.
 - resource: EIN echtes Buch, das genau am groessten Hebel ansetzt.
 - {answers_note}
 - Deutsch, Du-Form, Berufsschulniveau, kein HR-Jargon, kurze Saetze, NIEMALS als-wie"""
@@ -505,6 +510,10 @@ SPRACHE — das Allerwichtigste:
 INHALT:
 - 2-3 Achsen, die WIRKLICH unterscheiden — wo Alltag und noetige Eigenschaften am meisten kippen.
   Frag NICHT "magst du den Job?".
+- METHODISCH: Formuliere die Fragen ueber das UMFELD und die ROLLE (Branche, Setting, fuehren vs.
+  selbst machen) — NICHT darueber, was die Person PERSOENLICH an der Front tut. Bei einer Fuehrungs-
+  Variante verkauft/schraubt/pflegt die Person evtl. gar nicht selbst. Also "In welcher Branche soll
+  dein Team arbeiten?" statt "Was wuerdest DU verkaufen?". Die Frage muss zu JEDER Rollen-Variante passen.
 - Gute Achsen sind oft: Machst du es eher selbst (am Menschen, am Werk) oder leitest du andere an?
   Allein oder viel mit Leuten? Grosse Firma oder klein/selbststaendig? In welchem Bereich?
 - Pro Achse 2-3 ECHTE Optionen (die Auswahl "Bin mir unsicher" fuegen wir selbst hinzu — gib sie NICHT).
@@ -722,4 +731,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.8.1"}
+    return {"status": "ok", "version": "3.9.0"}
