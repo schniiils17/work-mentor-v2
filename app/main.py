@@ -12,6 +12,7 @@ import re
 import math
 import urllib.request
 import urllib.parse
+import base64
 
 from app.holland import ITEMS, assess, get_shuffled_items, _dim_label
 from app.traits import DIMENSIONS, TRAIT_ITEMS, score_traits, get_trait_items
@@ -48,6 +49,8 @@ class FitRequest(BaseModel):
     scores: dict
     code: str
     trait_scores: dict = {}  # {dim: Mittel 1-5} aus der Trait-Stufe (Stufe 2)
+    variante: str = ""       # gewählte Job-Variante aus dem Berater-Schritt (optional)
+    grounded: bool = True    # True = Anforderungen aus echten Stellenanzeigen erden
 
 class JobsRequest(BaseModel):
     scores: dict          # normalisiert 0-100 pro Dimension (R,I,A,S,E,C)
@@ -190,9 +193,47 @@ GILT IMMER: Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken (nicht 
     return result
 
 
+def _fetch_ba_listings(job_name: str, n: int = 6) -> dict:
+    """Holt echte Stellenanzeigen-Texte (Bundesagentur, Jobboerse) zum Erden der
+    Fit-Anforderungen. Suche -> Referenznummer -> base64 -> Detail-Endpoint.
+    Bei Fehler leere Liste -> der Fit faellt sauber auf reines KI-Wissen zurueck."""
+    out = {"count": None, "texte": []}
+    q = urllib.parse.quote(job_name)
+    try:
+        req = urllib.request.Request(
+            f"https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v6/jobs?was={q}&size=25",
+            headers={"X-API-Key": "jobboerse-jobsuche"})
+        with urllib.request.urlopen(req, timeout=4) as r:
+            d = json.loads(r.read().decode())
+        out["count"] = d.get("maxErgebnisse")
+        for s in d.get("ergebnisliste", []):
+            if len(out["texte"]) >= n:
+                break
+            ref = s.get("referenznummer")
+            if not ref:
+                continue
+            try:
+                b64 = base64.b64encode(ref.encode()).decode()
+                req2 = urllib.request.Request(
+                    f"https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v4/jobdetails/{b64}",
+                    headers={"X-API-Key": "jobboerse-jobsuche"})
+                with urllib.request.urlopen(req2, timeout=4) as r2:
+                    det = json.loads(r2.read().decode())
+                txt = re.sub(r"<[^>]+>", " ", det.get("stellenangebotsBeschreibung", "") or "")
+                txt = re.sub(r"\s+", " ", txt).strip()
+                if len(txt) >= 200:
+                    out["texte"].append(txt[:1400])
+            except Exception:
+                continue
+    except Exception:
+        pass
+    return out
+
+
 @app.post("/api/fit")
 async def post_fit(req: FitRequest):
-    """Generiere job-spezifische Fit-Analyse via Claude."""
+    """Generiere job-spezifische Fit-Analyse via Claude — Anforderungen aus echten
+    Stellenanzeigen geerdet (mit Fallback auf KI-Wissen)."""
     dim_labels = {"R": "Realistisch", "I": "Forschend", "A": "Kreativ",
                   "S": "Sozial", "E": "Unternehmerisch", "C": "Organisierend"}
     scores_str = ", ".join([f"{dim_labels.get(k, k)}: {v}" for k, v in req.scores.items()])
@@ -206,10 +247,27 @@ async def post_fit(req: FitRequest):
     else:
         answers_note = "- Leite Staerken und Gaps aus den RIASEC-Scores ab"
 
+    # Echte Stellenanzeigen ziehen — erdet die Anforderungen in der Realitaet
+    listings_section = ""
+    grounded_note = ""
+    if req.grounded:
+        listings = _fetch_ba_listings(req.job_name)
+        if listings.get("texte"):
+            joined = "\n\n--- naechste Anzeige ---\n\n".join(listings["texte"])
+            listings_section = (
+                f"\n\nECHTE STELLENANZEIGEN ({len(listings['texte'])} aktuelle, Bundesagentur fuer Arbeit) — "
+                "leite die Anforderungen aus den WIEDERKEHRENDEN Aussagen DIESER echten Texte ab, "
+                "nicht aus dem Gedaechtnis:\n" + joined)
+            grounded_note = f"basiert auf {len(listings['texte'])} aktuellen Stellenanzeigen"
+
+    variant_section = ""
+    if req.variante:
+        variant_section = f"\n\nGEWAEHLTE VARIANTE (so fuehrt die Person den Job aus): {req.variante}"
+
     prompt = f"""Analysiere den Job-Fit fuer den Job "{req.job_name}".
 
 RIASEC-Profil: {req.code}
-Dimension-Scores (Rohwerte -12 bis +12): {scores_str}{traits_section}
+Dimension-Scores (Rohwerte -12 bis +12): {scores_str}{traits_section}{variant_section}{listings_section}
 
 Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
 
@@ -221,14 +279,22 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
   ],
   "strength": {{"name": "<deine staerkste Eigenschaft, 1 Wort>", "body": "<1 Satz, was sie fuer diesen Job bringt>"}},
   "lever": {{"name": "<dein groesster Hebel, 1 Wort>", "body": "<1 Satz, woran du fuer diesen Job arbeiten koenntest>"}},
-  "resource": {{"kind": "book", "title": "...", "author": "...", "body": "<1 Satz warum genau das>", "cta": "Auf Amazon ansehen"}}
+  "resource": {{"kind": "book", "title": "...", "author": "...", "body": "<1 Satz warum genau das>", "cta": "Auf Amazon ansehen"}},
+  "fachlich": "<1 kurzer Hinweis auf rein fachliche Voraussetzungen (Ausbildung, Software, Jahre Erfahrung, Fuehrerschein), ohne Bewertung — oder leerer String>"
 }}
 
 Regeln:
-- requirements: GENAU 5 echte Kern-Anforderungen DIESES Jobs (was der Job wirklich verlangt — kein generisches Bla).
+- requirements: GENAU 5 Kern-Anforderungen DIESES Jobs.
+  WENN echte Stellenanzeigen oben vorliegen: leite sie aus den WIEDERKEHRENDEN Aussagen dieser
+  Anzeigen ab (was die Arbeitgeber WIRKLICH fordern), in einfache Sprache — kein Stereotyp aus dem Gedaechtnis.
+  Decke die gewaehlte Variante ab. Liegt zu ihr wenig vor: beschreibe die BEKANNTE, etablierte Form
+  des Jobs — aber erfinde NICHTS Konkretes (keine ausgedachten Aufgaben, Zahlen, Werkzeuge).
+  Waehle nur Anforderungen, die mit PERSOENLICHKEIT/Arbeitsweise zu tun haben (nur die koennen wir
+  gegen das Profil spiegeln). Reine Fach-/Formal-Voraussetzungen (Software, Jahre Erfahrung,
+  Fuehrerschein, Abschluss) gehoeren NICHT in die 5 — die nennst du knapp im Feld "fachlich".
   badge: "passt_gut" = klare Staerke | "solide_basis" = okay, ausbaufaehig | "dein_hebel" = hier hakt es am meisten.
   Pro Person hoechstens 1-2 "dein_hebel". Verteile ehrlich, nicht alles gruen.
-  body je Anforderung: 1 kurzer Satz, der deine Auspraegung ehrlich spiegelt (aus Persoenlichkeit + Interessen). Du-Form.
+  body je Anforderung: 1 kurzer Satz, der deine Auspraegung ehrlich spiegelt. Du-Form.
 - fit_score spiegelt die Summe der Badges ehrlich (viele passt_gut = hoch, mehrere Hebel = niedriger).
 - strength: deine staerkste Eigenschaft (Trait-Ebene). lever: dein groesster Hebel (Trait-Ebene).
 - resource: EIN echtes Buch, das genau am groessten Hebel ansetzt.
@@ -238,13 +304,16 @@ Regeln:
     try:
         msg = claude.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=900,
+            max_tokens=1000,
             messages=[{"role": "user", "content": prompt}]
         )
         text = msg.content[0].text.strip()
         match = re.search(r'\{.*\}', text, re.DOTALL)
         if match:
-            return json.loads(match.group())
+            result = json.loads(match.group())
+            if grounded_note:
+                result.setdefault("quelle", grounded_note)
+            return result
         return {"error": "parse_error", "raw": text[:200]}
     except Exception as e:
         return {"error": str(e)}
@@ -390,9 +459,13 @@ async def post_job_context(req: JobContextRequest):
         if market.get("count"):
             parts.append(f"Aktuell {market['count']} offene Stellen in Deutschland.")
         if parts:
-            real_block = ("\n\nECHTE MARKTDATEN (Bundesagentur fuer Arbeit, heute abgefragt) — ERDE deine "
-                          "Achsen und Optionen in DIESEN Daten. Nimm die echten Berufsfelder/Varianten als "
-                          "Grundlage fuer die Optionen, erfinde nichts dazu:\n- " + "\n- ".join(parts))
+            real_block = ("\n\nECHTE MARKTDATEN (Bundesagentur fuer Arbeit, heute abgefragt) — nutze diese "
+                          "als Anker fuer deine Optionen:\n- " + "\n- ".join(parts) +
+                          "\n\nWICHTIG zur Vollstaendigkeit: Decke ZUSAETZLICH die bekannten gaengigen Varianten "
+                          "des Berufs ab, auch wenn sie hier gerade nicht ausgeschrieben sind — solange es "
+                          "etablierte, reale Formen des Berufs sind (nur weil eine Variante heute nicht "
+                          "ausgeschrieben ist, gibt es sie trotzdem). Aber erfinde KEINE exotischen Varianten "
+                          "und keine konkreten Fakten.")
 
     prompt = f"""Du bist ein erfahrener, lockerer Karriereberater. Du sprichst mit einer normalen
 berufstaetigen Person ohne Studium (Berufsschulniveau).
@@ -589,4 +662,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.4.0"}
+    return {"status": "ok", "version": "3.5.0"}
