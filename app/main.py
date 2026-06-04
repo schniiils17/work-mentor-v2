@@ -67,6 +67,9 @@ class JobContextRequest(BaseModel):
     scores: dict = {}     # RIASEC-Scores (optional, für die "unsicher"-Empfehlung)
     grounded: bool = True # True = mit echten BA-Marktdaten erden; False = reines KI-Wissen
 
+class JobCheckRequest(BaseModel):
+    job_name: str         # Freitext-Eingabe des Users — wird auf Plausibilität geprüft
+
 
 # Kanonische Tier-Sprüche — Ton-Anker im Prompt UND Fallback, falls der
 # Claude-Call scheitert. Keyed nach Haupt-Dimension (+ Generalist "G").
@@ -529,6 +532,54 @@ INHALT:
         return {"error": str(e)}
 
 
+@app.post("/api/job-check")
+async def post_job_check(req: JobCheckRequest):
+    """Input-Guard fuer die Freitext-Job-Eingabe. Ordnet ein:
+    ok | traum (echt, aber extrem selten) | kein_beruf (Quatsch) | heikel (Erwachsenenbereich).
+    Bei Fehler -> 'ok' (fail open, niemand wird faelschlich blockiert)."""
+    market = _fetch_ba_market(req.job_name)
+    ba_hint = ""
+    if market.get("count") is not None:
+        treffer = market.get("count") or 0
+        amt = len(market.get("amtliche_varianten") or [])
+        ba_hint = (f"\n(Marktdaten zur Eingabe: {treffer} offene Stellen, {amt} amtliche Berufstreffer. "
+                   "0 Stellen UND 0 Berufstreffer ist ein starkes Signal fuer 'kein echter Beruf'.)")
+
+    prompt = f"""Klassifiziere diese Eingabe als moeglichen Zieljob fuer einen Karriere-Test: "{req.job_name}".{ba_hint}
+
+Antworte NUR mit diesem JSON, kein Text davor oder danach:
+{{"status": "ok|traum|kein_beruf|heikel", "name": "<sauber formulierter Jobname>", "hinweis": "<kurze freundliche Nachricht, Du-Form — oder leer bei ok>"}}
+
+- ok: ein normaler, realistisch erreichbarer Beruf. hinweis: leer.
+- traum: ein ECHTER, aber extrem seltener/schwer erreichbarer Beruf (z.B. Astronaut, Popstar, Profifussballer,
+  Bundeskanzler) — den schaffen nur ganz wenige Menschen. hinweis: WARM und anerkennend, KEIN Traumkiller,
+  KEINE harten Realitaets-Saetze. Wuerdige den Traum und frag SANFT, ob wirklich damit weitergetestet werden soll.
+- kein_beruf: kein echter Beruf, Quatsch, Tippmuell oder Unmoegliches ("asdfgh", "Chef von allem"). hinweis:
+  freundlich, bitte um einen echten Job.
+- heikel: Erwachsenen-/Sexbereich oder Illegales. hinweis: hoeflich ablehnen — "Dafuer ist Work Mentor nicht gedacht."
+
+Sprache: Deutsch, Du-Form, Berufsschulniveau, kurze Saetze. Keine Emoji. Niemals "als wie".
+Beispiel traum-hinweis: "Astronaut — was fuer ein Traum. Das schaffen nur eine Handvoll Menschen weltweit. Wollen wir trotzdem schauen, ob du als Typ dahin passt?\""""
+
+    try:
+        msg = claude.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=300,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        text = msg.content[0].text.strip()
+        m = re.search(r'\{.*\}', text, re.DOTALL)
+        if m:
+            d = json.loads(m.group())
+            if d.get("status") not in ("ok", "traum", "kein_beruf", "heikel"):
+                d["status"] = "ok"
+            d.setdefault("name", req.job_name)
+            return d
+    except Exception:
+        pass
+    return {"status": "ok", "name": req.job_name, "hinweis": ""}
+
+
 @app.get("/api/trait-items")
 async def trait_items():
     """Forced-Choice-Items für Stufe 2 (ohne Pol-Tags)."""
@@ -663,4 +714,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.7.1"}
+    return {"status": "ok", "version": "3.8.0"}

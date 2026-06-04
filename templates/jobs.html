@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Jobs, die zu dir passen — Work Mentor{% endblock %}
+{% block title %}Dein Zieljob — Work Mentor{% endblock %}
 {% block body %}
 <div class="container" id="app">
     <header class="jobs-header">
@@ -7,15 +7,17 @@
     </header>
 
     <section class="jobs-hero">
-        <h1>Jobs, die zu dir passen.</h1>
-        <p class="subline">Basierend auf deinem Karriere-Profil.</p>
+        <h1>Welchen Job hast du im Kopf?</h1>
+        <p class="subline">Sag mir deinen Zieljob — ich check, ob du als Mensch wirklich dahin passt.</p>
     </section>
 
-    <section id="jobsSection">
-        <div style="text-align: center; padding: 60px 0;">
-            <p style="color: var(--text-muted);">Lade passende Jobs...</p>
-        </div>
+    <section class="target-job">
+        <input type="text" class="custom-job-input" id="targetInput" placeholder="z. B. Vertriebsleiter, Erzieherin, Mediengestalter …" autocomplete="off">
+        <button class="custom-job-btn active" id="targetBtn">Passe ich dahin? →</button>
+        <div id="guardResult"></div>
     </section>
+
+    <section id="jobsSection"></section>
 </div>
 {% endblock %}
 
@@ -32,62 +34,67 @@ function formatSalary(s) {
     return s;
 }
 
-function getMatchBadge(match) {
-    const cls = match >= 80 ? 'match-badge--high' : 'match-badge--mid';
-    return `<span class="match-badge ${cls}">${match}% Match</span>`;
+// Match als Stufe statt Prozent — ehrlicher, kein Pseudo-Ranking.
+function matchStufe(m) {
+    if (m >= 82) return { label: 'Starke Passung', cls: 'match-badge--high' };
+    if (m >= 72) return { label: 'Könnte passen', cls: 'match-badge--mid' };
+    return { label: 'Wäre ein Sprung', cls: 'match-badge--mid' };
 }
 
-function jobCard(job, i) {
+function suggestionCard(job, i) {
+    const st = matchStufe(job.match);
     return `
         <div class="job-card animate-in animate-in--d${Math.min((i||0)+1,6)}">
             <div class="job-card-top">
                 <div class="job-title">${esc(job.title)}</div>
-                ${getMatchBadge(job.match)}
+                <span class="match-badge ${st.cls}">${st.label}</span>
             </div>
             <div class="job-desc">${esc(job.desc)}</div>
             <div class="job-divider"></div>
             <div class="job-card-bottom">
                 <div class="job-salary">${esc(formatSalary(job.salary))}</div>
                 <a href="#" class="job-check-link" data-title="${esc(job.title)}" data-match="${job.match}">
-                    Passe ich wirklich dahin? →
+                    Passe ich dahin? →
                 </a>
             </div>
         </div>`;
 }
 
-function wireJobLinks() {
+function proceedToJob(name, match) {
+    const obj = { name: name };
+    if (match != null && !isNaN(match)) obj.match = match;
+    sessionStorage.setItem('wm_selected_job', JSON.stringify(obj));
+    sessionStorage.removeItem('wm_variante');   // frische Variante für neuen Job
+    sessionStorage.removeItem('wm_fit_result'); // alten Fit nicht recyceln
+    window.location.href = '/fit-intro';
+}
+
+function wireSuggLinks() {
     document.querySelectorAll('.job-check-link[data-title]').forEach(a => {
         if (a._wired) return; a._wired = true;
         a.addEventListener('click', (e) => {
             e.preventDefault();
-            sessionStorage.setItem('wm_selected_job', JSON.stringify({
-                name: a.dataset.title, match: parseInt(a.dataset.match, 10)
-            }));
-            window.location.href = '/fit-intro';
+            proceedToJob(a.dataset.title, parseInt(a.dataset.match, 10));
         });
     });
 }
 
 function loadingHtml(text) {
-    return `<div style="text-align:center; padding:56px 0; color:var(--text-muted);">
-        <div class="loading-pulse" style="margin:0 auto 18px;"></div>
-        ${esc(text)}
-    </div>`;
+    return `<div style="text-align:center; padding:40px 0; color:var(--text-muted);">
+        <div class="loading-pulse" style="margin:0 auto 18px;"></div>${esc(text)}</div>`;
 }
 
 function noResult() {
-    document.getElementById('jobsSection').innerHTML = `
-        <div style="text-align: center; padding: 60px 0;">
+    document.getElementById('app').innerHTML = `
+        <div style="text-align: center; padding: 80px 20px;">
             <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 12px;">Noch kein Ergebnis</h2>
             <p style="color: var(--text-secondary); margin-bottom: 24px;">Mach erst den Karriere-Check.</p>
             <a href="/assessment" class="btn btn-primary">Karriere-Check starten →</a>
         </div>`;
 }
 
-// Cache an das aktuelle Profil gebunden — neuer Test (anderes Profil) invalidiert.
-function jobsCacheSig() {
-    return JSON.stringify(data.normalized_scores || data.scores || {});
-}
+// ── Vorschläge (sekundär, Inspiration) ──
+function jobsCacheSig() { return JSON.stringify(data.normalized_scores || data.scores || {}); }
 function getCachedJobs() {
     try {
         const c = JSON.parse(sessionStorage.getItem('wm_jobs') || 'null');
@@ -99,321 +106,141 @@ function setCachedJobs(jobs) {
     try { sessionStorage.setItem('wm_jobs', JSON.stringify({ sig: jobsCacheSig(), jobs: jobs })); } catch(e) {}
 }
 
-function renderJobsSection(jobs) {
+function renderSuggestions(jobs) {
+    const top = (jobs || []).slice(0, 3);
     document.getElementById('jobsSection').innerHTML = `
-        <div class="jobs-list">${jobs.map(jobCard).join('')}</div>
-
-        <div class="oder-section">
-            <div class="oder-divider"><span>ODER</span></div>
-            <div class="custom-job-card">
-                <div class="custom-job-title">Ich hab einen anderen Job im Kopf</div>
-                <input type="text" class="custom-job-input" id="customJobInput" placeholder="z. B. Vertriebsleiter, Erzieherin …">
-                <button class="custom-job-btn" id="customJobBtn">Checken →</button>
-                <div id="customResult"></div>
-            </div>
-        </div>
-
-        <div class="footer-links">
-            <a href="#">Impressum</a> · <a href="#">Datenschutz</a>
-        </div>`;
-
-    wireJobLinks();
-    document.getElementById('customJobBtn').addEventListener('click', checkCustomJob);
-    const cInput = document.getElementById('customJobInput');
-    const cBtn = document.getElementById('customJobBtn');
-    cInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkCustomJob(); });
-    cInput.addEventListener('input', () => { cBtn.classList.toggle('active', cInput.value.trim().length > 0); });
+        <div class="sugg-head">Oder: das könnte auch zu dir passen</div>
+        <div class="jobs-list">${top.map(suggestionCard).join('')}</div>
+        <div class="footer-links"><a href="#">Impressum</a> · <a href="#">Datenschutz</a></div>`;
+    wireSuggLinks();
 }
 
-async function loadJobs(forceRefresh) {
-    const section = document.getElementById('jobsSection');
-
-    if (!forceRefresh) {
-        const cached = getCachedJobs();
-        if (cached) { renderJobsSection(cached); return; }
-    }
-
-    section.innerHTML = loadingHtml('Wir suchen Jobs, die zu deinem Profil passen …');
+async function loadSuggestions() {
+    const cached = getCachedJobs();
+    if (cached) { renderSuggestions(cached); return; }
+    document.getElementById('jobsSection').innerHTML = loadingHtml('Ich schau, was sonst noch zu dir passt …');
     let result;
     try {
         const resp = await fetch('/api/jobs', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ scores: data.normalized_scores || data.scores, code: data.code || 'EA' })
         });
         result = await resp.json();
     } catch(e) { result = { error: e.message }; }
-
     if (!result || result.error || !result.jobs || !result.jobs.length) {
-        section.innerHTML = `
-            <div style="padding: 40px 0; text-align: center;">
-                <p style="color: var(--text-secondary); margin-bottom: 16px;">Konnte die Jobs gerade nicht laden.</p>
-                <button class="btn btn-primary" onclick="loadJobs(true)">Nochmal versuchen</button>
-            </div>`;
+        document.getElementById('jobsSection').innerHTML = '';
         return;
     }
-
     setCachedJobs(result.jobs);
-    renderJobsSection(result.jobs);
+    renderSuggestions(result.jobs);
 }
 
-async function checkCustomJob() {
-    const input = document.getElementById('customJobInput');
+// ── Input-Guard: Freitext-Zieljob prüfen ──
+async function checkTarget() {
+    const input = document.getElementById('targetInput');
     const val = (input.value || '').trim();
     if (!val) return;
-    const btn = document.getElementById('customJobBtn');
-    const out = document.getElementById('customResult');
-    btn.disabled = true; btn.textContent = 'Wird geprüft …';
+    const btn = document.getElementById('targetBtn');
+    const out = document.getElementById('guardResult');
+    btn.disabled = true; btn.textContent = 'Einen Moment …';
     out.innerHTML = '';
 
-    let result;
+    let r;
     try {
-        const resp = await fetch('/api/jobs', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ scores: data.normalized_scores || data.scores, code: data.code || 'EA', custom_job: val })
+        const resp = await fetch('/api/job-check', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ job_name: val })
         });
-        result = await resp.json();
-    } catch(e) { result = { error: e.message }; }
+        r = await resp.json();
+    } catch(e) { r = { status: 'ok', name: val }; }
 
-    btn.disabled = false; btn.textContent = 'Checken →';
+    btn.disabled = false; btn.textContent = 'Passe ich dahin? →';
+    const name = r.name || val;
 
-    if (!result || result.error || !result.jobs || !result.jobs.length) {
-        out.innerHTML = `<p style="color:var(--text-muted); font-size:13px; margin-top:12px;">Konnte gerade keinen Fit berechnen. Versuch's nochmal.</p>`;
+    if (r.status === 'ok') { proceedToJob(name); return; }
+
+    if (r.status === 'traum') {
+        out.innerHTML = `
+            <div class="guard-box">
+                <p class="guard-text">${esc(r.hinweis || 'Großer Traum! Wollen wir trotzdem schauen, ob du als Typ dahin passt?')}</p>
+                <div class="guard-actions">
+                    <button class="guard-yes" id="guardYes">Ja, weiter →</button>
+                    <button class="guard-no" id="guardNo">Anderen Job</button>
+                </div>
+            </div>`;
+        document.getElementById('guardYes').addEventListener('click', () => proceedToJob(name));
+        document.getElementById('guardNo').addEventListener('click', () => { out.innerHTML = ''; input.value = ''; input.focus(); });
         return;
     }
-    out.innerHTML = `<div style="margin-top:16px;">${jobCard(result.jobs[0], 0)}</div>`;
-    wireJobLinks();
+
+    // kein_beruf | heikel → freundlich abfangen
+    out.innerHTML = `<div class="guard-box guard-box--soft"><p class="guard-text">${esc(r.hinweis || 'Das erkenne ich nicht als Beruf. Gib mir einen echten Job, den du im Kopf hast.')}</p></div>`;
 }
 
+// ── Start ──
 if (!data || !data.scores) {
     noResult();
 } else {
-    loadJobs();
+    const inp = document.getElementById('targetInput');
+    const btn = document.getElementById('targetBtn');
+    btn.addEventListener('click', checkTarget);
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') checkTarget(); });
+    loadSuggestions();
 }
 </script>
 
 <style>
-.jobs-header {
-    padding: 20px 0 8px;
-}
+.jobs-header { padding: 20px 0 8px; }
+.back-link { font-size: 15px; color: var(--text-secondary); text-decoration: none; font-weight: 500; }
+.back-link:hover { color: var(--text-primary); }
 
-.back-link {
-    font-size: 15px;
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-weight: 500;
-}
+.jobs-hero { padding: 30px 0 22px; }
+.jobs-hero h1 { font-size: 30px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.02em; color: var(--text-primary); line-height: 1.15; }
+.jobs-hero .subline { font-size: 15px; color: var(--text-secondary); line-height: 1.5; }
 
-.back-link:hover {
-    color: var(--text-primary);
-}
-
-.jobs-hero {
-    padding: 32px 0 28px;
-}
-
-.jobs-hero h1 {
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    letter-spacing: -0.02em;
-    color: var(--text-primary);
-    line-height: 1.15;
-}
-
-.jobs-hero .subline {
-    font-size: 15px;
-    color: var(--text-secondary);
-}
-
-.jobs-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 32px;
-}
-
-.job-card {
-    background: #FFFFFF;
-    border-radius: 16px;
-    padding: 20px 20px 16px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-}
-
-.job-card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 8px;
-}
-
-.job-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1.2;
-}
-
-.match-badge {
-    font-size: 13px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 100px;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-.match-badge--high {
-    background: #D1FAE5;
-    color: #065F46;
-}
-
-.match-badge--mid {
-    background: #FDE8D8;
-    color: #9A3412;
-}
-
-.job-desc {
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.55;
-    margin-bottom: 14px;
-}
-
-.job-divider {
-    height: 1px;
-    background: var(--border-light, #E5E7EB);
-    margin-bottom: 12px;
-}
-
-.job-card-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-}
-
-.job-salary {
-    font-size: 13px;
-    color: var(--text-muted, #9CA3AF);
-    font-weight: 500;
-}
-
-.job-check-link {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1E3A5F;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.job-check-link:hover {
-    text-decoration: underline;
-}
-
-/* ODER section */
-.oder-section {
-    margin-bottom: 40px;
-}
-
-.oder-divider {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 16px;
-    color: var(--text-muted, #9CA3AF);
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-}
-
-.oder-divider::before,
-.oder-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border-light, #E5E7EB);
-}
-
-.custom-job-card {
-    background: #FFFFFF;
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.custom-job-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-primary);
-}
+.target-job { margin-bottom: 38px; display: flex; flex-direction: column; gap: 12px; }
 
 .custom-job-input {
-    width: 100%;
-    border: 1.5px solid var(--border-light, #E5E7EB);
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 15px;
-    color: var(--text-primary);
-    background: #FAFAFA;
-    outline: none;
-    box-sizing: border-box;
-    font-family: inherit;
+    width: 100%; border: 1.5px solid var(--border-light, #E5E7EB); border-radius: 10px;
+    padding: 14px 16px; font-size: 16px; color: var(--text-primary); background: #FAFAFA;
+    outline: none; box-sizing: border-box; font-family: inherit;
 }
-
-.custom-job-input:focus {
-    border-color: #9CA3AF;
-}
-
-.custom-job-input::placeholder {
-    color: var(--text-muted, #9CA3AF);
-}
+.custom-job-input:focus { border-color: var(--accent); }
+.custom-job-input::placeholder { color: var(--text-muted, #9CA3AF); }
 
 .custom-job-btn {
-    width: 100%;
-    padding: 13px;
-    border-radius: 10px;
-    background: #E5E7EB;
-    color: #6B7280;
-    border: none;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
+    width: 100%; padding: 14px; border-radius: 10px; background: #E5E7EB; color: #6B7280;
+    border: none; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
     transition: background 0.2s, color 0.2s;
 }
+.custom-job-btn.active { background: var(--accent); color: #FFFFFF; }
+.custom-job-btn:disabled { opacity: 0.7; cursor: default; }
 
-.custom-job-btn.active {
-    background: var(--accent);
-    color: #FFFFFF;
-}
+.guard-box { margin-top: 6px; background: #FFFFFF; border: 1px solid var(--border-light, #E5E7EB); border-radius: 14px; padding: 16px 18px; }
+.guard-box--soft { background: #FAFAF7; }
+.guard-text { font-size: 14.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 14px; }
+.guard-box--soft .guard-text { margin: 0; }
+.guard-actions { display: flex; gap: 10px; }
+.guard-yes { flex: 1; padding: 12px; border-radius: 10px; background: var(--accent); color: #fff; border: none; font-weight: 600; font-size: 14.5px; font-family: inherit; cursor: pointer; }
+.guard-no { flex: 1; padding: 12px; border-radius: 10px; background: #EFEDE6; color: var(--text-secondary); border: none; font-weight: 600; font-size: 14.5px; font-family: inherit; cursor: pointer; }
 
-.custom-job-btn.active:not(:disabled):hover {
-    background: var(--accent-hover);
-}
+.sugg-head { font-size: 13px; font-weight: 600; letter-spacing: 0.03em; color: var(--text-muted); margin-bottom: 14px; text-transform: uppercase; }
 
-.custom-job-btn:not(.active):not(:disabled):hover {
-    background: #D1D5DB;
-}
+.jobs-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+.job-card { background: #FFFFFF; border-radius: 16px; padding: 20px 20px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+.job-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+.job-title { font-size: 19px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+.match-badge { font-size: 12.5px; font-weight: 600; padding: 4px 10px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; }
+.match-badge--high { background: #D1FAE5; color: #065F46; }
+.match-badge--mid { background: #FDE8D8; color: #9A3412; }
+.job-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 14px; }
+.job-divider { height: 1px; background: var(--border-light, #E5E7EB); margin-bottom: 12px; }
+.job-card-bottom { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.job-salary { font-size: 13px; color: var(--text-muted, #9CA3AF); font-weight: 500; }
+.job-check-link { font-size: 14px; font-weight: 600; color: #1E3A5F; text-decoration: none; white-space: nowrap; }
+.job-check-link:hover { text-decoration: underline; }
 
-.footer-links {
-    text-align: center;
-    padding-bottom: 40px;
-    font-size: 13px;
-    color: var(--text-muted);
-}
-
-.footer-links a {
-    color: var(--text-muted);
-    text-decoration: underline;
-}
-
-
-
+.footer-links { text-align: center; padding-bottom: 40px; font-size: 13px; color: var(--text-muted); }
+.footer-links a { color: var(--text-muted); text-decoration: underline; }
 </style>
 {% endblock %}
