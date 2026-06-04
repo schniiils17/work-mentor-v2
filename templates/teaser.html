@@ -199,9 +199,10 @@ async function initTeaser() {
             </div>`;
         return;
     }
-    // Job-Fit ggf. frisch berechnen (mit Traits)
+    // Job-Fit ggf. frisch berechnen (mit Traits + gewählter Variante)
+    const wmVariante = sessionStorage.getItem('wm_variante') || '';
     let fitData = JSON.parse(sessionStorage.getItem('wm_fit_result') || 'null');
-    if (!fitData || fitData.job_name !== (selectedJob.name || fitData.job_name)) {
+    if (!fitData || fitData.job_name !== (selectedJob.name || fitData.job_name) || (fitData.variante || '') !== wmVariante) {
         document.getElementById('teaserScreen').innerHTML = `<div style="text-align:center;padding:90px 0;color:var(--text-muted);">Ich gleiche dich mit ${selectedJob.name || 'dem Job'} ab…</div>`;
         try {
             const resp = await fetch('/api/fit', {
@@ -210,7 +211,7 @@ async function initTeaser() {
             });
             const d = await resp.json();
             if (d.error) throw new Error(d.error);
-            fitData = { ...d, job_name: selectedJob.name || 'Produktmanager', match_pct: selectedJob.match || 0 };
+            fitData = { ...d, job_name: selectedJob.name || 'Produktmanager', match_pct: selectedJob.match || 0, variante: wmVariante };
             sessionStorage.setItem('wm_fit_result', JSON.stringify(fitData));
         } catch(e) {
             document.getElementById('teaserScreen').innerHTML = `

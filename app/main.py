@@ -242,7 +242,11 @@ async def post_fit(req: FitRequest):
 
     variant_section = ""
     if req.variante:
-        variant_section = f"\n\nGEWAEHLTE VARIANTE (so fuehrt die Person den Job aus): {req.variante}"
+        variant_section = (f"\n\nWICHTIG — GEWAEHLTE VARIANTE (so und NUR so fuehrt die Person den Job aus): "
+                           f"{req.variante}\nDie 5 Anforderungen MUESSEN zu GENAU dieser Variante passen. "
+                           "Schliesse Aufgaben AUS, die in dieser Variante nicht vorkommen — z.B. wenn die Person "
+                           "ein Team FUEHRT und NICHT selbst am Kunden ist, dann KEINE Anforderung ueber eigene "
+                           "Kundengespraeche, Akquise oder Kundentermine. Die Variante schlaegt das Klischee des Jobs.")
 
     prompt = f"""Analysiere den Job-Fit fuer den Job "{req.job_name}".
 
@@ -659,4 +663,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.7.0"}
+    return {"status": "ok", "version": "3.7.1"}
