@@ -271,6 +271,21 @@ function renderPremium(data) {
     const strength = data.strength || {};
     const lever = data.lever || {};
     const res = data.resource || {};
+
+    const m = data.markt;
+    const pStat = (val, lbl, color) => `<div style="min-width:78px;"><div style="font-size:19px;font-weight:700;line-height:1.1;color:${color||'var(--text-primary)'};">${val}</div><div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">${lbl}</div></div>`;
+    const marktPanel = (m && m.offene_stellen != null) ? `
+        <div style="margin:0 20px 8px;background:var(--bg-card);border:1px solid var(--border-light);border-radius:14px;padding:14px 16px;">
+            <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:13px;">
+                ${iconSvg('check','var(--text-muted)')} Echter Markt · ${m.quelle || 'Bundesagentur für Arbeit'}
+            </div>
+            <div style="display:flex;gap:18px;flex-wrap:wrap;">
+                ${pStat(m.offene_stellen, 'offene Stellen')}
+                ${pStat(m.quereinstieg_moeglich ? 'Ja' : 'Selten', 'Quereinstieg', m.quereinstieg_moeglich ? '#2D6A4F' : null)}
+                ${(m.regionen && m.regionen.length) ? pStat(m.regionen.slice(0,3).join(' · '), 'Top-Regionen') : ''}
+            </div>
+            ${data.fachlich ? `<div style="margin-top:12px;padding-top:11px;border-top:1px solid var(--border-light);font-size:12.5px;color:var(--text-muted);line-height:1.45;"><b style="color:var(--text-secondary);font-weight:600;">Fachlich oft gefragt:</b> ${data.fachlich}</div>` : ''}
+        </div>` : '';
     const resourceHtml = res.title ? `
         <div class="resource-card">
             <div class="resource-icon">${iconSvg('book', 'var(--accent)')}</div>
@@ -307,7 +322,11 @@ function renderPremium(data) {
             </div>
         </div>
 
-        <div style="height:24px;"></div>
+        <div style="height:20px;"></div>
+
+        ${marktPanel}
+
+        <div style="height:8px;"></div>
 
         <!-- Das braucht dein Zieljob -->
         <div style="padding:0 20px;">

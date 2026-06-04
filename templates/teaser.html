@@ -206,7 +206,7 @@ async function initTeaser() {
         try {
             const resp = await fetch('/api/fit', {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ job_name: selectedJob.name || 'Produktmanager', scores: wmResult.scores, code: wmResult.code || 'EA', trait_scores: wmTraits })
+                body: JSON.stringify({ job_name: selectedJob.name || 'Produktmanager', scores: wmResult.scores, code: wmResult.code || 'EA', trait_scores: wmTraits, variante: sessionStorage.getItem('wm_variante') || '' })
             });
             const d = await resp.json();
             if (d.error) throw new Error(d.error);
@@ -291,11 +291,30 @@ function reqBadgeLabel(badge) {
     return badge === 'passt_gut' ? 'Passt gut' : badge === 'dein_hebel' ? 'Dein Hebel' : 'Solide Basis';
 }
 
+function renderMarktPanel(m) {
+    if (!m || m.offene_stellen == null) return '';
+    const stat = (val, lbl, color) => `<div style="min-width:78px;"><div style="font-size:19px;font-weight:700;line-height:1.1;color:${color||'var(--text-primary)'};">${val}</div><div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">${lbl}</div></div>`;
+    const regions = (m.regionen || []).slice(0, 3).join(' · ');
+    return `
+    <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:14px;padding:14px 16px;margin:18px 0 4px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:13px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg>
+            Echter Markt · ${m.quelle || 'Bundesagentur für Arbeit'}
+        </div>
+        <div style="display:flex;gap:18px;flex-wrap:wrap;">
+            ${stat(m.offene_stellen, 'offene Stellen')}
+            ${stat(m.quereinstieg_moeglich ? 'Ja' : 'Selten', 'Quereinstieg', m.quereinstieg_moeglich ? '#2D6A4F' : null)}
+            ${regions ? stat(regions, 'Top-Regionen') : ''}
+        </div>
+    </div>`;
+}
+
 function renderTeaser(data, wm) {
     const jobName = data.job_name || 'Produktmanager';
     const topKey = (wm.code || 'EA')[0];
     const tierColors = {R:'#475569',I:'#4338CA',A:'#F59E0B',S:'#0D9488',E:'#EA580C',C:'#7C3AED'};
     const tierColor = tierColors[topKey] || '#1A3A5C';
+    const marktPanel = renderMarktPanel(data.markt);
 
     // Anforderungen: Name + Badge sichtbar, Begründung geblurrt (das Warum ist Premium)
     const reqs = (data.requirements || []).map(r => `
@@ -328,6 +347,8 @@ function renderTeaser(data, wm) {
         </div>
 
         <p class="fit-headline" style="color:${tierColor}">${data.fit_headline || 'Vieles passt schon — und es gibt einen klaren Punkt zum Anpacken.'}</p>
+
+        ${marktPanel}
 
         <div class="teaser-section-head">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>

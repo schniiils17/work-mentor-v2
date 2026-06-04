@@ -453,10 +453,20 @@ async def post_job_context(req: JobContextRequest):
                           "ausgeschrieben ist, gibt es sie trotzdem). Aber erfinde KEINE exotischen Varianten "
                           "und keine konkreten Fakten.")
 
+    scores_block = ""
+    if req.scores:
+        dl = {"R": "Praktisch", "I": "Forschend", "A": "Kreativ", "S": "Sozial", "E": "Unternehmerisch", "C": "Organisierend"}
+        ranked = sorted(req.scores.items(), key=lambda x: x[1], reverse=True)
+        sc = ", ".join(f"{dl.get(k, k)}: {v}" for k, v in ranked)
+        scores_block = (f"\n\nINTERESSEN-PROFIL der Person (0-100): {sc}\n"
+                        "Fuege pro Achse zusaetzlich eine 'empfehlung' hinzu: welche EINE Option am besten "
+                        "zu diesem Interessen-Profil passt, mit 1 kurzem Grund in Alltagssprache (Du-Form). "
+                        "Das zeigen wir, wenn die Person unsicher ist.")
+
     prompt = f"""Du bist ein erfahrener, lockerer Karriereberater. Du sprichst mit einer normalen
 berufstaetigen Person ohne Studium (Berufsschulniveau).
 
-Die Person interessiert sich fuer den Beruf: "{req.job_name}".{real_block}
+Die Person interessiert sich fuer den Beruf: "{req.job_name}".{real_block}{scores_block}
 
 Denselben Beruf gibt es in sehr verschiedenen Varianten — der Alltag UND die noetigen Eigenschaften
 gehen je nach Variante weit auseinander. Finde die 2-3 Achsen, die DIESEN Beruf am staerksten
@@ -470,7 +480,8 @@ Antworte NUR mit diesem JSON, kein Text davor oder danach:
       "frage": "<kurze, lockere Berater-Frage, Du-Form>",
       "optionen": [
         {{"label": "<Antwort in Alltagssprache, 1-5 Woerter>", "hinweis": "<intern, 2-4 Woerter: welche Richtung das zeigt>"}}
-      ]
+      ],
+      "empfehlung": {{"label": "<die zum Interessen-Profil passende Option, oder leer wenn keine Interessen vorliegen>", "grund": "<1 kurzer Satz, Du-Form, warum>"}}
     }}
   ]
 }}
@@ -648,4 +659,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.6.0"}
+    return {"status": "ok", "version": "3.7.0"}

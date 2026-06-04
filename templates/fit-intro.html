@@ -104,12 +104,38 @@
     font-family: var(--font);
     cursor: pointer;
 }
+
+/* Klär-Schritt (Berater) */
+.clarify { padding: 40px 24px 24px; flex: 1; display: flex; flex-direction: column; }
+.clarify-progress { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 6px; }
+.clarify-erkannt { font-size: 14px; color: var(--text-secondary); line-height: 1.45; margin-bottom: 22px; }
+.clarify-q { font-size: 23px; font-weight: 700; line-height: 1.25; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: 22px; }
+.clarify-chip {
+    display: block; width: 100%; text-align: left;
+    background: var(--bg-card); border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 16px 18px; margin-bottom: 10px;
+    font-family: var(--font); font-size: 15px; font-weight: 500; line-height: 1.35;
+    color: var(--text-primary); cursor: pointer; transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.clarify-chip:active { transform: scale(0.98); border-color: var(--accent); }
+.clarify-chip.rec { border-color: var(--accent); background: var(--bg-soft); }
+.clarify-chip-tip { font-size: 12px; font-weight: 600; color: var(--accent); margin-left: 6px; }
+.clarify-chip.unsure { color: var(--text-muted); font-weight: 500; }
+.clarify-rec {
+    background: var(--bg-soft); border: 1px solid var(--border-light);
+    border-radius: 12px; padding: 13px 15px; margin-bottom: 14px;
+    font-size: 14px; color: var(--text-secondary); line-height: 1.5;
+}
+.clarify-rec b { color: var(--text-primary); font-weight: 600; }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="container fit-intro">
 
+  <!-- INTRO -->
+  <div id="introView">
     <span class="job-pill">
         <span class="job-pill-dot"></span>
         <span id="jobName">Produktmanager</span>
@@ -147,12 +173,21 @@
 
     <div class="fit-cta">
         <button class="btn-fit" id="analyzeBtn">
-            Los geht's — 18 Fragen
+            Los geht's
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
     </div>
 
     <button class="back-link-fit" onclick="window.location.href='/jobs'">← Zurück zu den Jobs</button>
+  </div>
+
+  <!-- KLÄR-SCHRITT -->
+  <div id="clarifyView" class="clarify" style="display:none;">
+    <div class="clarify-progress" id="clarifyProgress">Kurz zu deinem Job</div>
+    <div class="clarify-erkannt" id="clarifyErkannt"></div>
+    <div class="clarify-q" id="clarifyQ"></div>
+    <div id="clarifyChips"></div>
+  </div>
 
 </div>
 {% endblock %}
@@ -161,7 +196,6 @@
 <script>
 const result = JSON.parse(sessionStorage.getItem('wm_result') || '{}');
 const selectedJob = JSON.parse(sessionStorage.getItem('wm_selected_job') || '{}');
-
 const jobName = selectedJob.name || 'Produktmanager';
 const matchPct = selectedJob.match || 91;
 
@@ -169,10 +203,82 @@ document.getElementById('jobName').textContent = jobName;
 document.getElementById('matchPct').textContent = matchPct + '% Profil-Match';
 document.getElementById('introBody').innerHTML =
     'Dein Profil zeigt, WAS dir liegt. Ob du als <strong>' + jobName + '</strong> wirklich taugst, ' +
-    'hängt davon ab, WER du bist — wie du tickst und entscheidest. 18 schnelle Fragen, dann weißt du\'s.';
+    'hängt davon ab, WER du bist — wie du tickst und entscheidest. Erst schärfen wir kurz deinen Job, dann 18 schnelle Fragen.';
 
-document.getElementById('analyzeBtn').addEventListener('click', function() {
+const analyzeBtn = document.getElementById('analyzeBtn');
+analyzeBtn.addEventListener('click', startClarify);
+
+let axes = [], axIdx = 0, chosen = [];
+
+async function startClarify() {
+    analyzeBtn.disabled = true;
+    analyzeBtn.innerHTML = 'Einen Moment…';
+    try {
+        const resp = await fetch('/api/job-context', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ job_name: jobName, scores: result.scores || {} })
+        });
+        const d = await resp.json();
+        axes = (d && d.achsen) || [];
+        if (!axes.length) { goTrait(''); return; }
+        document.getElementById('introView').style.display = 'none';
+        document.getElementById('clarifyView').style.display = 'flex';
+        if (d.erkannt) document.getElementById('clarifyErkannt').textContent = d.erkannt;
+        showAxis(0);
+    } catch(e) {
+        goTrait('');
+    }
+}
+
+function chipBtn(label, cls, onClick, tip) {
+    const b = document.createElement('button');
+    b.className = 'clarify-chip' + (cls ? ' ' + cls : '');
+    b.innerHTML = label + (tip ? `<span class="clarify-chip-tip">${tip}</span>` : '');
+    b.onclick = onClick;
+    return b;
+}
+
+function showAxis(i) {
+    const ax = axes[i];
+    document.getElementById('clarifyProgress').textContent = `Kurz zu deinem Job · ${i + 1} von ${axes.length}`;
+    document.getElementById('clarifyQ').textContent = ax.frage || '';
+    const wrap = document.getElementById('clarifyChips');
+    wrap.innerHTML = '';
+    (ax.optionen || []).forEach(o => wrap.appendChild(chipBtn(o.label, '', () => pickAxis(o.label))));
+    wrap.appendChild(chipBtn('Bin mir unsicher', 'unsure', () => showRec(i)));
+}
+
+function showRec(i) {
+    const ax = axes[i];
+    const rec = ax.empfehlung || {};
+    const wrap = document.getElementById('clarifyChips');
+    if (!rec.label) { pickAxis(''); return; }
+    wrap.innerHTML = '';
+    const banner = document.createElement('div');
+    banner.className = 'clarify-rec';
+    banner.innerHTML = `Kein Stress — schauen wir auf das, was dir liegt. Laut deinem Profil passt eher <b>${rec.label}</b>. ${rec.grund || ''}`;
+    wrap.appendChild(banner);
+    (ax.optionen || []).forEach(o => {
+        const isRec = o.label === rec.label;
+        wrap.appendChild(chipBtn(o.label, isRec ? 'rec' : '', () => pickAxis(o.label), isRec ? 'Tipp' : ''));
+    });
+    wrap.appendChild(chipBtn('Überspringen', 'unsure', () => pickAxis('')));
+}
+
+function pickAxis(label) {
+    if (label) chosen.push(label);
+    axIdx++;
+    if (axIdx >= axes.length) finishClarify();
+    else showAxis(axIdx);
+}
+
+function finishClarify() {
+    goTrait(chosen.join(', '));
+}
+
+function goTrait(variante) {
+    sessionStorage.setItem('wm_variante', variante || '');
     window.location.href = '/trait-check';
-});
+}
 </script>
 {% endblock %}
