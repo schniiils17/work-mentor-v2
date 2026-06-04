@@ -193,41 +193,9 @@ GILT IMMER: Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken (nicht 
     return result
 
 
-def _fetch_ba_listings(job_name: str, n: int = 6) -> dict:
-    """Holt echte Stellenanzeigen-Texte (Bundesagentur, Jobboerse) zum Erden der
-    Fit-Anforderungen. Suche -> Referenznummer -> base64 -> Detail-Endpoint.
-    Bei Fehler leere Liste -> der Fit faellt sauber auf reines KI-Wissen zurueck."""
-    out = {"count": None, "texte": []}
-    q = urllib.parse.quote(job_name)
-    try:
-        req = urllib.request.Request(
-            f"https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v6/jobs?was={q}&size=25",
-            headers={"X-API-Key": "jobboerse-jobsuche"})
-        with urllib.request.urlopen(req, timeout=4) as r:
-            d = json.loads(r.read().decode())
-        out["count"] = d.get("maxErgebnisse")
-        for s in d.get("ergebnisliste", []):
-            if len(out["texte"]) >= n:
-                break
-            ref = s.get("referenznummer")
-            if not ref:
-                continue
-            try:
-                b64 = base64.b64encode(ref.encode()).decode()
-                req2 = urllib.request.Request(
-                    f"https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v4/jobdetails/{b64}",
-                    headers={"X-API-Key": "jobboerse-jobsuche"})
-                with urllib.request.urlopen(req2, timeout=4) as r2:
-                    det = json.loads(r2.read().decode())
-                txt = re.sub(r"<[^>]+>", " ", det.get("stellenangebotsBeschreibung", "") or "")
-                txt = re.sub(r"\s+", " ", txt).strip()
-                if len(txt) >= 200:
-                    out["texte"].append(txt[:1400])
-            except Exception:
-                continue
-    except Exception:
-        pass
-    return out
+# (_fetch_ba_listings entfernt — das langsame Einzel-Anzeigen-Lesen brachte gegenueber
+# Claudes Berufswissen kaum mehr, kostete aber ~14s. Stattdessen erden wir leicht ueber
+# die schnellen Markt-Facetten in _fetch_ba_market.)
 
 
 @app.post("/api/fit")
@@ -247,18 +215,30 @@ async def post_fit(req: FitRequest):
     else:
         answers_note = "- Leite Staerken und Gaps aus den RIASEC-Scores ab"
 
-    # Echte Stellenanzeigen ziehen — erdet die Anforderungen in der Realitaet
-    listings_section = ""
-    grounded_note = ""
+    # Schnelle echte Marktdaten (BA, ~0.3s) — leichter Anker + "Echter Markt"-Panel
+    markt = {}
+    markt_anchor = ""
     if req.grounded:
-        listings = _fetch_ba_listings(req.job_name)
-        if listings.get("texte"):
-            joined = "\n\n--- naechste Anzeige ---\n\n".join(listings["texte"])
-            listings_section = (
-                f"\n\nECHTE STELLENANZEIGEN ({len(listings['texte'])} aktuelle, Bundesagentur fuer Arbeit) — "
-                "leite die Anforderungen aus den WIEDERKEHRENDEN Aussagen DIESER echten Texte ab, "
-                "nicht aus dem Gedaechtnis:\n" + joined)
-            grounded_note = f"basiert auf {len(listings['texte'])} aktuellen Stellenanzeigen"
+        m = _fetch_ba_market(req.job_name)
+        if m.get("count") is not None:
+            qe = m.get("quereinstieg", {})
+            markt = {
+                "offene_stellen": m.get("count"),
+                "berufsfelder": m.get("berufsfelder", [])[:3],
+                "regionen": m.get("regionen", []),
+                "quereinstieg_moeglich": qe.get("true", 0) > 0,
+                "homeoffice_stellen": m.get("homeoffice", 0),
+                "arbeitszeit": m.get("arbeitszeit", {}),
+                "quelle": "Bundesagentur für Arbeit",
+            }
+            anchor = []
+            if m.get("berufsfelder"):
+                anchor.append("Berufsfelder: " + ", ".join(m["berufsfelder"][:4]))
+            if m.get("titel"):
+                anchor.append("echte Stellentitel: " + "; ".join(m["titel"][:5]))
+            if anchor:
+                markt_anchor = ("\n\nMARKT-KONTEXT (echte BA-Daten, nur als leichter Anker fuer die richtige "
+                                "Variante — ergaenze KEINE erfundenen Details):\n- " + "\n- ".join(anchor))
 
     variant_section = ""
     if req.variante:
@@ -267,7 +247,7 @@ async def post_fit(req: FitRequest):
     prompt = f"""Analysiere den Job-Fit fuer den Job "{req.job_name}".
 
 RIASEC-Profil: {req.code}
-Dimension-Scores (Rohwerte -12 bis +12): {scores_str}{traits_section}{variant_section}{listings_section}
+Dimension-Scores (Rohwerte -12 bis +12): {scores_str}{traits_section}{variant_section}{markt_anchor}
 
 Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
 
@@ -285,10 +265,10 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
 
 Regeln:
 - requirements: GENAU 5 Kern-Anforderungen DIESES Jobs.
-  WENN echte Stellenanzeigen oben vorliegen: leite sie aus den WIEDERKEHRENDEN Aussagen dieser
-  Anzeigen ab (was die Arbeitgeber WIRKLICH fordern), in einfache Sprache — kein Stereotyp aus dem Gedaechtnis.
-  Decke die gewaehlte Variante ab. Liegt zu ihr wenig vor: beschreibe die BEKANNTE, etablierte Form
-  des Jobs — aber erfinde NICHTS Konkretes (keine ausgedachten Aufgaben, Zahlen, Werkzeuge).
+  Schreib sie aus deinem fundierten Berufswissen, KORREKT zur gewaehlten Variante und am
+  Markt-Kontext orientiert (falls vorhanden) — kein Stereotyp, kein generisches Bla.
+  Decke die bekannte, etablierte Form des Jobs ab — aber erfinde NICHTS Konkretes
+  (keine ausgedachten Aufgaben, Zahlen, Werkzeuge).
   Waehle nur Anforderungen, die mit PERSOENLICHKEIT/Arbeitsweise zu tun haben (nur die koennen wir
   gegen das Profil spiegeln). Reine Fach-/Formal-Voraussetzungen (Software, Jahre Erfahrung,
   Fuehrerschein, Abschluss) gehoeren NICHT in die 5 — die nennst du knapp im Feld "fachlich".
@@ -311,8 +291,8 @@ Regeln:
         match = re.search(r'\{.*\}', text, re.DOTALL)
         if match:
             result = json.loads(match.group())
-            if grounded_note:
-                result.setdefault("quelle", grounded_note)
+            if markt:
+                result["markt"] = markt
             return result
         return {"error": "parse_error", "raw": text[:200]}
     except Exception as e:
@@ -405,7 +385,8 @@ def _fetch_ba_market(job_name: str) -> dict:
     """Echte Marktdaten der Bundesagentur fuer Arbeit (Jobboerse + BERUFENET).
     Schnell (~0.3s/Call), kostenlos, keine Anmeldung. Bei Fehler bleibt das Feld
     leer -> der Berater faellt sauber auf reines KI-Wissen zurueck."""
-    out = {"count": None, "berufsfelder": [], "arbeitszeit": {}, "titel": [], "amtliche_varianten": []}
+    out = {"count": None, "berufsfelder": [], "arbeitszeit": {}, "titel": [], "amtliche_varianten": [],
+           "quereinstieg": {}, "regionen": [], "homeoffice": 0}
     q = urllib.parse.quote(job_name)
     try:
         req = urllib.request.Request(
@@ -422,6 +403,11 @@ def _fetch_ba_market(job_name: str) -> dict:
         out["arbeitszeit"] = {labels.get(k, k): v for k, v in az.items()}
         out["titel"] = list(dict.fromkeys(
             s.get("stellenangebotsTitel", "") for s in d.get("ergebnisliste", []) if s.get("stellenangebotsTitel")))[:8]
+        qe = f.get("quereinstieg", {}).get("counts", {})
+        out["quereinstieg"] = {"true": qe.get("true", 0), "false": qe.get("false", 0)}
+        ao = f.get("arbeitsort", {}).get("counts", {})
+        out["regionen"] = [k for k, _ in sorted(ao.items(), key=lambda x: -x[1])[:3]]
+        out["homeoffice"] = f.get("homeoffice", {}).get("counts", {}).get("nv_true", 0)
     except Exception:
         pass
     try:
@@ -662,4 +648,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.5.0"}
+    return {"status": "ok", "version": "3.6.0"}
