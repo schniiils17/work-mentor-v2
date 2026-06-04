@@ -573,6 +573,14 @@ Beispiel traum-hinweis: "Astronaut — was fuer ein Traum. Das schaffen nur eine
             d = json.loads(m.group())
             if d.get("status") not in ("ok", "traum", "kein_beruf", "heikel"):
                 d["status"] = "ok"
+            # Ground-Truth-Schutz: Wenn der Job am echten Arbeitsmarkt EXISTIERT
+            # (offene Stellen ODER amtlicher BERUFENET-Eintrag), darf er NIE als
+            # "kein_beruf" durchfallen — egal was das Modell meint. So kann kein
+            # echter Beruf faelschlich abgewiesen werden. (Heikel bleibt heikel.)
+            real_job = (market.get("count") or 0) > 0 or len(market.get("amtliche_varianten") or []) > 0
+            if real_job and d.get("status") == "kein_beruf":
+                d["status"] = "ok"
+                d["hinweis"] = ""
             d.setdefault("name", req.job_name)
             return d
     except Exception:
@@ -714,4 +722,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.8.0"}
+    return {"status": "ok", "version": "3.8.1"}
