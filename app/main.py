@@ -10,6 +10,8 @@ import os
 import json
 import re
 import math
+import urllib.request
+import urllib.parse
 
 from app.holland import ITEMS, assess, get_shuffled_items, _dim_label
 from app.traits import DIMENSIONS, TRAIT_ITEMS, score_traits, get_trait_items
@@ -60,6 +62,7 @@ class InsightRequest(BaseModel):
 class JobContextRequest(BaseModel):
     job_name: str
     scores: dict = {}     # RIASEC-Scores (optional, für die "unsicher"-Empfehlung)
+    grounded: bool = True # True = mit echten BA-Marktdaten erden; False = reines KI-Wissen
 
 
 # Kanonische Tier-Sprüche — Ton-Anker im Prompt UND Fallback, falls der
@@ -329,16 +332,72 @@ Regeln:
         return {"error": str(e)}
 
 
+def _fetch_ba_market(job_name: str) -> dict:
+    """Echte Marktdaten der Bundesagentur fuer Arbeit (Jobboerse + BERUFENET).
+    Schnell (~0.3s/Call), kostenlos, keine Anmeldung. Bei Fehler bleibt das Feld
+    leer -> der Berater faellt sauber auf reines KI-Wissen zurueck."""
+    out = {"count": None, "berufsfelder": [], "arbeitszeit": {}, "titel": [], "amtliche_varianten": []}
+    q = urllib.parse.quote(job_name)
+    try:
+        req = urllib.request.Request(
+            f"https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v6/jobs?was={q}&size=20",
+            headers={"X-API-Key": "jobboerse-jobsuche"})
+        with urllib.request.urlopen(req, timeout=4) as r:
+            d = json.loads(r.read().decode())
+        out["count"] = d.get("maxErgebnisse")
+        f = d.get("facetten", {})
+        bf = f.get("berufsfeld", {}).get("counts", {})
+        out["berufsfelder"] = [k for k, _ in sorted(bf.items(), key=lambda x: -x[1])[:6]]
+        az = f.get("arbeitszeit", {}).get("counts", {})
+        labels = {"vz": "Vollzeit", "tz": "Teilzeit", "mj": "Minijob", "ho": "Homeoffice", "snw": "Schicht/Nacht/Wochenende"}
+        out["arbeitszeit"] = {labels.get(k, k): v for k, v in az.items()}
+        out["titel"] = list(dict.fromkeys(
+            s.get("stellenangebotsTitel", "") for s in d.get("ergebnisliste", []) if s.get("stellenangebotsTitel")))[:8]
+    except Exception:
+        pass
+    try:
+        req = urllib.request.Request(
+            f"https://rest.arbeitsagentur.de/infosysbub/bnet/pc/v1/berufe?suchwoerter={q}&page=0&size=8",
+            headers={"X-API-Key": "infosysbub-berufenet"})
+        with urllib.request.urlopen(req, timeout=4) as r:
+            b = json.loads(r.read().decode())
+        out["amtliche_varianten"] = [x.get("kurzBezeichnungNeutral") for x in
+            b.get("_embedded", {}).get("berufSucheList", [])[:8] if x.get("kurzBezeichnungNeutral")]
+    except Exception:
+        pass
+    return out
+
+
 @app.post("/api/job-context")
 async def post_job_context(req: JobContextRequest):
     """Karriereberater-Schritt: erkennt den Job und liefert die 2-3 Achsen, die
     ihn am staerksten unterscheiden — in Alltagssprache, als Chip-Fragen. Damit
     schaerfen wir gemeinsam mit dem User, welche Variante des Jobs gemeint ist,
     bevor der Fit berechnet wird."""
+    market = {}
+    real_block = ""
+    if req.grounded:
+        market = _fetch_ba_market(req.job_name)
+        parts = []
+        if market.get("amtliche_varianten"):
+            parts.append("Amtliche Berufs-Varianten (BERUFENET): " + "; ".join(market["amtliche_varianten"]))
+        if market.get("berufsfelder"):
+            parts.append("Reale Berufsfelder, in denen dieser Job ausgeschrieben ist: " + "; ".join(market["berufsfelder"]))
+        if market.get("titel"):
+            parts.append("Echte aktuelle Stellentitel: " + "; ".join(market["titel"]))
+        if market.get("arbeitszeit"):
+            parts.append("Arbeitszeit-Verteilung der echten Stellen: " + ", ".join(f"{k}: {v}" for k, v in market["arbeitszeit"].items()))
+        if market.get("count"):
+            parts.append(f"Aktuell {market['count']} offene Stellen in Deutschland.")
+        if parts:
+            real_block = ("\n\nECHTE MARKTDATEN (Bundesagentur fuer Arbeit, heute abgefragt) — ERDE deine "
+                          "Achsen und Optionen in DIESEN Daten. Nimm die echten Berufsfelder/Varianten als "
+                          "Grundlage fuer die Optionen, erfinde nichts dazu:\n- " + "\n- ".join(parts))
+
     prompt = f"""Du bist ein erfahrener, lockerer Karriereberater. Du sprichst mit einer normalen
 berufstaetigen Person ohne Studium (Berufsschulniveau).
 
-Die Person interessiert sich fuer den Beruf: "{req.job_name}".
+Die Person interessiert sich fuer den Beruf: "{req.job_name}".{real_block}
 
 Denselben Beruf gibt es in sehr verschiedenen Varianten — der Alltag UND die noetigen Eigenschaften
 gehen je nach Variante weit auseinander. Finde die 2-3 Achsen, die DIESEN Beruf am staerksten
@@ -387,7 +446,10 @@ INHALT:
         text = msg.content[0].text.strip()
         m = re.search(r'\{.*\}', text, re.DOTALL)
         if m:
-            return json.loads(m.group())
+            result = json.loads(m.group())
+            if req.grounded and market.get("count") is not None:
+                result["marktdaten"] = {"offene_stellen": market.get("count"), "quelle": "Bundesagentur für Arbeit"}
+            return result
         return {"error": "parse_error", "raw": text[:200]}
     except Exception as e:
         return {"error": str(e)}
@@ -527,4 +589,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.3.0"}
+    return {"status": "ok", "version": "3.4.0"}
