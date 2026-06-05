@@ -337,7 +337,10 @@ def get_type_info(code: str, generalist: bool = False) -> Dict:
     
     reversed_code = code[1] + code[0]
     if reversed_code in TYPE_MAP:
-        return {**TYPE_MAP[reversed_code], "code": reversed_code}
+        # Typ-Name/-Beschreibung aus dem (symmetrischen) Eintrag nehmen, ABER den
+        # ECHTEN Code des Users behalten — sonst kippt die Haupt-/Zweittyp-Reihenfolge
+        # (z.B. C>E wurde faelschlich zu "EC" -> Adler statt Oktopus).
+        return {**TYPE_MAP[reversed_code], "code": code}
     
     return {
         "name": "Der Entdecker",
