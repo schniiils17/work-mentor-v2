@@ -203,17 +203,32 @@ async function initTeaser() {
     const wmVariante = sessionStorage.getItem('wm_variante') || '';
     let fitData = JSON.parse(sessionStorage.getItem('wm_fit_result') || 'null');
     if (!fitData || fitData.job_name !== (selectedJob.name || fitData.job_name) || (fitData.variante || '') !== wmVariante) {
-        document.getElementById('teaserScreen').innerHTML = `<div style="text-align:center;padding:90px 0;color:var(--text-muted);">Ich gleiche dich mit ${selectedJob.name || 'dem Job'} ab…</div>`;
+        const jn = selectedJob.name || 'dem Job';
+        const loadMsgs = [
+            `Ich gleiche dein Profil mit ${jn} ab…`,
+            'Ich lese den echten Stellenmarkt…',
+            'Ich prüfe, wo du stark bist…',
+            'Gleich hast du\'s…'
+        ];
+        document.getElementById('teaserScreen').innerHTML = `
+            <div style="text-align:center;padding:90px 20px;">
+                <div class="loading-pulse" style="margin:0 auto 18px;"></div>
+                <div id="tlText" style="font-size:15px;color:var(--text-secondary);">${loadMsgs[0]}</div>
+            </div>`;
+        let tli = 0;
+        const tlIv = setInterval(() => { tli++; const el = document.getElementById('tlText'); if (el && tli < loadMsgs.length) el.textContent = loadMsgs[tli]; }, 2800);
         try {
             const resp = await fetch('/api/fit', {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ job_name: selectedJob.name || 'Produktmanager', scores: wmResult.scores, code: wmResult.code || 'EA', trait_scores: wmTraits, variante: sessionStorage.getItem('wm_variante') || '' })
             });
             const d = await resp.json();
+            clearInterval(tlIv);
             if (d.error) throw new Error(d.error);
             fitData = { ...d, job_name: selectedJob.name || 'Produktmanager', match_pct: selectedJob.match || 0, variante: wmVariante };
             sessionStorage.setItem('wm_fit_result', JSON.stringify(fitData));
         } catch(e) {
+            clearInterval(tlIv);
             document.getElementById('teaserScreen').innerHTML = `
                 <div style="padding:60px 20px;text-align:center;">
                     <p style="color:var(--text-secondary);margin-bottom:16px;">Konnte den Fit nicht berechnen.</p>
