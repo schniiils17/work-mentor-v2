@@ -192,10 +192,10 @@ const ratingStatement = document.getElementById('ratingStatement');
 
 // Magic moments — Mentor kommentiert zwischen den Fragen
 const magicMoments = {
-    0: ["Schön, dass du da bist! 👋", "Ich zeige dir gleich ein paar Tätigkeiten. Sag mir einfach, wie sehr dir das Spaß machen würde."],
-    9: ["Interessant… ich seh schon ein Muster. 🧐"],
-    18: ["Halbzeit! Du machst das super. 💪"],
-    27: ["Fast geschafft. Die letzten Fragen sind die spannendsten. 🎯"],
+    0: ["Schön, dass du da bist!", "Ich zeige dir gleich ein paar Tätigkeiten. Sag mir einfach, wie sehr dir das Spaß machen würde."],
+    9: ["Interessant… ich seh schon ein Muster."],
+    18: ["Halbzeit! Du machst das super."],
+    27: ["Fast geschafft. Die letzten Fragen sind die spannendsten."],
 };
 
 const valueLabels = {
@@ -341,7 +341,7 @@ function goBack() {
 }
 
 async function submitAssessment() {
-    await addMentorBubble("Perfekt — ich hab alles was ich brauche. 🎯", 700);
+    await addMentorBubble("Perfekt — ich hab alles was ich brauche.", 700);
     await new Promise(r => setTimeout(r, 400));
     await addMentorBubble("Dein Karriere-Tier wird berechnet…", 600);
     
