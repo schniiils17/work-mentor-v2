@@ -266,9 +266,20 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
   "requirements": [
     {{"name": "<Kern-Anforderung des Jobs, 2-5 Woerter>", "badge": "passt_gut|solide_basis|dein_hebel", "body": "<1 Satz: deine Auspraegung dazu, ehrlich, Du-Form>"}}
   ],
-  "strength": {{"name": "<deine staerkste Eigenschaft, 1 Wort>", "body": "<1 Satz, was sie fuer diesen Job bringt>"}},
-  "lever": {{"name": "<dein groesster Hebel, 1 Wort>", "body": "<1 Satz, woran du fuer diesen Job arbeiten koenntest>"}},
-  "resource": {{"kind": "book", "title": "...", "author": "...", "body": "<1 Satz warum genau das>", "cta": "Auf Amazon ansehen"}},
+  "strengths": [
+    {{"name": "<staerkste Eigenschaft, 1-2 Woerter>", "body": "<1 Satz, was sie fuer DIESE Variante bringt>"}}
+  ],
+  "lever": {{"name": "<dein groesster Hebel, 1-2 Woerter>", "body": "<1 Satz, woran du fuer diesen Job arbeiten koenntest>"}},
+  "resource": {{"kind": "book", "title": "...", "author": "...", "price": "<grobe Preisangabe, z.B. 'ca. 20 €'>", "body": "<1 Satz warum genau das>", "cta": "Auf Amazon ansehen"}},
+  "fahrplan": [
+    {{"step": 1, "title": "<kurzer Schritt-Titel>", "when": "<Zeithorizont, z.B. 'Diese Woche' / '1-3 Monate' / '3-6 Monate'>", "body": "<1 konkreter Satz, was du tust>"}}
+  ],
+  "tick": "<2-3 Saetze: wie du in DIESEM Job/dieser Variante tickst — dein Arbeitsstil, persoenlich>",
+  "drain": "<2-3 Saetze: was dich in genau diesem Job am ehesten auslaugen wuerde, aus deinem Profil abgeleitet>",
+  "positionierung": "<2-3 Saetze: wie du dich mit deinem Profil im Bewerbungsgespraech positionierst>",
+  "einstiegswege": [
+    {{"name": "<Einstiegsweg in diesen Beruf, kurz>", "detail": "<1 knapper Satz>"}}
+  ],
   "fachlich": "<1 kurzer Hinweis auf rein fachliche Voraussetzungen (Ausbildung, Software, Jahre Erfahrung, Fuehrerschein), ohne Bewertung — oder leerer String>"
 }}
 
@@ -285,24 +296,33 @@ Regeln:
   Pro Person hoechstens 1-2 "dein_hebel". Verteile ehrlich, nicht alles gruen.
   body je Anforderung: 1 kurzer Satz, der deine Auspraegung ehrlich spiegelt. Du-Form.
 - fit_score spiegelt die Summe der Badges ehrlich (viele passt_gut = hoch, mehrere Hebel = niedriger).
-- strength: deine staerkste Eigenschaft (Trait-Ebene). lever: dein groesster Hebel (Trait-Ebene).
-  METHODISCH: Illustriere strength UND lever mit einer KONKRETEN Situation aus dem ECHTEN Alltag
+- strengths: GENAU 2 staerkste Eigenschaften (Trait-Ebene). lever: dein groesster Hebel (Trait-Ebene).
+  METHODISCH: Illustriere strengths UND lever mit einer KONKRETEN Situation aus dem ECHTEN Alltag
   DIESER Variante (bzw. des Jobs) — niemals mit einem Job-Klischee oder einer Frontline-Taetigkeit,
   die die Person in ihrer Variante gar nicht macht. Lieber allgemein-treffend als falsch-konkret.
 - resource: EIN echtes Buch, das genau am groessten Hebel ansetzt.
+- fahrplan: GENAU 3 konkrete, umsetzbare Schritte, zeitlich gestaffelt (sofort -> Monate). Bezogen auf
+  DIESEN Job/diese Variante und auf den Hebel der Person — kein generisches Bla, nichts Erfundenes.
+- tick/drain/positionierung: je 2-3 kurze Saetze, persoenlich, aus Profil + Variante abgeleitet.
+  drain knuepft an dem an, was diese Person laut Profil am ehesten auslaugt.
+- einstiegswege: GENAU 3 realistische Wege in DIESEN Beruf (z.B. Ausbildung, Quereinstieg, Weiterbildung,
+  Studium — je nach Beruf). Etabliertes Berufswissen, erfinde nichts Konkretes.
 - {answers_note}
 - Deutsch, Du-Form, Berufsschulniveau, kein HR-Jargon, kurze Saetze, NIEMALS als-wie"""
 
     try:
         msg = claude.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=1000,
+            max_tokens=1800,
             messages=[{"role": "user", "content": prompt}]
         )
         text = msg.content[0].text.strip()
         match = re.search(r'\{.*\}', text, re.DOTALL)
         if match:
             result = json.loads(match.group())
+            # Rückwärtskompat: altes Single-"strength" aus strengths[0] ableiten
+            if isinstance(result.get("strengths"), list) and result["strengths"] and "strength" not in result:
+                result["strength"] = result["strengths"][0]
             if markt:
                 result["markt"] = markt
             return result
@@ -731,4 +751,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.9.3"}
+    return {"status": "ok", "version": "3.10.0"}
