@@ -242,7 +242,7 @@ async function initTeaser() {
 
 function buildScoreArcSVG(score) {
     const R = 76, CX = 100, CY = 100;
-    const START = 135, SWEEP = 270;
+    const START = 225, SWEEP = 270;
     function polar(deg) {
         const rad = (deg - 90) * Math.PI / 180;
         return [CX + R * Math.cos(rad), CY + R * Math.sin(rad)];
@@ -256,14 +256,14 @@ function buildScoreArcSVG(score) {
     const progress = Math.min(1, score / 100);
     const color = score >= 70 ? '#2D6A4F' : '#A86A2D';
     return `<svg width="200" height="200" viewBox="0 0 200 200" id="scoreArcSvg">
-        <path d="${arcPath(START, START+SWEEP)}" fill="none" stroke="#EFEDE6" stroke-width="10" stroke-linecap="round"/>
-        <path d="${arcPath(START, START+SWEEP*progress)}" id="arcFill" fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round"/>
+        <path d="${arcPath(START, START+SWEEP)}" fill="none" stroke="#EFEDE6" stroke-width="12" stroke-linecap="round"/>
+        <path d="${arcPath(START, START+SWEEP*progress)}" id="arcFill" fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round"/>
     </svg>`;
 }
 
 function animateArc(targetScore) {
     const SWEEP = 270;
-    const R = 76, CX = 100, CY = 100, START = 135;
+    const R = 76, CX = 100, CY = 100, START = 225;
     function polar(deg) {
         const rad = (deg - 90) * Math.PI / 180;
         return [CX + R * Math.cos(rad), CY + R * Math.sin(rad)];
@@ -309,18 +309,31 @@ function reqBadgeLabel(badge) {
 
 function renderMarktPanel(m) {
     if (!m || m.offene_stellen == null) return '';
-    const stat = (val, lbl, color) => `<div style="min-width:78px;"><div style="font-size:19px;font-weight:700;line-height:1.1;color:${color||'var(--text-primary)'};">${val}</div><div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">${lbl}</div></div>`;
+    const ROUTE = '<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>';
+    const PIN = '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>';
+    const mRow = (icon, label, value, good) => `
+        <div style="display:flex;align-items:center;gap:11px;padding:11px 12px;background:rgba(255,255,255,0.06);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>
+            <span style="font-size:13px;color:rgba(255,255,255,0.7);flex:1;">${label}</span>
+            <span style="font-size:13px;font-weight:500;color:${good?'#5EE0B0':'#fff'};text-align:right;">${value}</span>
+        </div>`;
     const regions = (m.regionen || []).slice(0, 3).join(' · ');
     return `
-    <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:14px;padding:14px 16px;margin:18px 0 4px;">
-        <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:13px;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg>
-            Echter Markt · ${m.quelle || 'Bundesagentur für Arbeit'}
+    <div style="background:#141414;color:#fff;border-radius:18px;padding:20px;margin:4px 20px 28px;">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px;">
+            <span style="width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg>
+            </span>
+            <span style="font-size:10px;text-transform:uppercase;letter-spacing:0.14em;font-weight:500;color:rgba(255,255,255,0.7);">Echter Arbeitsmarkt</span>
         </div>
-        <div style="display:flex;gap:18px;flex-wrap:wrap;">
-            ${stat(m.offene_stellen, 'offene Stellen')}
-            ${stat(m.quereinstieg_moeglich ? 'Ja' : 'Selten', 'Quereinstieg', m.quereinstieg_moeglich ? '#2D6A4F' : null)}
-            ${regions ? stat(regions, 'Top-Regionen') : ''}
+        <p style="font-size:11.5px;color:rgba(255,255,255,0.55);margin:0 0 16px;padding-left:35px;">Live-Daten der Bundesagentur für Arbeit</p>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:18px;">
+            <span style="font-size:40px;font-weight:600;line-height:1;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;">${Number(m.offene_stellen).toLocaleString('de-DE')}</span>
+            <span style="font-size:14px;color:rgba(255,255,255,0.7);">offene Stellen gerade</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:1px;border-radius:14px;overflow:hidden;">
+            ${mRow(ROUTE, 'Quereinstieg', m.quereinstieg_moeglich ? 'Möglich' : 'Eher selten', m.quereinstieg_moeglich)}
+            ${regions ? mRow(PIN, 'Top-Regionen', regions) : ''}
         </div>
     </div>`;
 }
@@ -350,9 +363,13 @@ function renderTeaser(data, wm) {
             </span>
         </div>
 
-        ${wmInsight ? `<div class="teaser-insight"><div class="teaser-insight-label">Das bist du</div><p class="teaser-insight-text">${wmInsight}</p></div>` : ''}
+        ${wmInsight ? `<div style="margin:6px 20px 24px;padding:18px;background:var(--accent);color:#fff;border-radius:18px;position:relative;overflow:hidden;">
+            <div style="position:absolute;top:-12px;right:-8px;opacity:0.14;"><svg width="84" height="84" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg></div>
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:rgba(255,255,255,0.7);margin-bottom:8px;position:relative;">Das bist du</div>
+            <div style="font-size:18px;line-height:1.35;color:#fff;font-weight:500;position:relative;">${wmInsight}</div>
+        </div>` : ''}
 
-        <div class="teaser-context">So nah dran bist du an ${jobName}</div>
+        <div class="teaser-context">${jobName} · Dein Fit</div>
 
         <div class="score-arc-wrap">
             ${buildScoreArcSVG(0)}
@@ -362,7 +379,7 @@ function renderTeaser(data, wm) {
             </div>
         </div>
 
-        <p class="fit-headline" style="color:${tierColor}">${data.fit_headline || 'Vieles passt schon — und es gibt einen klaren Punkt zum Anpacken.'}</p>
+        <p class="fit-headline" style="color:var(--text-primary);font-size:18px;font-weight:600;">${data.fit_headline || 'Vieles passt schon — und es gibt einen klaren Punkt zum Anpacken.'}</p>
 
         ${marktPanel}
 
@@ -375,12 +392,12 @@ function renderTeaser(data, wm) {
         <div class="paywall-divider"></div>
 
         <div class="paywall-text">
-            <div class="paywall-headline">Du siehst, wo du stehst.</div>
-            <div class="paywall-sub">Das ganze Bild — warum, und was du tun kannst — ist fertig.</div>
+            <div class="paywall-headline">8 Minuten investiert.</div>
+            <div class="paywall-sub">Dein vollständiges Ergebnis ist fertig.</div>
         </div>
 
         <a href="/premium" class="btn-pay">
-            Vollständiges Ergebnis — 19 €
+            Vollständiges Ergebnis — 20 €
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
 

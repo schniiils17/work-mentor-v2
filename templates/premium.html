@@ -43,14 +43,14 @@ if (!fitData) {
 }
 
 function buildScoreArcSVG(score) {
-    const R = 76, CX = 100, CY = 100, START = 135, SWEEP = 270;
+    const R = 76, CX = 100, CY = 100, START = 225, SWEEP = 270;
     function polar(deg) { const r = (deg-90)*Math.PI/180; return [CX+R*Math.cos(r), CY+R*Math.sin(r)]; }
     function arcPath(a, b) { const [x1,y1]=polar(a),[x2,y2]=polar(b); return `M ${x1} ${y1} A ${R} ${R} 0 ${(b-a)>180?1:0} 1 ${x2} ${y2}`; }
     const progress = Math.min(1, score/100);
     const color = score >= 70 ? '#2D6A4F' : '#A86A2D';
     return `<svg width="200" height="200" viewBox="0 0 200 200">
-        <path d="${arcPath(START,START+SWEEP)}" fill="none" stroke="#EFEDE6" stroke-width="10" stroke-linecap="round"/>
-        <path d="${arcPath(START,START+SWEEP*progress)}" fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round"/>
+        <path d="${arcPath(START,START+SWEEP)}" fill="none" stroke="#EFEDE6" stroke-width="12" stroke-linecap="round"/>
+        <path d="${arcPath(START,START+SWEEP*progress)}" fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round"/>
     </svg>`;
 }
 
