@@ -12,7 +12,10 @@
     </section>
 
     <section class="target-job">
-        <input type="text" class="custom-job-input" id="targetInput" placeholder="z. B. Vertriebsleiter, Erzieherin, Mediengestalter …" autocomplete="off">
+        <div style="position:relative;">
+            <svg style="position:absolute;left:15px;top:50%;transform:translateY(-50%);pointer-events:none;" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="custom-job-input" id="targetInput" placeholder="z. B. Vertriebsleiter, Erzieherin …" autocomplete="off" style="padding-left:42px;">
+        </div>
         <button class="custom-job-btn active" id="targetBtn">Passe ich dahin? →</button>
         <div id="guardResult"></div>
     </section>
