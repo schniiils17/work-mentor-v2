@@ -191,11 +191,12 @@ const ratingSheet = document.getElementById('ratingSheet');
 const ratingStatement = document.getElementById('ratingStatement');
 
 // Magic moments — Mentor kommentiert zwischen den Fragen
+// Getaktet auf 24 Fragen: Halbzeit bei Frage 13 (Index 12), Endspurt bei Frage 20.
 const magicMoments = {
     0: ["Schön, dass du da bist!", "Ich zeige dir gleich ein paar Tätigkeiten. Sag mir einfach, wie sehr dir das Spaß machen würde."],
-    9: ["Interessant… ich seh schon ein Muster."],
-    18: ["Halbzeit! Du machst das super."],
-    27: ["Fast geschafft. Die letzten Fragen sind die spannendsten."],
+    7: ["Interessant… ich seh schon ein Muster."],
+    12: ["Halbzeit! Du machst das super."],
+    19: ["Fast geschafft. Die letzten Fragen sind die spannendsten."],
 };
 
 const valueLabels = {

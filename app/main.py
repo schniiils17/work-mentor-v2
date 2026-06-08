@@ -159,8 +159,12 @@ STIL von superkraft & kryptonit (WICHTIG):
 - Genau wie die Anker oben: eine kurze, knackige Phrase im Praesens.
 - KEIN "Du koenntest ...", KEINE Weichmacher (kein "wahrscheinlich/vielleicht/duerfte").
   Es ist eine Archetyp-Zeile, kein Gutachten.
-- superkraft = eine Faehigkeit als Infinitiv-Phrase. kryptonit = eine Situation, die auslaugt.
+- superkraft = eine Faehigkeit als Infinitiv-Phrase MIT einem konkreten, ueberraschenden Bild oder
+  einer pointierten Wendung (genau wie die Anker oben). NIEMALS nur zwei aneinandergereihte
+  Allerwelts-Verben — das klingt duenn und beliebig.
 ✅ superkraft: "Ideen vorantreiben, ohne den Bezug zur Realitaet zu verlieren."
+✅ superkraft (E+C): "Eine vage Idee in einen Plan verwandeln, der wirklich laeuft — bevor andere noch diskutieren."
+❌ superkraft: "Geschaefte abschliessen und dabei den Ueberblick behalten." (zwei Allerwelts-Verben, kein Bild, klingt duenn)
 ❌ superkraft: "Du koenntest Projekte vorantreiben, ohne dabei den Bezug zur Realitaet zu verlieren." (zu weich, klingt schief)
 ✅ kryptonit: "Endlose Detailarbeit ohne den grossen Zusammenhang."
 ❌ kryptonit: "Detailarbeit raubt dir vermutlich die Motivation." (Weichmacher, kein Archetyp)
@@ -770,4 +774,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.11.4"}
+    return {"status": "ok", "version": "3.11.5"}
