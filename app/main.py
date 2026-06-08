@@ -69,6 +69,7 @@ class JobContextRequest(BaseModel):
 
 class JobCheckRequest(BaseModel):
     job_name: str         # Freitext-Eingabe des Users — wird auf Plausibilität geprüft
+    scores: dict = {}     # RIASEC-Scores (optional) — für die Interessen-Passung
 
 
 # Kanonische Tier-Sprüche — Ton-Anker im Prompt UND Fallback, falls der
@@ -584,8 +585,9 @@ async def post_job_check(req: JobCheckRequest):
     prompt = f"""Klassifiziere diese Eingabe als moeglichen Zieljob fuer einen Karriere-Test: "{req.job_name}".{ba_hint}
 
 Antworte NUR mit diesem JSON, kein Text davor oder danach:
-{{"status": "ok|traum|kein_beruf|heikel", "name": "<sauber formulierter Jobname>", "hinweis": "<kurze freundliche Nachricht, Du-Form — oder leer bei ok>"}}
+{{"status": "ok|traum|kein_beruf|heikel", "name": "<sauber formulierter Jobname>", "hinweis": "<kurze freundliche Nachricht, Du-Form — oder leer bei ok>", "riasec": {{"R":0,"I":0,"A":0,"S":0,"E":0,"C":0}}}}
 
+- riasec: schaetze das von DIESEM Beruf geforderte Interessen-Profil (RIASEC, 0-100 je Dimension) aus deinem Berufswissen. Bei kein_beruf/heikel egal (0).
 - ok: ein normaler, realistisch erreichbarer Beruf. hinweis: leer.
 - traum: ein ECHTER, aber extrem seltener/schwer erreichbarer Beruf (z.B. Astronaut, Popstar, Profifussballer,
   Bundeskanzler) — den schaffen nur ganz wenige Menschen. hinweis: WARM und anerkennend, KEIN Traumkiller,
@@ -618,6 +620,11 @@ Beispiel traum-hinweis: "Astronaut — was fuer ein Traum. Das schaffen nur eine
             if real_job and d.get("status") == "kein_beruf":
                 d["status"] = "ok"
                 d["hinweis"] = ""
+            # Interessen-Passung: Match aus User-Scores vs. geschaetztem Job-RIASEC
+            ri = d.get("riasec") or {}
+            if req.scores and isinstance(ri, dict) and any(ri.values()):
+                d["match"] = _match_score(req.scores, ri)
+            d.pop("riasec", None)
             d.setdefault("name", req.job_name)
             return d
     except Exception:
@@ -760,4 +767,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.11.1"}
+    return {"status": "ok", "version": "3.11.2"}

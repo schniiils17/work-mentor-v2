@@ -152,7 +152,7 @@ async function checkTarget() {
     try {
         const resp = await fetch('/api/job-check', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ job_name: val })
+            body: JSON.stringify({ job_name: val, scores: data.normalized_scores || data.scores || {} })
         });
         r = await resp.json();
     } catch(e) { r = { status: 'ok', name: val }; }
@@ -160,18 +160,22 @@ async function checkTarget() {
     btn.disabled = false; btn.textContent = 'Passe ich dahin? →';
     const name = r.name || val;
 
-    if (r.status === 'ok') { proceedToJob(name); return; }
+    if (r.status === 'ok') { proceedToJob(name, r.match); return; }
 
     if (r.status === 'traum') {
+        const passung = (r.match != null && !isNaN(r.match))
+            ? `<div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;"><b style="color:var(--text-primary);font-weight:600;">Laut deinen Interessen:</b> ${matchStufe(r.match).label}.</div>`
+            : '';
         out.innerHTML = `
             <div class="guard-box">
                 <p class="guard-text">${esc(r.hinweis || 'Großer Traum! Wollen wir trotzdem schauen, ob du als Typ dahin passt?')}</p>
+                ${passung}
                 <div class="guard-actions">
                     <button class="guard-yes" id="guardYes">Ja, weiter →</button>
                     <button class="guard-no" id="guardNo">Anderen Job</button>
                 </div>
             </div>`;
-        document.getElementById('guardYes').addEventListener('click', () => proceedToJob(name));
+        document.getElementById('guardYes').addEventListener('click', () => proceedToJob(name, r.match));
         document.getElementById('guardNo').addEventListener('click', () => { out.innerHTML = ''; input.value = ''; input.focus(); });
         return;
     }

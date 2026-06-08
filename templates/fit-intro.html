@@ -198,9 +198,10 @@ const result = JSON.parse(sessionStorage.getItem('wm_result') || '{}');
 const selectedJob = JSON.parse(sessionStorage.getItem('wm_selected_job') || '{}');
 const jobName = selectedJob.name || 'Produktmanager';
 const hasMatch = selectedJob.match != null && !isNaN(selectedJob.match);
+function fitStufe(m) { return m >= 82 ? 'Starke Passung' : m >= 72 ? 'Könnte passen' : 'Wäre ein Sprung'; }
 
 document.getElementById('jobName').textContent = jobName;
-document.getElementById('matchPct').textContent = hasMatch ? (selectedJob.match + '% Profil-Match') : 'Dein Zieljob';
+document.getElementById('matchPct').textContent = hasMatch ? fitStufe(selectedJob.match) : 'Dein Zieljob';
 document.getElementById('introBody').innerHTML =
     'Dein Profil zeigt, WAS dir liegt. Ob du als <strong>' + jobName + '</strong> wirklich taugst, ' +
     'hängt davon ab, WER du bist — wie du tickst und entscheidest. Erst schärfen wir kurz deinen Job, dann 18 schnelle Fragen.';
