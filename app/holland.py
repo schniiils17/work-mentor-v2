@@ -298,16 +298,18 @@ def is_generalist(scores: Dict[str, int]) -> bool:
     """
     Prüfe ob das Profil zu flach ist für einen klaren Typ.
     Generalist = Chamäleon wenn:
-    - Der hoechste Score unter 2 liegt (kaum positive Tendenz), ODER
-    - Die Differenz zwischen Top-1 und Top-3 kleiner als 3 ist (alles aehnlich)
-    (Schwellen auf 4 Items/Dimension skaliert, Rohwert-Range jetzt -8..+8.)
+    - Der hoechste Score unter 1 liegt (= Top-Dimension <= 50%, gar keine positive
+      Tendenz), ODER
+    - Die Differenz zwischen Top-1 und Top-3 kleiner als 3 ist (alles aehnlich/flach)
+    (Rohwert-Range -8..+8 bei 4 Items/Dimension. Wichtig: ein klarer Top-2 — z.B.
+    Top-Rohwert 1 = 56% mit grossem Abstand zu Rang 3 — ist KEIN Generalist.)
     """
     sorted_vals = sorted(scores.values(), reverse=True)
     top1 = sorted_vals[0]
     top3 = sorted_vals[2]
 
     # Schwellenwerte
-    if top1 < 2:
+    if top1 < 1:
         return True
     if (top1 - top3) < 3:
         return True

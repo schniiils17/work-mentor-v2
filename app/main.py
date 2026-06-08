@@ -255,9 +255,12 @@ async def post_fit(req: FitRequest):
                            f"{req.variante}\nDURCHGAENGIG fuer ALLE Texte (fit_headline, requirements, strength, lever): "
                            "Illustriere alles mit den KONKRETEN Alltags-Situationen DIESER Variante. Fuehrt die Person "
                            "z.B. ein Team, kommen ihre Staerken/Anforderungen in FUEHRUNGS-Situationen vor (Team steuern, "
-                           "Ziele setzen, Leute coachen, Zahlen pruefen) — NICHT in Frontline-Situationen (eigene "
-                           "Kundengespraeche, Akquise, Verkaufssituationen). Schliesse variant-fremde Aufgaben AUS. "
-                           "Greife NIE auf das Klischee des Jobtitels zurueck, wenn die Variante etwas anderes sagt.")
+                           "Ziele setzen, Leute coachen, Zahlen pruefen). Sagt die Variante, dass die Person NICHT selbst "
+                           "am Kunden ist, dann darf KEINE einzige der 5 Anforderungen eigenen Kundenkontakt verlangen — "
+                           "das schliesst AUSDRUECKLICH auch 'Kundenbeziehungen pflegen', 'Grosskunden/Key Accounts "
+                           "betreuen', 'Netzwerken mit Kunden' und 'Kundengespraeche/Akquise/Verkauf' ein. Diese gehoeren "
+                           "dann GAR NICHT in die Liste (auch nicht als Hebel). Schliesse variant-fremde Aufgaben komplett "
+                           "AUS. Greife NIE auf das Klischee des Jobtitels zurueck, wenn die Variante etwas anderes sagt.")
 
     prompt = f"""Analysiere den Job-Fit fuer den Job "{req.job_name}".
 
@@ -767,4 +770,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.11.3"}
+    return {"status": "ok", "version": "3.11.4"}
