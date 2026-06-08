@@ -218,10 +218,13 @@ async function initTeaser() {
         let tli = 0;
         const tlIv = setInterval(() => { tli++; const el = document.getElementById('tlText'); if (el && tli < loadMsgs.length) el.textContent = loadMsgs[tli]; }, 2800);
         try {
+            const ctrl = new AbortController();
+            const to = setTimeout(() => ctrl.abort(), 30000);
             const resp = await fetch('/api/fit', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
+                method: 'POST', headers: {'Content-Type': 'application/json'}, signal: ctrl.signal,
                 body: JSON.stringify({ job_name: selectedJob.name || 'Produktmanager', scores: wmResult.scores, code: wmResult.code || 'EA', trait_scores: wmTraits, variante: sessionStorage.getItem('wm_variante') || '' })
             });
+            clearTimeout(to);
             const d = await resp.json();
             clearInterval(tlIv);
             if (d.error) throw new Error(d.error);
@@ -229,15 +232,30 @@ async function initTeaser() {
             sessionStorage.setItem('wm_fit_result', JSON.stringify(fitData));
         } catch(e) {
             clearInterval(tlIv);
-            document.getElementById('teaserScreen').innerHTML = `
-                <div style="padding:60px 20px;text-align:center;">
-                    <p style="color:var(--text-secondary);margin-bottom:16px;">Konnte den Fit nicht berechnen.</p>
-                    <button class="btn btn-primary" onclick="initTeaser()">Nochmal versuchen</button>
-                </div>`;
+            console.error('[WM] fit error:', e);
+            showFitError();
             return;
         }
     }
-    renderTeaser(fitData, wmResult);
+    try {
+        renderTeaser(fitData, wmResult);
+    } catch(e) {
+        console.error('[WM] renderTeaser error:', e);
+        showFitError();
+    }
+}
+
+function showFitError() {
+    document.getElementById('teaserScreen').innerHTML = `
+        <div style="padding:90px 24px;text-align:center;">
+            <div style="font-size:17px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">Das hat gerade nicht geklappt.</div>
+            <p style="color:var(--text-muted);font-size:14px;line-height:1.5;margin:0 0 24px;">Manchmal ist der Server kurz ausgelastet. Probier's einfach nochmal.</p>
+            <button class="btn btn-primary" onclick="retryFit()">Nochmal versuchen →</button>
+        </div>`;
+}
+function retryFit() {
+    sessionStorage.removeItem('wm_fit_result');
+    initTeaser();
 }
 
 function buildScoreArcSVG(score) {

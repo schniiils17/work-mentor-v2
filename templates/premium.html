@@ -39,7 +39,17 @@ if (!fitData) {
             <a href="/assessment" class="btn btn-primary">Karriere-Check starten →</a>
         </div>`;
 } else {
-    renderPremium(fitData);
+    try {
+        renderPremium(fitData);
+    } catch(e) {
+        console.error('[WM] renderPremium error:', e);
+        document.getElementById('premiumScreen').innerHTML = `
+            <div style="padding:90px 24px;text-align:center;">
+                <div style="font-size:17px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">Das hat gerade nicht geklappt.</div>
+                <p style="color:var(--text-muted);font-size:14px;line-height:1.5;margin:0 0 24px;">Probier's einfach nochmal.</p>
+                <button class="btn btn-primary" onclick="sessionStorage.removeItem('wm_fit_result'); window.location.href='/teaser';">Nochmal versuchen →</button>
+            </div>`;
+    }
 }
 
 function buildScoreArcSVG(score) {
