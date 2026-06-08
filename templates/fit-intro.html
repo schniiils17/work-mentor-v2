@@ -213,7 +213,7 @@ let axes = [], axIdx = 0, chosen = [];
 
 async function startClarify() {
     analyzeBtn.disabled = true;
-    analyzeBtn.innerHTML = 'Einen Moment…';
+    analyzeBtn.innerHTML = '<span class="wm-spin"></span>Einen Moment…';
     try {
         const resp = await fetch('/api/job-context', {
             method: 'POST', headers: {'Content-Type': 'application/json'},

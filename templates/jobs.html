@@ -145,7 +145,7 @@ async function checkTarget() {
     if (!val) return;
     const btn = document.getElementById('targetBtn');
     const out = document.getElementById('guardResult');
-    btn.disabled = true; btn.textContent = 'Einen Moment …';
+    btn.disabled = true; btn.innerHTML = '<span class="wm-spin"></span>Einen Moment …';
     out.innerHTML = '';
 
     let r;
