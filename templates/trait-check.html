@@ -199,15 +199,21 @@ async function submitInsight() {
 
 // Start
 (async function() {
+    // Ladeanimation vor Phase 2 (sauberer Übergang in den Trait-Check)
+    chat.innerHTML = `<div class="tc-loading"><div class="tc-loading-dots"><div class="tc-loading-dot"></div><div class="tc-loading-dot"></div><div class="tc-loading-dot"></div></div><div class="tc-loading-text">Ich bereite deine Fragen vor…</div></div>`;
+    const loadStart = Date.now();
     try {
         const resp = await fetch('/api/trait-items');
         const data = await resp.json();
         items = data.items || [];
     } catch(e) { items = []; }
     if (!items.length) {
-        document.getElementById('tcChat').innerHTML = '<p style="color:var(--text-muted);padding:40px 0;text-align:center;">Konnte nicht laden. <a href="/jobs">Zurück</a></p>';
+        chat.innerHTML = '<p style="color:var(--text-muted);padding:40px 0;text-align:center;">Konnte nicht laden. <a href="/jobs">Zurück</a></p>';
         return;
     }
+    const elapsed = Date.now() - loadStart;
+    if (elapsed < 1400) await new Promise(r => setTimeout(r, 1400 - elapsed));
+    chat.innerHTML = '';
     await addMentor(jobName ? ('Bevor ich dir sage, ob du als ' + jobName + ' taugst — wer bist du eigentlich?') : 'Wer bist du eigentlich? Lass uns das rausfinden.', 700);
     await new Promise(r => setTimeout(r, 200));
     showItem(0);

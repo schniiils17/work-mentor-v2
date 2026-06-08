@@ -171,7 +171,8 @@ REGELN fuer beschreibung & job_teaser:
 ✅ beschreibung: "Du ueberzeugst Leute wahrscheinlich eher durch Begeisterung als durch Druck."
 ❌ beschreibung: "Du wirst jeden Raum erobern." (zu absolut)
 
-GILT IMMER: Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken (nicht "nur 8% ...")."""
+GILT IMMER: Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken (nicht "nur 8% ...").
+Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz."""
 
         msg = claude.messages.create(
             model="claude-sonnet-4-20250514",
@@ -223,7 +224,11 @@ async def post_fit(req: FitRequest):
     markt_anchor = ""
     if req.grounded:
         m = _fetch_ba_market(req.job_name)
-        if m.get("count") is not None:
+        # Nur verlässliche Marktdaten nutzen. Bei sehr wenigen Treffern hat die
+        # BA-Suche meist einen unpassenden Beruf erwischt (z.B. "Startup-Gründer"
+        # -> 2 Karosseriebau-Meister-Stellen). Dann KEIN Panel + KEINE Erdung,
+        # sonst sickert der Müll in den Report.
+        if m.get("count") is not None and m.get("count") >= 15:
             qe = m.get("quereinstieg", {})
             markt = {
                 "offene_stellen": m.get("count"),
@@ -308,7 +313,8 @@ Regeln:
 - einstiegswege: GENAU 3 realistische Wege in DIESEN Beruf (z.B. Ausbildung, Quereinstieg, Weiterbildung,
   Studium — je nach Beruf). Etabliertes Berufswissen, erfinde nichts Konkretes.
 - {answers_note}
-- Deutsch, Du-Form, Berufsschulniveau, kein HR-Jargon, kurze Saetze, NIEMALS als-wie"""
+- Deutsch, Du-Form, Berufsschulniveau, kein HR-Jargon, kurze Saetze, NIEMALS als-wie
+- Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz."""
 
     try:
         msg = claude.messages.create(
@@ -526,6 +532,7 @@ SPRACHE — das Allerwichtigste:
   ✅ stattdessen: "die vielen Leute, mit denen du dich absprichst", "grosse Firma",
      "kleine Firma oder selbststaendig", "Zahlen im Blick behalten", "neue Kunden ansprechen"
 - Keine Emoji.
+- Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz.
 
 INHALT:
 - 2-3 Achsen, die WIRKLICH unterscheiden — wo Alltag und noetige Eigenschaften am meisten kippen.
@@ -588,6 +595,7 @@ Antworte NUR mit diesem JSON, kein Text davor oder danach:
 - heikel: Erwachsenen-/Sexbereich oder Illegales. hinweis: hoeflich ablehnen — "Dafuer ist Work Mentor nicht gedacht."
 
 Sprache: Deutsch, Du-Form, Berufsschulniveau, kurze Saetze. Keine Emoji. Niemals "als wie".
+Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz.
 Beispiel traum-hinweis: "Astronaut — was fuer ein Traum. Das schaffen nur eine Handvoll Menschen weltweit. Wollen wir trotzdem schauen, ob du als Typ dahin passt?\""""
 
     try:
@@ -665,6 +673,7 @@ Regeln:
 - Leicht unbequem, aber nie verletzend oder herablassend.
 - Du-Form, Berufsschulniveau, kein Fachjargon. Nenne KEINE der Eigenschafts-Namen (Durchsetzung, Menschen, Struktur, Neugier, Kontakt, Ruhe, Eigenständigkeit) im Text.
 - Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken.
+- Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz.
 
 ✅ "Du willst schnell vorankommen — aber niemanden zuruecklassen. Also wartest du auf Leute, die du
    laengst ueberholt hast, und machst es am Ende doch selbst."
@@ -751,4 +760,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.10.3"}
+    return {"status": "ok", "version": "3.11.0"}

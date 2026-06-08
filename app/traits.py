@@ -20,6 +20,8 @@ Empirisch geprüft (Kipp-Test + Persona-Recovery, 28 balancierte Personas):
 (~55 % Recovery, 35 % Fragilität, Freigeist faktisch nicht messbar).
 """
 
+import random
+
 DIMENSIONS = {
     "DU": {"name": "Durchsetzung",     "desc": "entscheiden, vorangehen, sich behaupten"},
     "ME": {"name": "Menschen",         "desc": "auf andere achten, Harmonie, Mitgefühl"},
@@ -80,5 +82,8 @@ def score_traits(answers):
 
 
 def get_trait_items():
-    """Items fürs Frontend (ohne Dimension/Pol-Tag, damit nichts durchsickert)."""
-    return [{"id": it["id"], "text": it["text"]} for it in TRAIT_ITEMS]
+    """Items fürs Frontend (ohne Dimension-Tag, damit nichts durchsickert) — in
+    zufälliger Reihenfolge, damit nicht mehrere Items derselben Dimension clustern."""
+    items = [{"id": it["id"], "text": it["text"]} for it in TRAIT_ITEMS]
+    random.shuffle(items)
+    return items
