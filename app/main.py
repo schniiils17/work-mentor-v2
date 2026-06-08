@@ -760,4 +760,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.11.0"}
+    return {"status": "ok", "version": "3.11.1"}
