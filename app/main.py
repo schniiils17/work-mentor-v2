@@ -350,6 +350,14 @@ Regeln:
   ❌ "In Phasen hoher Belastung wechselst du in einen Modus erhoehter Handlungsgeschwindigkeit."
   ✅ "Bleib ruhig, wenn's stressig wird — dann ziehen die Leute mit. Das kann man ueben."
   ❌ "Wer die eigene Anspannung bewusst reguliert, fuehrt in Krisensituationen souveraener."
+- SATZBAU — der haeufigste Fehler, unbedingt vermeiden: KEINE Schachtelsaetze. Kurze Hauptsaetze, EIN
+  Gedanke pro Satz, hoechstens EIN Komma pro Satz. Keine eingeschobenen Nebensaetze ("du, wenn ..., eher ...").
+  Keine Ketten aus "bis ... und ... wenn ...". Lieber drei kurze Saetze als einen langen. Lies laut — wo du
+  Luft holst, mach einen Punkt.
+  ✅ "Du machst Tempo, bis dir die Luft wegbleibt. Dass du zu weit gehst, merkst du erst hinterher."
+  ❌ "Statt still zu stehen, machst du Tempo, bis dir die Luft wegbleibt, und merkst erst, dass du am Limit bist, wenn du schon drueber bist."
+  ✅ "Wenn der Druck steigt, schaltest du einen Gang hoeher. Es koennte sein, dass du dir damit selbst mehr Stress machst."
+  ❌ "Es koennte sein, dass du, wenn der Druck steigt und schnelle Ergebnisse gefragt sind, einen Gang hoeher schaltest."
 - Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz.
 
 Beispiel fuer die Coach-Stimme im "lever"-Block (NUR der Ton, nicht der Inhalt):
@@ -730,6 +738,11 @@ Regeln:
   konkrete Bilder, kurze Saetze.
   ✅ "Wenn's brennt, machst du einfach schneller — statt kurz Luft zu holen."
   ❌ "Sobald der Druck steigt, wird genau das eng, wo du eigentlich stark sein willst."
+- SATZBAU — der haeufigste Fehler: KEINE Schachtelsaetze. Kurze Hauptsaetze, EIN Gedanke pro Satz, hoechstens
+  EIN Komma pro Satz. Keine eingeschobenen Nebensaetze ("du, wenn ..., eher ..."). Keine Ketten aus
+  "bis ... und ... wenn ...". Zwei kurze Saetze schlagen einen langen. Der Stakkato-Rhythmus knallt mehr.
+  ✅ "Du machst Tempo, bis dir die Luft wegbleibt. Dass du zu weit gehst, merkst du erst hinterher."
+  ❌ "Statt still zu stehen, machst du Tempo, bis dir die Luft wegbleibt, und merkst erst, dass du am Limit bist, wenn du schon drueber bist."
 - Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken.
 - Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz.
 
@@ -818,4 +831,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.12.3"}
+    return {"status": "ok", "version": "3.12.4"}
