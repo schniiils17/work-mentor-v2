@@ -293,8 +293,8 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
   ],
   "lever": {{
     "name": "<die eine Sache, an der es sich zu arbeiten lohnt — 1-3 einfache Alltagswoerter, KEIN Fachbegriff>",
-    "observation": "<2 Saetze Coach-Stimme: 'Es koennte sein, dass du...' — benenne ein Muster ihrer Veranlagung UND seinen Preis (die Kehrseite der Staerke). Tastend, nie belehrend.>",
-    "edge": "<2 Saetze: knuepfe es konditional an die Anforderung des Zieljobs ('Ein Job wie dieser heißt aber vor allem...') und rahme es als Wachstumskante — warm, machbar, nie als Defizit.>"
+    "observation": "<2 KURZE Saetze (je max ~15 Woerter) Coach-Stimme: 'Es koennte sein, dass du...' — benenne ein Muster ihrer Veranlagung UND seinen Preis. Tastend, nie belehrend.>",
+    "edge": "<2 KURZE Saetze (je max ~15 Woerter). HOECHSTENS ein halber Satz ueber den Job ('Ein Job wie dieser heißt...'), dann sofort zurueck zur PERSON und ihrer Wachstumskante. Beschreibe, wie SIE tickt — nicht wie der Job funktioniert. Warm, machbar.>"
   }},
   "resource": {{"kind": "book", "title": "...", "author": "...", "price": "<grobe Preisangabe, z.B. 'ca. 20 €'>", "body": "<1 Satz warum genau das>", "cta": "Auf Amazon ansehen"}},
   "schritte": [
@@ -720,6 +720,11 @@ treffendste Zeile ergibt:
 1. Zwei hohe Eigenschaften (4-5), die sich reiben.
 2. Eine hohe Eigenschaft und das, was du dafuer opferst (eine klar niedrige, 1-2).
 
+SONDERFALL flaches Profil (keine Eigenschaft ragt klar heraus, alle aehnlich): ERFINDE KEINE
+"du-bist-konturlos / weisst-nicht-wofuer-du-stehst / passt-dich-ueberall-an"-Geschichte. Die widerspricht
+fast immer dem echten Profil und trifft daneben. Nimm stattdessen die zwei staerksten der vorhandenen
+Eigenschaften (oben zuerst gelistet) und bau die Spannung NUR aus denen.
+
 AUFBAU der Erkenntnis (1-2 kurze Saetze):
 - Erst die Spannung benennen.
 - Dann eine leicht unbequeme, selbst-entlarvende KONSEQUENZ — die Stelle, wo man sich ertappt.
@@ -738,6 +743,15 @@ Energie", "faellt dir schwer", "zieht dich in zwei Richtungen". Zu allgemein.
 Regeln:
 - Mutige Beobachtung im Praesens. KEINE Weichmacher (kein "vielleicht/koennte/vermutlich") —
   Spiegel, keine Vorhersage.
+- VERHALTEN statt CHARAKTER-URTEIL (wichtigster Hebel fuer "das bin ich"): Beschreibe, WAS die Person tut
+  oder wozu sie neigt — niemals, WIE sie als Mensch IST. Ein Verhalten erkennt man wieder; ein Urteil wehrt
+  man ab. GESPERRT sind absolute/urteilende Woerter: "nie", "immer", "ueber alles", "egal", "lässt ihn stehen",
+  "willst nicht", "kannst nicht", "interessiert dich nicht". Die Konsequenz muss sich anfuehlen wie
+  "ja, ertappt" — nicht wie "nein, so bin ich nicht".
+  ✅ "Du merkst gar nicht, wie sehr du dann in deinem Tunnel bist."
+  ❌ "Andere werden dir egal — du ziehst dein Ding durch und lässt sie stehen." (Urteil -> Abwehr)
+  ✅ "Du sagst lieber ja, als jemanden zu enttaeuschen — und schluckst, was du eigentlich willst."
+  ❌ "Selbst entscheiden willst du nicht, und sagst nie klar, was du brauchst." (absolut -> Vorwurf)
 - Leicht unbequem, aber nie verletzend oder herablassend.
 - Du-Form, kein Fachjargon. Nenne KEINE der Eigenschafts-Namen (Durchsetzung, Menschen, Struktur, Neugier, Kontakt, Ruhe, Eigenständigkeit) im Text.
 - SPRACHE — verstaendlich UND wuchtig (das Wichtigste!): Schreib, wie du es einem 16-jaehrigen Azubi sagen
@@ -840,4 +854,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.14.0"}
+    return {"status": "ok", "version": "3.15.0"}
