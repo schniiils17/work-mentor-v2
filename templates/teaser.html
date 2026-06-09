@@ -219,7 +219,7 @@ async function initTeaser() {
         const tlIv = setInterval(() => { tli++; const el = document.getElementById('tlText'); if (el && tli < loadMsgs.length) el.textContent = loadMsgs[tli]; }, 2800);
         try {
             const ctrl = new AbortController();
-            const to = setTimeout(() => ctrl.abort(), 50000);
+            const to = setTimeout(() => ctrl.abort(), 60000);
             const resp = await fetch('/api/fit', {
                 method: 'POST', headers: {'Content-Type': 'application/json'}, signal: ctrl.signal,
                 body: JSON.stringify({ job_name: selectedJob.name || 'Produktmanager', scores: wmResult.scores, code: wmResult.code || 'EA', trait_scores: wmTraits, variante: sessionStorage.getItem('wm_variante') || '' })
