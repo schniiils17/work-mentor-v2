@@ -302,9 +302,7 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
   "schritte": [
     {{"title": "<kurzer Titel>", "body": "<1 konkreter Satz: eine kleine Uebung, die AB HEUTE in jedem Alltag machbar ist — Arbeit, Freunde, Familie, egal. Bezogen auf Veranlagung + Hebel, NIE auf eine angenommene Situation.>"}}
   ],
-  "tick": "<2-3 Saetze: wie die Person bei einem Job wie diesem tickt — ihr Arbeitsstil, persoenlich>",
-  "drain": "<2-3 Saetze: was sie bei einem Job wie diesem am ehesten auslaugen wuerde, aus dem Profil abgeleitet>",
-  "positionierung": "<2-3 Saetze: wie sie sich mit ihrem Profil im Bewerbungsgespraech positioniert>",
+  "positionierung": "<2 kurze Saetze: EIN neuer, konkreter Tipp fuers Bewerbungsgespraech — wie die Person ihren EINEN Hebel selbst anspricht, bevor andere fragen. NICHT die Staerken wiederholen.>",
   "einstiegswege": [
     {{"name": "<Einstiegsweg in diesen Beruf, kurz>", "detail": "<1 knapper Satz>"}}
   ],
@@ -312,7 +310,22 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
 }}
 
 Regeln:
-- requirements: GENAU 5 Kern-Anforderungen DIESES Jobs.
+- KOHAERENZ (am wichtigsten!): Der ganze Report erzaehlt EINE Geschichte — ohne Wiederholung, ohne Widerspruch.
+  * Es gibt GENAU EINEN "dein_hebel" unter den requirements. Dieser eine Hebel IST "die eine Sache" (lever) —
+    gleiches Thema, gleicher Punkt. NIEMALS zwei Baustellen.
+  * Alle 3 schritte gehoeren zu DIESEM einen Hebel. Kein Schritt zu einem anderen Thema.
+  * Jede Sektion bringt etwas NEUES. Wiederhole NICHT dieselbe Eigenschaft in mehreren Sektionen. Wenn
+    "ruhig/gelassen" eine Staerke ist, steht das EINMAL (in strengths) — nicht nochmal in headline oder positionierung.
+  * KEIN Widerspruch: Sagt der lever "mehr auf Leute zugehen", darf positionierung NICHT sagen "sag, dass du das meidest".
+  * Schreib durchgaengig ueber die Person (Du-Form). KEIN "ich" ("das verstehe ich gut" ist verboten).
+- EHRLICHKEIT beim Fit: Bestimme den fit_score ehrlich aus den Badges. Danach richtet sich der ganze Ton.
+  * Hoher Fit (>=75): Der Job passt. Die eine Sache ist eine echte Chance, auf die man sich freuen kann.
+  * Mittlerer/niedriger Fit (<70): Das ist ein STRECK-JOB. Er fordert die Person an genau den Stellen, wo sie am
+    wenigsten andockt. Sag das EHRLICH und warm — tu NICHT so, als waere es nur eine kleine Baustelle. Die
+    fit_headline benennt den Stretch offen (z.B. "Dieser Job wuerde dich an einer Stelle fordern, die dir nicht
+    liegt — ob sich das lohnt, entscheidest du"). Kein falscher Optimismus, kein Schoenreden. Ziel: eine ehrliche
+    Entscheidungsgrundlage, keine Ermutigung um jeden Preis.
+- requirements: GENAU 4 Kern-Anforderungen DIESES Jobs.
   Schreib sie aus deinem fundierten Berufswissen, KORREKT zur gewaehlten Variante und am
   Markt-Kontext orientiert (falls vorhanden) — kein Stereotyp, kein generisches Bla.
   Decke die bekannte, etablierte Form des Jobs ab — aber erfinde NICHTS Konkretes
@@ -321,8 +334,9 @@ Regeln:
   gegen das Profil spiegeln). Reine Fach-/Formal-Voraussetzungen (Software, Jahre Erfahrung,
   Fuehrerschein, Abschluss) gehoeren NICHT in die 5 — die nennst du knapp im Feld "fachlich".
   badge: "passt_gut" = klare Staerke | "solide_basis" = okay, ausbaufaehig | "dein_hebel" = hier hakt es am meisten.
-  Pro Person hoechstens 1-2 "dein_hebel". Verteile ehrlich, nicht alles gruen.
-  body je Anforderung: 1 kurzer Satz, der deine Auspraegung ehrlich spiegelt. Du-Form.
+  GENAU EIN "dein_hebel" (= die eine Sache). Der Rest passt_gut oder solide_basis, ehrlich verteilt.
+  body je Anforderung: 1 kurzer Satz, der deine Auspraegung ehrlich spiegelt. Du-Form. Jeder body ein NEUER
+  Aspekt — nicht 4x dieselbe Eigenschaft.
 - fit_score spiegelt die Summe der Badges ehrlich (viele passt_gut = hoch, mehrere Hebel = niedriger).
 - strengths: GENAU 2 staerkste Eigenschaften (Trait-Ebene). lever: die EINE wichtigste Wachstumskante.
   METHODISCH: Illustriere strengths mit einer KONKRETEN Situation aus dem ECHTEN Alltag DIESER Variante
@@ -334,8 +348,7 @@ Regeln:
 - resource: EIN echtes Buch, das genau an dieser Wachstumskante ansetzt.
 - schritte: GENAU 3. Jede eine kleine Uebung, die AB HEUTE in JEDEM Alltag machbar ist, egal wo die Person
   gerade steht. KEINE Zeithorizonte, KEINE angenommene Situation, KEIN "in deinem Job/Team". Nur Veranlagung + Hebel.
-- tick/drain/positionierung: je 2-3 kurze Saetze, persoenlich, aus Profil + Job abgeleitet.
-  drain knuepft an dem an, was diese Person laut Profil am ehesten auslaugt.
+- positionierung: 2 kurze Saetze, EIN neuer Tipp fuers Gespraech (siehe JSON). Nicht die Staerken wiederholen.
 - einstiegswege: GENAU 3 realistische Wege in DIESEN Beruf (z.B. Ausbildung, Quereinstieg, Weiterbildung,
   Studium — je nach Beruf). Etabliertes Berufswissen, erfinde nichts Konkretes.
 - {answers_note}
@@ -372,7 +385,7 @@ Beispiel fuer die Coach-Stimme im "lever"-Block (NUR der Ton, nicht der Inhalt):
     try:
         msg = claude.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=2200,
+            max_tokens=1700,
             messages=[{"role": "user", "content": prompt}]
         )
         text = msg.content[0].text.strip()
@@ -831,4 +844,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.12.4"}
+    return {"status": "ok", "version": "3.13.0"}

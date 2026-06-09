@@ -205,12 +205,8 @@ function renderPremium(data) {
             ${head('target','var(--text-primary)','Das braucht der Job')}
             <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:30px;">${reqs}</div>
 
-            ${(data.tick||data.drain||data.positionierung) ? head('compass','var(--text-primary)','Tiefer geschaut') : ''}
-            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:30px;">
-                ${data.tick ? depthCard('zap','Wie du in diesem Job tickst', data.tick) : ''}
-                ${data.drain ? depthCard('battery','Was dich hier auslaugen würde', data.drain) : ''}
-                ${data.positionierung ? depthCard('message','Wie du dich im Gespräch positionierst', data.positionierung) : ''}
-            </div>
+            ${data.positionierung ? head('message','var(--text-primary)','Wenn du ins Gespräch gehst') : ''}
+            ${data.positionierung ? `<div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:16px;padding:16px;margin-bottom:30px;"><p style="font-size:13.5px;color:var(--text-secondary);margin:0;line-height:1.55;">${data.positionierung}</p></div>` : ''}
 
             ${wegeLight ? head('route','var(--text-primary)','So kommst du rein') : ''}
             ${wegeLight ? `<div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:18px;padding:4px 16px;margin-bottom:18px;">${wegeLight}</div>` : ''}
