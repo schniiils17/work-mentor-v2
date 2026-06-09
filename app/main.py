@@ -294,7 +294,7 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
     {{"name": "<staerkste Eigenschaft, 1-2 Woerter>", "body": "<1 Satz, was sie fuer DIESE Variante bringt>"}}
   ],
   "lever": {{
-    "name": "<die eine Sache, an der es sich zu arbeiten lohnt, 1-3 Woerter>",
+    "name": "<die eine Sache, an der es sich zu arbeiten lohnt — 1-3 einfache Alltagswoerter, KEIN Fachbegriff>",
     "observation": "<2 Saetze Coach-Stimme: 'Es koennte sein, dass du...' — benenne ein Muster ihrer Veranlagung UND seinen Preis (die Kehrseite der Staerke). Tastend, nie belehrend.>",
     "edge": "<2 Saetze: knuepfe es konditional an die Anforderung des Zieljobs ('Ein Job wie dieser heisst aber vor allem...') und rahme es als Wachstumskante — warm, machbar, nie als Defizit.>"
   }},
@@ -340,7 +340,16 @@ Regeln:
   Studium — je nach Beruf). Etabliertes Berufswissen, erfinde nichts Konkretes.
 - {answers_note}
 - Coach-Stimme: warm, direkt, tastend wo es um Wachstum geht ("es koennte sein, dass..."), nie belehrend,
-  nie absolut. Deutsch, Du-Form, Berufsschulniveau, kein HR-Jargon, kurze Saetze, NIEMALS als-wie.
+  nie absolut. Deutsch, Du-Form, NIEMALS als-wie.
+- SPRACHE — verstaendlich UND wuchtig (das Wichtigste!): Schreib, wie du es einem 16-jaehrigen Azubi
+  sagen wuerdest. Jedes Wort muss er SOFORT verstehen. Die Wucht kommt aus der WAHRHEIT, nicht aus grossen
+  Woertern. VERBOTEN sind abstrakte Hauptwoerter und Coach-Sprech wie "Stressstabilitaet", "Anspannung
+  regulieren", "den Automatismus unterbrechen", "in einen Modus wechseln", "Selbstregulation", "Resilienz".
+  Stattdessen: einfache Verben, konkrete Bilder, kurze Saetze, EIN Gedanke pro Satz.
+  ✅ "Wenn's brennt, machst du einfach schneller — statt kurz Luft zu holen."
+  ❌ "In Phasen hoher Belastung wechselst du in einen Modus erhoehter Handlungsgeschwindigkeit."
+  ✅ "Bleib ruhig, wenn's stressig wird — dann ziehen die Leute mit. Das kann man ueben."
+  ❌ "Wer die eigene Anspannung bewusst reguliert, fuehrt in Krisensituationen souveraener."
 - Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz.
 
 Beispiel fuer die Coach-Stimme im "lever"-Block (NUR der Ton, nicht der Inhalt):
@@ -713,7 +722,14 @@ Regeln:
 - Mutige Beobachtung im Praesens. KEINE Weichmacher (kein "vielleicht/koennte/vermutlich") —
   Spiegel, keine Vorhersage.
 - Leicht unbequem, aber nie verletzend oder herablassend.
-- Du-Form, Berufsschulniveau, kein Fachjargon. Nenne KEINE der Eigenschafts-Namen (Durchsetzung, Menschen, Struktur, Neugier, Kontakt, Ruhe, Eigenständigkeit) im Text.
+- Du-Form, kein Fachjargon. Nenne KEINE der Eigenschafts-Namen (Durchsetzung, Menschen, Struktur, Neugier, Kontakt, Ruhe, Eigenständigkeit) im Text.
+- SPRACHE — verstaendlich UND wuchtig (das Wichtigste!): Schreib, wie du es einem 16-jaehrigen Azubi sagen
+  wuerdest. Jedes Wort muss er SOFORT verstehen. Die Wucht kommt aus der WAHRHEIT, nicht aus grossen Woertern.
+  VERBOTEN sind abstrakte Hauptwoerter / Coach-Sprech ("Stressstabilitaet", "Anspannung regulieren",
+  "in einen Modus wechseln", "Selbstregulation", "Resilienz") und verschachtelte Saetze. Einfache Verben,
+  konkrete Bilder, kurze Saetze.
+  ✅ "Wenn's brennt, machst du einfach schneller — statt kurz Luft zu holen."
+  ❌ "Sobald der Druck steigt, wird genau das eng, wo du eigentlich stark sein willst."
 - Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken.
 - Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz.
 
@@ -802,4 +818,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.12.2"}
+    return {"status": "ok", "version": "3.12.3"}
