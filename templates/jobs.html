@@ -73,12 +73,14 @@ function proceedToJob(name, match) {
 }
 
 function wireSuggLinks() {
-    document.querySelectorAll('.job-check-link[data-title]').forEach(a => {
-        if (a._wired) return; a._wired = true;
-        a.addEventListener('click', (e) => {
-            e.preventDefault();
-            proceedToJob(a.dataset.title, parseInt(a.dataset.match, 10));
-        });
+    // Event-Delegation: EIN Listener am document fängt jeden .job-check-link-Klick,
+    // egal wann die Karten gerendert werden — robust gegen Timing/Re-Render.
+    if (window._suggDelegated) return; window._suggDelegated = true;
+    document.addEventListener('click', (e) => {
+        const a = e.target.closest('.job-check-link[data-title]');
+        if (!a) return;
+        e.preventDefault();
+        proceedToJob(a.dataset.title, parseInt(a.dataset.match, 10));
     });
 }
 

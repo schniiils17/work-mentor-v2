@@ -163,10 +163,10 @@ STIL von superkraft & kryptonit (WICHTIG):
   einer pointierten Wendung (genau wie die Anker oben). NIEMALS nur zwei aneinandergereihte
   Allerwelts-Verben — das klingt duenn und beliebig.
 ✅ superkraft: "Ideen vorantreiben, ohne den Bezug zur Realitaet zu verlieren."
-✅ superkraft (E+C): "Eine vage Idee in einen Plan verwandeln, der wirklich laeuft — bevor andere noch diskutieren."
-❌ superkraft: "Geschaefte abschliessen und dabei den Ueberblick behalten." (zwei Allerwelts-Verben, kein Bild, klingt duenn)
+✅ superkraft (E+C): "Eine vage Idee in einen Plan verwandeln, der wirklich läuft — bevor andere noch diskutieren."
+❌ superkraft: "Geschäfte abschließen und dabei den Überblick behalten." (zwei Allerwelts-Verben, kein Bild, klingt dünn)
 ❌ superkraft: "Du koenntest Projekte vorantreiben, ohne dabei den Bezug zur Realitaet zu verlieren." (zu weich, klingt schief)
-✅ kryptonit: "Endlose Detailarbeit ohne den grossen Zusammenhang."
+✅ kryptonit: "Endlose Detailarbeit ohne den großen Zusammenhang."
 ❌ kryptonit: "Detailarbeit raubt dir vermutlich die Motivation." (Weichmacher, kein Archetyp)
 
 REGELN fuer beschreibung & job_teaser:
@@ -261,7 +261,7 @@ async def post_fit(req: FitRequest):
                            "z.B. ein Team, kommen ihre Staerken/Anforderungen in FUEHRUNGS-Situationen vor (Team steuern, "
                            "Ziele setzen, Leute coachen, Zahlen pruefen). Sagt die Variante, dass die Person NICHT selbst "
                            "am Kunden ist, dann darf KEINE einzige der 5 Anforderungen eigenen Kundenkontakt verlangen — "
-                           "das schliesst AUSDRUECKLICH auch 'Kundenbeziehungen pflegen', 'Grosskunden/Key Accounts "
+                           "das schließt AUSDRUECKLICH auch 'Kundenbeziehungen pflegen', 'Großkunden/Key Accounts "
                            "betreuen', 'Netzwerken mit Kunden' und 'Kundengespraeche/Akquise/Verkauf' ein. Diese gehoeren "
                            "dann GAR NICHT in die Liste (auch nicht als Hebel). Schliesse variant-fremde Aufgaben komplett "
                            "AUS. Greife NIE auf das Klischee des Jobtitels zurueck, wenn die Variante etwas anderes sagt.")
@@ -271,16 +271,16 @@ Gespraech lang erlebt — ihre Art, ihr Tempo, wo sie aufblueht und wo sie sich 
 Jetzt schreibst du ihr eine persoenliche Rueckmeldung zum Job "{req.job_name}". Kein Gutachten —
 eine Rueckmeldung, bei der sie denkt: "krass, der hat mich gesehen, und jetzt weiss ich, woran ich arbeiten muss."
 
-Was du ueber die Person weisst:
+Was du ueber die Person weißt:
 RIASEC-Profil: {req.code}
 Dimension-Scores (Rohwerte -12 bis +12): {scores_str}{traits_section}{variant_section}{markt_anchor}
 
-Was du NICHT weisst — und worueber du deshalb KEINE Annahme triffst:
+Was du NICHT weißt — und worueber du deshalb KEINE Annahme triffst:
 - Ob die Person aktuell in diesem Job, einem anderen Job oder gerade gar nicht arbeitet.
 - Ob sie ein Team hat, wie viel Berufserfahrung sie hat, ob sie Schuelerin, Studentin oder Wechslerin ist.
 Du kennst NUR: ihre Veranlagung (oben) und den Job, den sie gerade pruefen will. Beziehe NICHTS auf eine
 angenommene aktuelle Situation ("in deiner naechsten Teamsitzung", "in deinem jetzigen Job"). Den ZIELJOB
-darfst du konditional nennen ("ein Job wie dieser heisst vor allem...").
+darfst du konditional nennen ("ein Job wie dieser heißt vor allem...").
 
 Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
 
@@ -296,7 +296,7 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
   "lever": {{
     "name": "<die eine Sache, an der es sich zu arbeiten lohnt — 1-3 einfache Alltagswoerter, KEIN Fachbegriff>",
     "observation": "<2 Saetze Coach-Stimme: 'Es koennte sein, dass du...' — benenne ein Muster ihrer Veranlagung UND seinen Preis (die Kehrseite der Staerke). Tastend, nie belehrend.>",
-    "edge": "<2 Saetze: knuepfe es konditional an die Anforderung des Zieljobs ('Ein Job wie dieser heisst aber vor allem...') und rahme es als Wachstumskante — warm, machbar, nie als Defizit.>"
+    "edge": "<2 Saetze: knuepfe es konditional an die Anforderung des Zieljobs ('Ein Job wie dieser heißt aber vor allem...') und rahme es als Wachstumskante — warm, machbar, nie als Defizit.>"
   }},
   "resource": {{"kind": "book", "title": "...", "author": "...", "price": "<grobe Preisangabe, z.B. 'ca. 20 €'>", "body": "<1 Satz warum genau das>", "cta": "Auf Amazon ansehen"}},
   "schritte": [
@@ -355,20 +355,20 @@ Regeln:
 - Coach-Stimme: warm, direkt, tastend wo es um Wachstum geht ("es koennte sein, dass..."), nie belehrend,
   nie absolut. Deutsch, Du-Form, NIEMALS als-wie.
 - SPRACHE — verstaendlich UND wuchtig (das Wichtigste!): Schreib, wie du es einem 16-jaehrigen Azubi
-  sagen wuerdest. Jedes Wort muss er SOFORT verstehen. Die Wucht kommt aus der WAHRHEIT, nicht aus grossen
+  sagen wuerdest. Jedes Wort muss er SOFORT verstehen. Die Wucht kommt aus der WAHRHEIT, nicht aus großen
   Woertern. VERBOTEN sind abstrakte Hauptwoerter und Coach-Sprech wie "Stressstabilitaet", "Anspannung
   regulieren", "den Automatismus unterbrechen", "in einen Modus wechseln", "Selbstregulation", "Resilienz".
   Stattdessen: einfache Verben, konkrete Bilder, kurze Saetze, EIN Gedanke pro Satz.
   ✅ "Wenn's brennt, machst du einfach schneller — statt kurz Luft zu holen."
   ❌ "In Phasen hoher Belastung wechselst du in einen Modus erhoehter Handlungsgeschwindigkeit."
-  ✅ "Bleib ruhig, wenn's stressig wird — dann ziehen die Leute mit. Das kann man ueben."
-  ❌ "Wer die eigene Anspannung bewusst reguliert, fuehrt in Krisensituationen souveraener."
+  ✅ "Bleib ruhig, wenn's stressig wird — dann ziehen die Leute mit. Das kann man üben."
+  ❌ "Wer die eigene Anspannung bewusst reguliert, führt in Krisensituationen souveräner."
 - SATZBAU — der haeufigste Fehler, unbedingt vermeiden: KEINE Schachtelsaetze. Kurze Hauptsaetze, EIN
   Gedanke pro Satz, hoechstens EIN Komma pro Satz. Keine eingeschobenen Nebensaetze ("du, wenn ..., eher ...").
   Keine Ketten aus "bis ... und ... wenn ...". Lieber drei kurze Saetze als einen langen. Lies laut — wo du
   Luft holst, mach einen Punkt.
   ✅ "Du machst Tempo, bis dir die Luft wegbleibt. Dass du zu weit gehst, merkst du erst hinterher."
-  ❌ "Statt still zu stehen, machst du Tempo, bis dir die Luft wegbleibt, und merkst erst, dass du am Limit bist, wenn du schon drueber bist."
+  ❌ "Statt still zu stehen, machst du Tempo, bis dir die Luft wegbleibt, und merkst erst, dass du am Limit bist, wenn du schon drüber bist."
   ✅ "Wenn der Druck steigt, schaltest du einen Gang hoeher. Es koennte sein, dass du dir damit selbst mehr Stress machst."
   ❌ "Es koennte sein, dass du, wenn der Druck steigt und schnelle Ergebnisse gefragt sind, einen Gang hoeher schaltest."
 - Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz.
@@ -377,7 +377,7 @@ Beispiel fuer die Coach-Stimme im "lever"-Block (NUR der Ton, nicht der Inhalt):
 - observation: "Es koennte sein, dass du, wenn's schnell gehen soll, Entscheidungen lieber allein triffst,
   als sie lange auszudiskutieren — weil Diskutieren dauert und du das Ergebnis eh schon vor Augen hast.
   Kurzfristig bist du damit schneller."
-- edge: "Ein Job wie dieser heisst aber vor allem, Leute mitzunehmen. Und da laege genau hier deine
+- edge: "Ein Job wie dieser heißt aber vor allem, Leute mitzunehmen. Und da laege genau hier deine
   Wachstumskante — Menschen ziehen staerker mit, wenn sie sich gehoert fuehlen, auch wenn am Ende deine
   Entscheidung steht."
 """
@@ -595,7 +595,7 @@ SPRACHE — das Allerwichtigste:
 - NULL Fachbegriffe, NULL englische Woerter. Faellt dir eins ein, uebersetze es in Alltagssprache.
   ❌ verboten: "Stakeholder", "B2B", "Corporate", "Reporting", "Pipeline", "Lead", "skalieren",
      "Akquise", "Agentur", "Kennzahlen", "agil"
-  ✅ stattdessen: "die vielen Leute, mit denen du dich absprichst", "grosse Firma",
+  ✅ stattdessen: "die vielen Leute, mit denen du dich absprichst", "große Firma",
      "kleine Firma oder selbststaendig", "Zahlen im Blick behalten", "neue Kunden ansprechen"
 - Keine Emoji.
 - Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz.
@@ -745,7 +745,7 @@ Regeln:
 - Leicht unbequem, aber nie verletzend oder herablassend.
 - Du-Form, kein Fachjargon. Nenne KEINE der Eigenschafts-Namen (Durchsetzung, Menschen, Struktur, Neugier, Kontakt, Ruhe, Eigenständigkeit) im Text.
 - SPRACHE — verstaendlich UND wuchtig (das Wichtigste!): Schreib, wie du es einem 16-jaehrigen Azubi sagen
-  wuerdest. Jedes Wort muss er SOFORT verstehen. Die Wucht kommt aus der WAHRHEIT, nicht aus grossen Woertern.
+  wuerdest. Jedes Wort muss er SOFORT verstehen. Die Wucht kommt aus der WAHRHEIT, nicht aus großen Woertern.
   VERBOTEN sind abstrakte Hauptwoerter / Coach-Sprech ("Stressstabilitaet", "Anspannung regulieren",
   "in einen Modus wechseln", "Selbstregulation", "Resilienz") und verschachtelte Saetze. Einfache Verben,
   konkrete Bilder, kurze Saetze.
@@ -755,7 +755,7 @@ Regeln:
   EIN Komma pro Satz. Keine eingeschobenen Nebensaetze ("du, wenn ..., eher ..."). Keine Ketten aus
   "bis ... und ... wenn ...". Zwei kurze Saetze schlagen einen langen. Der Stakkato-Rhythmus knallt mehr.
   ✅ "Du machst Tempo, bis dir die Luft wegbleibt. Dass du zu weit gehst, merkst du erst hinterher."
-  ❌ "Statt still zu stehen, machst du Tempo, bis dir die Luft wegbleibt, und merkst erst, dass du am Limit bist, wenn du schon drueber bist."
+  ❌ "Statt still zu stehen, machst du Tempo, bis dir die Luft wegbleibt, und merkst erst, dass du am Limit bist, wenn du schon drüber bist."
 - Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken.
 - Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz.
 
@@ -844,4 +844,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.13.0"}
+    return {"status": "ok", "version": "3.13.1"}
