@@ -188,11 +188,14 @@ async function submitInsight() {
         if (data.error) throw new Error(data.error);
         sessionStorage.setItem('wm_traits', JSON.stringify(data.scores || {}));
         sessionStorage.setItem('wm_insight', data.insight || '');
+        sessionStorage.removeItem('wm_fit_result');  // neue Trait-Antworten -> frischen Fit erzwingen
         window.location.href = '/teaser';
     } catch(e) {
         clearInterval(iv);
-        const el = document.getElementById('tcLoadText');
-        if (el) el.textContent = 'Hat nicht geklappt — bitte nochmal versuchen.';
+        // Echter Retry statt Sackgasse — submitInsight haengt nur an answers, ist gefahrlos wiederholbar.
+        load.innerHTML = '<div class="tc-loading-text">Das hat gerade nicht geklappt.</div>' +
+            '<button class="btn btn-primary" id="tcRetry" style="margin-top:16px;">Nochmal versuchen</button>';
+        document.getElementById('tcRetry').addEventListener('click', () => { load.remove(); submitInsight(); });
     }
 }
 

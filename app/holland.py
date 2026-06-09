@@ -161,9 +161,9 @@ JOB_DATABASE = {
         {"title": "Datenanalyst", "match": 79, "salary": "45.000 - 68.000", "desc": "Finde Muster in Daten und leite konkrete Handlungen ab."},
     ],
     "RA": [
-        {"title": "Industriedesigner", "match": 88, "salary": "40.000 - 65.000", "desc": "Gestalte Produkte die funktional und schoen sind."},
+        {"title": "Industriedesigner", "match": 88, "salary": "40.000 - 65.000", "desc": "Gestalte Produkte, die funktional und schön sind."},
         {"title": "Architekt", "match": 84, "salary": "45.000 - 72.000", "desc": "Entwirf Gebäude die Menschen inspirieren."},
-        {"title": "Tischler / Möbeldesigner", "match": 78, "salary": "32.000 - 52.000", "desc": "Erschaffe einzigartige Möbelstuecke mit deinen Händen."},
+        {"title": "Tischler / Möbeldesigner", "match": 78, "salary": "32.000 - 52.000", "desc": "Erschaffe einzigartige Möbelstücke mit deinen Händen."},
     ],
     "RS": [
         {"title": "Physiotherapeut", "match": 87, "salary": "35.000 - 52.000", "desc": "Hilf Menschen durch gezielte Bewegungstherapie."},

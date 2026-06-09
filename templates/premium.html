@@ -136,6 +136,7 @@ function renderPremium(data) {
     const leverObs = lever.observation || lever.body || '';
     const leverEdge = lever.edge || '';
     const res = data.resource || {};
+    const amazonUrl = 'https://www.amazon.de/s?k=' + encodeURIComponent(((res.title || '') + ' ' + (res.author || '')).trim());
 
     // ── Schritte: ab heute machbar, ohne Annahme über die aktuelle Situation ──
     const steps = data.schritte || data.fahrplan || [];
@@ -192,7 +193,7 @@ function renderPremium(data) {
                     <div style="font-size:14.5px;font-weight:500;color:var(--text-primary);margin-bottom:2px;">${res.title}</div>
                     <div style="font-size:12px;color:var(--text-secondary);margin-bottom:7px;">${res.author||''}${res.price?' · '+res.price:''}</div>
                     <p style="font-size:12.5px;color:var(--text-secondary);margin:0 0 10px;line-height:1.4;">${res.body||''}</p>
-                    <button style="font-size:12.5px;font-weight:500;color:${ACC};display:inline-flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;font-family:var(--font);padding:0;">${res.cta||'Auf Amazon ansehen'} ${iconSvg('arrowright',ACC)}</button>
+                    <button onclick="window.open('${amazonUrl}','_blank','noopener')" style="font-size:12.5px;font-weight:500;color:${ACC};display:inline-flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;font-family:var(--font);padding:0;">${res.cta||'Auf Amazon ansehen'} ${iconSvg('arrowright',ACC)}</button>
                 </div>
             </div>` : '<div style="margin-bottom:16px;"></div>'}
 
@@ -203,7 +204,8 @@ function renderPremium(data) {
             <div style="background:#E7F0EB;border-radius:18px;padding:6px 16px;margin-bottom:30px;">${strengthsHtml}</div>
 
             ${head('target','var(--text-primary)','Das braucht der Job')}
-            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:30px;">${reqs}</div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:${data.fachlich?'12px':'30px'};">${reqs}</div>
+            ${data.fachlich ? `<div style="padding:12px 14px;background:var(--bg-soft);border-radius:12px;font-size:12.5px;color:var(--text-secondary);line-height:1.5;margin-bottom:30px;"><strong style="color:var(--text-primary);">Formal nötig:</strong> ${data.fachlich}</div>` : ''}
 
             ${data.positionierung ? head('message','var(--text-primary)','Wenn du ins Gespräch gehst') : ''}
             ${data.positionierung ? `<div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:16px;padding:16px;margin-bottom:30px;"><p style="font-size:13.5px;color:var(--text-secondary);margin:0;line-height:1.55;">${data.positionierung}</p></div>` : ''}

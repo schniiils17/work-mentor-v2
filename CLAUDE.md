@@ -39,8 +39,11 @@ User (Mobile Browser)
 
 - **Backend**: Python 3, FastAPI, async wo nötig
 - **Frontend**: Jinja-Templates + statische HTML/JS. **Framer und Make werden NICHT mehr genutzt.**
-- **KI**: `anthropic` Python SDK, Modell `claude-sonnet-4-20250514`
-  (für Endnutzer-Auswertungen — läuft über API-Key, NICHT über dieses Abo)
+- **KI**: `anthropic` Python SDK. Standard-Modell `claude-sonnet-4-20250514` für die
+  Struktur-/Volumen-Calls (assess, fit, jobs, job-context, job-check).
+  **Ausnahme bewusst:** `/api/insight` (die kurze „Das bist du"-Krass-Zeile) läuft auf
+  `claude-opus-4-8` — kurz (~200 Tokens), schnell, und Opus formuliert die zugespitzte
+  Zeile schärfer. KEIN Bug, sondern Absicht. (Läuft über API-Key, NICHT über dieses Abo.)
 - **Hosting**: Railway Hobby Plan, Auto-Deploy von GitHub `main`
 - **Repo (aktiv)**: `schniiils17/work-mentor-v2` (enthält V3-Code)
 - **Keine persistente DB** in V3 — Ergebnisse client-seitig gehalten

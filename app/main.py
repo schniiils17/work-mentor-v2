@@ -110,11 +110,9 @@ async def post_assess(req: AssessmentRequest):
     anchor_key = "G" if is_gen else code[0]
     anchor = TIER_ANCHORS.get(anchor_key, TIER_ANCHORS["E"])
 
-    # Statischer Fallback — nie schlechter als vorher
+    # Defaults — werden vom Claude-Call ueberschrieben (das Frontend hat einen eigenen Tier-Fallback)
     result["ai_superkraft"] = None
     result["ai_kryptonit"] = None
-    result["fallback_superkraft"] = anchor["superkraft"]
-    result["fallback_kryptonit"] = anchor["kryptonit"]
 
     try:
         norm = result.get("normalized_scores", result["scores"])
@@ -260,7 +258,7 @@ async def post_fit(req: FitRequest):
                            "Illustriere alles mit den KONKRETEN Alltags-Situationen DIESER Variante. Fuehrt die Person "
                            "z.B. ein Team, kommen ihre Staerken/Anforderungen in FUEHRUNGS-Situationen vor (Team steuern, "
                            "Ziele setzen, Leute coachen, Zahlen pruefen). Sagt die Variante, dass die Person NICHT selbst "
-                           "am Kunden ist, dann darf KEINE einzige der 5 Anforderungen eigenen Kundenkontakt verlangen — "
+                           "am Kunden ist, dann darf KEINE einzige der 4 Anforderungen eigenen Kundenkontakt verlangen — "
                            "das schließt AUSDRUECKLICH auch 'Kundenbeziehungen pflegen', 'Großkunden/Key Accounts "
                            "betreuen', 'Netzwerken mit Kunden' und 'Kundengespraeche/Akquise/Verkauf' ein. Diese gehoeren "
                            "dann GAR NICHT in die Liste (auch nicht als Hebel). Schliesse variant-fremde Aufgaben komplett "
@@ -273,7 +271,7 @@ eine Rueckmeldung, bei der sie denkt: "krass, der hat mich gesehen, und jetzt we
 
 Was du ueber die Person weißt:
 RIASEC-Profil: {req.code}
-Dimension-Scores (Rohwerte -12 bis +12): {scores_str}{traits_section}{variant_section}{markt_anchor}
+Dimension-Scores (Rohwerte -8 bis +8): {scores_str}{traits_section}{variant_section}{markt_anchor}
 
 Was du NICHT weißt — und worueber du deshalb KEINE Annahme triffst:
 - Ob die Person aktuell in diesem Job, einem anderen Job oder gerade gar nicht arbeitet.
@@ -332,7 +330,7 @@ Regeln:
   (keine ausgedachten Aufgaben, Zahlen, Werkzeuge).
   Waehle nur Anforderungen, die mit PERSOENLICHKEIT/Arbeitsweise zu tun haben (nur die koennen wir
   gegen das Profil spiegeln). Reine Fach-/Formal-Voraussetzungen (Software, Jahre Erfahrung,
-  Fuehrerschein, Abschluss) gehoeren NICHT in die 5 — die nennst du knapp im Feld "fachlich".
+  Fuehrerschein, Abschluss) gehoeren NICHT in die 4 — die nennst du knapp im Feld "fachlich".
   badge: "passt_gut" = klare Staerke | "solide_basis" = okay, ausbaufaehig | "dein_hebel" = hier hakt es am meisten.
   GENAU EIN "dein_hebel" (= die eine Sache). Der Rest passt_gut oder solide_basis, ehrlich verteilt.
   body je Anforderung: 1 kurzer Satz, der deine Auspraegung ehrlich spiegelt. Du-Form. Jeder body ein NEUER
@@ -626,8 +624,6 @@ INHALT:
         m = re.search(r'\{.*\}', text, re.DOTALL)
         if m:
             result = json.loads(m.group())
-            if req.grounded and market.get("count") is not None:
-                result["marktdaten"] = {"offene_stellen": market.get("count"), "quelle": "Bundesagentur für Arbeit"}
             return result
         return {"error": "parse_error", "raw": text[:200]}
     except Exception as e:
@@ -844,4 +840,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.13.1"}
+    return {"status": "ok", "version": "3.14.0"}
