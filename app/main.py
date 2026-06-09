@@ -180,7 +180,7 @@ GILT IMMER: Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken (nicht 
 Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz."""
 
         msg = claude.messages.create(
-            model="claude-opus-4-8",
+            model="claude-sonnet-4-6",
             max_tokens=500,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -354,7 +354,7 @@ Beispiel fuer die Coach-Stimme im "lever"-Block (NUR der Ton, nicht der Inhalt):
 
     try:
         msg = claude.messages.create(
-            model="claude-opus-4-8",
+            model="claude-sonnet-4-6",
             max_tokens=2200,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -802,4 +802,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.12.0"}
+    return {"status": "ok", "version": "3.12.1"}
