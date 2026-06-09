@@ -180,7 +180,7 @@ GILT IMMER: Niemals "als wie". Keine Emoji. Keine erfundenen Statistiken (nicht 
 Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz."""
 
         msg = claude.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-opus-4-8",
             max_tokens=500,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -266,30 +266,45 @@ async def post_fit(req: FitRequest):
                            "dann GAR NICHT in die Liste (auch nicht als Hebel). Schliesse variant-fremde Aufgaben komplett "
                            "AUS. Greife NIE auf das Klischee des Jobtitels zurueck, wenn die Variante etwas anderes sagt.")
 
-    prompt = f"""Analysiere den Job-Fit fuer den Job "{req.job_name}".
+    prompt = f"""Du bist ein erfahrener Karriere-Coach. Stell dir vor, du hast diese eine Person ein
+Gespraech lang erlebt — ihre Art, ihr Tempo, wo sie aufblueht und wo sie sich selbst im Weg steht.
+Jetzt schreibst du ihr eine persoenliche Rueckmeldung zum Job "{req.job_name}". Kein Gutachten —
+eine Rueckmeldung, bei der sie denkt: "krass, der hat mich gesehen, und jetzt weiss ich, woran ich arbeiten muss."
 
+Was du ueber die Person weisst:
 RIASEC-Profil: {req.code}
 Dimension-Scores (Rohwerte -12 bis +12): {scores_str}{traits_section}{variant_section}{markt_anchor}
+
+Was du NICHT weisst — und worueber du deshalb KEINE Annahme triffst:
+- Ob die Person aktuell in diesem Job, einem anderen Job oder gerade gar nicht arbeitet.
+- Ob sie ein Team hat, wie viel Berufserfahrung sie hat, ob sie Schuelerin, Studentin oder Wechslerin ist.
+Du kennst NUR: ihre Veranlagung (oben) und den Job, den sie gerade pruefen will. Beziehe NICHTS auf eine
+angenommene aktuelle Situation ("in deiner naechsten Teamsitzung", "in deinem jetzigen Job"). Den ZIELJOB
+darfst du konditional nennen ("ein Job wie dieser heisst vor allem...").
 
 Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
 
 {{
   "fit_score": <Zahl 50-88, realistisch auf Basis aller vorliegenden Daten>,
-  "fit_headline": "<1 ermutigender Satz, Du-Form>",
+  "fit_headline": "<1 ermutigender, persoenlicher Satz, Du-Form>",
   "requirements": [
     {{"name": "<Kern-Anforderung des Jobs, 2-5 Woerter>", "badge": "passt_gut|solide_basis|dein_hebel", "body": "<1 Satz: deine Auspraegung dazu, ehrlich, Du-Form>"}}
   ],
   "strengths": [
     {{"name": "<staerkste Eigenschaft, 1-2 Woerter>", "body": "<1 Satz, was sie fuer DIESE Variante bringt>"}}
   ],
-  "lever": {{"name": "<dein groesster Hebel, 1-2 Woerter>", "body": "<1 Satz, woran du fuer diesen Job arbeiten koenntest>"}},
+  "lever": {{
+    "name": "<die eine Sache, an der es sich zu arbeiten lohnt, 1-3 Woerter>",
+    "observation": "<2 Saetze Coach-Stimme: 'Es koennte sein, dass du...' — benenne ein Muster ihrer Veranlagung UND seinen Preis (die Kehrseite der Staerke). Tastend, nie belehrend.>",
+    "edge": "<2 Saetze: knuepfe es konditional an die Anforderung des Zieljobs ('Ein Job wie dieser heisst aber vor allem...') und rahme es als Wachstumskante — warm, machbar, nie als Defizit.>"
+  }},
   "resource": {{"kind": "book", "title": "...", "author": "...", "price": "<grobe Preisangabe, z.B. 'ca. 20 €'>", "body": "<1 Satz warum genau das>", "cta": "Auf Amazon ansehen"}},
-  "fahrplan": [
-    {{"step": 1, "title": "<kurzer Schritt-Titel>", "when": "<Zeithorizont, z.B. 'Diese Woche' / '1-3 Monate' / '3-6 Monate'>", "body": "<1 konkreter Satz, was du tust>"}}
+  "schritte": [
+    {{"title": "<kurzer Titel>", "body": "<1 konkreter Satz: eine kleine Uebung, die AB HEUTE in jedem Alltag machbar ist — Arbeit, Freunde, Familie, egal. Bezogen auf Veranlagung + Hebel, NIE auf eine angenommene Situation.>"}}
   ],
-  "tick": "<2-3 Saetze: wie du in DIESEM Job/dieser Variante tickst — dein Arbeitsstil, persoenlich>",
-  "drain": "<2-3 Saetze: was dich in genau diesem Job am ehesten auslaugen wuerde, aus deinem Profil abgeleitet>",
-  "positionierung": "<2-3 Saetze: wie du dich mit deinem Profil im Bewerbungsgespraech positionierst>",
+  "tick": "<2-3 Saetze: wie die Person bei einem Job wie diesem tickt — ihr Arbeitsstil, persoenlich>",
+  "drain": "<2-3 Saetze: was sie bei einem Job wie diesem am ehesten auslaugen wuerde, aus dem Profil abgeleitet>",
+  "positionierung": "<2-3 Saetze: wie sie sich mit ihrem Profil im Bewerbungsgespraech positioniert>",
   "einstiegswege": [
     {{"name": "<Einstiegsweg in diesen Beruf, kurz>", "detail": "<1 knapper Satz>"}}
   ],
@@ -309,25 +324,38 @@ Regeln:
   Pro Person hoechstens 1-2 "dein_hebel". Verteile ehrlich, nicht alles gruen.
   body je Anforderung: 1 kurzer Satz, der deine Auspraegung ehrlich spiegelt. Du-Form.
 - fit_score spiegelt die Summe der Badges ehrlich (viele passt_gut = hoch, mehrere Hebel = niedriger).
-- strengths: GENAU 2 staerkste Eigenschaften (Trait-Ebene). lever: dein groesster Hebel (Trait-Ebene).
-  METHODISCH: Illustriere strengths UND lever mit einer KONKRETEN Situation aus dem ECHTEN Alltag
-  DIESER Variante (bzw. des Jobs) — niemals mit einem Job-Klischee oder einer Frontline-Taetigkeit,
-  die die Person in ihrer Variante gar nicht macht. Lieber allgemein-treffend als falsch-konkret.
-- resource: EIN echtes Buch, das genau am groessten Hebel ansetzt.
-- fahrplan: GENAU 3 konkrete, umsetzbare Schritte, zeitlich gestaffelt (sofort -> Monate). Bezogen auf
-  DIESEN Job/diese Variante und auf den Hebel der Person — kein generisches Bla, nichts Erfundenes.
-- tick/drain/positionierung: je 2-3 kurze Saetze, persoenlich, aus Profil + Variante abgeleitet.
+- strengths: GENAU 2 staerkste Eigenschaften (Trait-Ebene). lever: die EINE wichtigste Wachstumskante.
+  METHODISCH: Illustriere strengths mit einer KONKRETEN Situation aus dem ECHTEN Alltag DIESER Variante
+  (bzw. des Jobs) — niemals mit einem Job-Klischee oder einer Taetigkeit, die die Person in ihrer Variante
+  gar nicht macht. Lieber allgemein-treffend als falsch-konkret.
+  Der "krass das bin ich"-Effekt im lever kommt daher, dass du den PREIS einer Veranlagung benennst —
+  NICHT aus Schmeichelei und NICHT aus einem erfundenen Requisit. Werde praezise im MUSTER und im GEFUEHL,
+  nicht in ausgedachten Szenen.
+- resource: EIN echtes Buch, das genau an dieser Wachstumskante ansetzt.
+- schritte: GENAU 3. Jede eine kleine Uebung, die AB HEUTE in JEDEM Alltag machbar ist, egal wo die Person
+  gerade steht. KEINE Zeithorizonte, KEINE angenommene Situation, KEIN "in deinem Job/Team". Nur Veranlagung + Hebel.
+- tick/drain/positionierung: je 2-3 kurze Saetze, persoenlich, aus Profil + Job abgeleitet.
   drain knuepft an dem an, was diese Person laut Profil am ehesten auslaugt.
 - einstiegswege: GENAU 3 realistische Wege in DIESEN Beruf (z.B. Ausbildung, Quereinstieg, Weiterbildung,
   Studium — je nach Beruf). Etabliertes Berufswissen, erfinde nichts Konkretes.
 - {answers_note}
-- Deutsch, Du-Form, Berufsschulniveau, kein HR-Jargon, kurze Saetze, NIEMALS als-wie
-- Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz."""
+- Coach-Stimme: warm, direkt, tastend wo es um Wachstum geht ("es koennte sein, dass..."), nie belehrend,
+  nie absolut. Deutsch, Du-Form, Berufsschulniveau, kein HR-Jargon, kurze Saetze, NIEMALS als-wie.
+- Verwende AUSSCHLIESSLICH echte Umlaute (ä, ö, ü) und ß — niemals ae/oe/ue/ss als Ersatz.
+
+Beispiel fuer die Coach-Stimme im "lever"-Block (NUR der Ton, nicht der Inhalt):
+- observation: "Es koennte sein, dass du, wenn's schnell gehen soll, Entscheidungen lieber allein triffst,
+  als sie lange auszudiskutieren — weil Diskutieren dauert und du das Ergebnis eh schon vor Augen hast.
+  Kurzfristig bist du damit schneller."
+- edge: "Ein Job wie dieser heisst aber vor allem, Leute mitzunehmen. Und da laege genau hier deine
+  Wachstumskante — Menschen ziehen staerker mit, wenn sie sich gehoert fuehlen, auch wenn am Ende deine
+  Entscheidung steht."
+"""
 
     try:
         msg = claude.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=1800,
+            model="claude-opus-4-8",
+            max_tokens=2200,
             messages=[{"role": "user", "content": prompt}]
         )
         text = msg.content[0].text.strip()
@@ -703,7 +731,7 @@ Antworte NUR mit der Erkenntnis, kein Vorspann."""
 
     try:
         msg = claude.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-opus-4-8",
             max_tokens=200,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -774,4 +802,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.11.6"}
+    return {"status": "ok", "version": "3.12.0"}

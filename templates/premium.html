@@ -99,37 +99,18 @@ function renderPremium(data) {
     const head = (icon, color, label) =>
         `<div class="rep-head">${iconSvg(icon, color)}<span style="color:${color};">${label}</span></div>`;
 
-    // ── Dunkles Markt-Panel (echte BA-Daten) ──
+    // ── Markt: leiser Beleg am Ende statt dominantem Panel ──
     const m = data.markt || {};
-    const mRow = (icon, label, value, good) =>
-        `<div style="display:flex;align-items:center;gap:11px;padding:11px 12px;background:rgba(255,255,255,0.06);">
-            ${iconSvg(icon,'rgba(255,255,255,0.7)')}
-            <span style="font-size:13px;color:rgba(255,255,255,0.7);flex:1;">${label}</span>
-            <span style="font-size:13px;font-weight:500;color:${good?'#5EE0B0':'#fff'};text-align:right;">${value}</span>
-        </div>`;
-    const wege = (data.einstiegswege || []).map((w,i) =>
-        `<div style="display:flex;gap:11px;align-items:flex-start;">
-            <span style="width:20px;height:20px;border-radius:50%;flex-shrink:0;margin-top:1px;background:rgba(255,255,255,0.12);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;">${i+1}</span>
-            <div><div style="font-size:13.5px;font-weight:500;color:#fff;margin-bottom:1px;">${w.name}</div><div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.4;">${w.detail||''}</div></div>
+    const marketLine = (m.offene_stellen != null) ?
+        `<p style="font-size:12.5px;color:var(--text-muted);text-align:center;line-height:1.6;margin:0;">
+            <strong style="color:var(--text-secondary);font-variant-numeric:tabular-nums;">${Number(m.offene_stellen).toLocaleString('de-DE')}</strong> offene Stellen bundesweit${m.quereinstieg_moeglich?' · Quereinstieg möglich':''}${(m.regionen && m.regionen.length)?' · '+m.regionen.slice(0,3).join(' · '):''}<br>
+            <span style="font-size:11px;">Rückenwind, kein Engpass · Quelle: Bundesagentur für Arbeit</span>
+        </p>` : '';
+    const wegeLight = (data.einstiegswege || []).map((w,i,arr) =>
+        `<div style="display:flex;gap:11px;align-items:flex-start;padding:12px 0;${i<arr.length-1?'border-bottom:1px solid var(--border-light);':''}">
+            <span style="width:20px;height:20px;border-radius:50%;flex-shrink:0;margin-top:1px;background:var(--bg-soft);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;">${i+1}</span>
+            <div><div style="font-size:13.5px;font-weight:500;color:var(--text-primary);margin-bottom:1px;">${w.name}</div><div style="font-size:12px;color:var(--text-secondary);line-height:1.4;">${w.detail||''}</div></div>
         </div>`).join('');
-    const marketDark = (m.offene_stellen != null) ? `
-        <div style="background:${INK};color:#fff;border-radius:18px;padding:20px;">
-            <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px;">
-                <span style="width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;">${iconSvg('chart','#fff')}</span>
-                <span style="font-size:10px;text-transform:uppercase;letter-spacing:0.14em;font-weight:500;color:rgba(255,255,255,0.7);">Echter Arbeitsmarkt</span>
-            </div>
-            <p style="font-size:11.5px;color:rgba(255,255,255,0.55);margin:0 0 16px;padding-left:35px;">Live-Daten der Bundesagentur für Arbeit</p>
-            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:18px;">
-                <span style="font-size:40px;font-weight:600;line-height:1;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;">${Number(m.offene_stellen).toLocaleString('de-DE')}</span>
-                <span style="font-size:14px;color:rgba(255,255,255,0.7);">offene Stellen gerade</span>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:1px;border-radius:14px;overflow:hidden;">
-                ${mRow('route','Quereinstieg', m.quereinstieg_moeglich?'Möglich':'Eher selten', m.quereinstieg_moeglich)}
-                ${(m.regionen && m.regionen.length) ? mRow('mappin','Top-Regionen', m.regionen.slice(0,3).join(' · ')) : ''}
-                ${data.fachlich ? mRow('trendingup','Oft gefragt', data.fachlich) : ''}
-            </div>
-            ${wege ? `<div style="margin-top:18px;"><div style="font-size:9.5px;text-transform:uppercase;letter-spacing:0.14em;color:rgba(255,255,255,0.5);margin-bottom:10px;">So kommst du rein</div><div style="display:flex;flex-direction:column;gap:10px;">${wege}</div></div>` : ''}
-        </div>` : '';
 
     // ── Anforderungen (volle Karten, Badge-Rand) ──
     const reqs = (data.requirements || []).map(r => {
@@ -152,20 +133,20 @@ function renderPremium(data) {
         </div>`).join('');
 
     const lever = data.lever || {};
+    const leverObs = lever.observation || lever.body || '';
+    const leverEdge = lever.edge || '';
     const res = data.resource || {};
 
-    // ── Fahrplan ──
-    const fahrplan = (data.fahrplan || []).map((f,i,arr) =>
+    // ── Schritte: ab heute machbar, ohne Annahme über die aktuelle Situation ──
+    const steps = data.schritte || data.fahrplan || [];
+    const schritteHtml = steps.map((f,i,arr) =>
         `<div style="display:flex;gap:14px;padding-bottom:${i===arr.length-1?0:18}px;">
             <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
-                <div style="width:30px;height:30px;border-radius:50%;background:${ACC};color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;">${f.step}</div>
+                <div style="width:30px;height:30px;border-radius:50%;background:${ACC};color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;">${i+1}</div>
                 ${i===arr.length-1?'':`<div style="width:2px;flex:1;background:var(--border-light);margin-top:4px;min-height:24px;"></div>`}
             </div>
-            <div style="padding-top:2px;flex:1;">
-                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:3px;">
-                    <span style="font-size:15px;font-weight:500;color:var(--text-primary);">${f.title||''}</span>
-                    <span style="font-size:10.5px;color:${ACC};background:var(--bg-soft);padding:2px 8px;border-radius:100px;white-space:nowrap;flex-shrink:0;">${f.when||''}</span>
-                </div>
+            <div style="padding-top:4px;flex:1;">
+                <div style="font-size:15px;font-weight:500;color:var(--text-primary);margin-bottom:3px;">${f.title||''}</div>
                 <p style="font-size:13px;color:var(--text-secondary);margin:0;line-height:1.45;">${f.body||''}</p>
             </div>
         </div>`).join('');
@@ -188,41 +169,41 @@ function renderPremium(data) {
         ${wmInsight ? `<div style="margin:0 20px 22px;padding:18px 20px;background:var(--bg-card);border:1px solid var(--border-light);border-left:3px solid var(--accent);border-radius:var(--radius);"><div style="font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--accent);font-weight:700;margin-bottom:8px;">Das bist du</div><p style="font-size:17px;line-height:1.4;color:var(--text-primary);font-weight:500;margin:0;">${wmInsight}</p></div>` : ''}
 
         <div style="padding:0 20px;">
-            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:var(--text-muted);text-align:center;margin-bottom:14px;">${jobName} · Dein vollständiges Ergebnis</div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:var(--text-muted);text-align:center;margin-bottom:14px;">${jobName} · Wo du gerade stehst</div>
 
             <div class="score-arc-wrap">
                 ${buildScoreArcSVG(score)}
                 <div class="score-arc-inner"><div class="score-number">${score}<span class="score-pct">%</span></div><div class="score-label">FIT</div></div>
             </div>
-            <p style="font-size:18px;font-weight:600;color:var(--text-primary);text-align:center;margin:12px auto 28px;max-width:300px;line-height:1.3;">${data.fit_headline||''}</p>
+            <p style="font-size:18px;font-weight:600;color:var(--text-primary);text-align:center;margin:12px auto 30px;max-width:300px;line-height:1.3;">${data.fit_headline||''}</p>
 
-            <div style="margin-bottom:30px;">${marketDark}</div>
-
-            ${head('target','var(--text-primary)','Das braucht der Job')}
-            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:30px;">${reqs}</div>
-
-            ${head('check','#2D6A4F','Wo du stark bist')}
-            <div style="background:#E7F0EB;border-radius:18px;padding:6px 16px;margin-bottom:30px;">${strengthsHtml}</div>
-
-            <div style="background:${ACC};color:#fff;border-radius:18px;padding:20px;margin-bottom:14px;">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">${iconSvg('zap','#fff')}<span style="font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:rgba(255,255,255,0.7);">Dein größter Hebel</span></div>
-                <div style="font-size:18px;font-weight:600;margin:0 0 8px;line-height:1.25;">${lever.name||''}</div>
-                <p style="font-size:13.5px;color:rgba(255,255,255,0.85);margin:0;line-height:1.5;">${lever.body||''}</p>
+            <!-- ── Die eine Sache (Herzstück, Coach-Stimme) ── -->
+            <div style="background:${ACC};color:#fff;border-radius:18px;padding:22px;margin-bottom:14px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">${iconSvg('zap','#fff')}<span style="font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:rgba(255,255,255,0.7);">Die eine Sache</span></div>
+                <div style="font-size:19px;font-weight:600;margin:0 0 10px;line-height:1.25;">${lever.name||''}</div>
+                <p style="font-size:14px;color:rgba(255,255,255,0.92);margin:0 0 ${leverEdge?'12px':'0'};line-height:1.55;">${leverObs}</p>
+                ${leverEdge ? `<p style="font-size:14px;color:rgba(255,255,255,0.92);margin:0;line-height:1.55;">${leverEdge}</p>` : ''}
             </div>
 
             ${res.title ? `<div style="margin-bottom:30px;background:var(--bg-card);border:1px solid var(--border-light);border-radius:18px;padding:16px;display:flex;align-items:flex-start;gap:13px;">
                 <div style="width:40px;height:40px;border-radius:10px;background:var(--bg-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${iconSvg('book',ACC)}</div>
                 <div style="flex:1;min-width:0;">
-                    <div style="font-size:10.5px;color:var(--text-muted);letter-spacing:0.08em;margin-bottom:3px;">SCHLIESST DEINEN HEBEL</div>
+                    <div style="font-size:10.5px;color:var(--text-muted);letter-spacing:0.08em;margin-bottom:3px;">HILFT DIR GENAU DABEI</div>
                     <div style="font-size:14.5px;font-weight:500;color:var(--text-primary);margin-bottom:2px;">${res.title}</div>
                     <div style="font-size:12px;color:var(--text-secondary);margin-bottom:7px;">${res.author||''}${res.price?' · '+res.price:''}</div>
                     <p style="font-size:12.5px;color:var(--text-secondary);margin:0 0 10px;line-height:1.4;">${res.body||''}</p>
                     <button style="font-size:12.5px;font-weight:500;color:${ACC};display:inline-flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;font-family:var(--font);padding:0;">${res.cta||'Auf Amazon ansehen'} ${iconSvg('arrowright',ACC)}</button>
                 </div>
-            </div>` : ''}
+            </div>` : '<div style="margin-bottom:16px;"></div>'}
 
-            ${fahrplan ? head('route','var(--text-primary)','Deine nächsten 3 Schritte') : ''}
-            ${fahrplan ? `<div style="margin-bottom:30px;">${fahrplan}</div>` : ''}
+            ${schritteHtml ? head('route','var(--text-primary)','So übst du das — ab heute') : ''}
+            ${schritteHtml ? `<div style="margin-bottom:30px;">${schritteHtml}</div>` : ''}
+
+            ${head('check','#2D6A4F','Wo du stark bist')}
+            <div style="background:#E7F0EB;border-radius:18px;padding:6px 16px;margin-bottom:30px;">${strengthsHtml}</div>
+
+            ${head('target','var(--text-primary)','Das braucht der Job')}
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:30px;">${reqs}</div>
 
             ${(data.tick||data.drain||data.positionierung) ? head('compass','var(--text-primary)','Tiefer geschaut') : ''}
             <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:30px;">
@@ -230,6 +211,11 @@ function renderPremium(data) {
                 ${data.drain ? depthCard('battery','Was dich hier auslaugen würde', data.drain) : ''}
                 ${data.positionierung ? depthCard('message','Wie du dich im Gespräch positionierst', data.positionierung) : ''}
             </div>
+
+            ${wegeLight ? head('route','var(--text-primary)','So kommst du rein') : ''}
+            ${wegeLight ? `<div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:18px;padding:4px 16px;margin-bottom:18px;">${wegeLight}</div>` : ''}
+
+            ${marketLine ? `<div style="margin-bottom:30px;">${marketLine}</div>` : ''}
 
             <div style="display:flex;flex-direction:column;gap:8px;">
                 <button class="btn btn-primary" onclick="alert('PDF-Download kommt bald.')">${iconSvg('bookmark','#fff')}&nbsp; Als PDF speichern</button>
