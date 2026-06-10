@@ -307,7 +307,7 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
   "lever": {{
     "name": "<die eine Sache, an der es sich zu arbeiten lohnt — 1-3 einfache Alltagswoerter, KEIN Fachbegriff>",
     "observation": "<2 KURZE Saetze (je max ~15 Woerter) Coach-Stimme: 'Es koennte sein, dass du...' — benenne ein Muster ihrer Veranlagung UND seinen Preis. Tastend, nie belehrend.>",
-    "edge": "<2 KURZE Saetze (je max ~15 Woerter). HOECHSTENS ein halber Satz ueber den Job ('Ein Job wie dieser heißt...'), dann sofort zurueck zur PERSON und ihrer Wachstumskante. Beschreibe, wie SIE tickt — nicht wie der Job funktioniert. Warm, machbar.>"
+    "edge": "<2 KURZE Saetze (je max ~15 Woerter). HOECHSTENS ein halber Satz ueber den Job ('Ein Job wie dieser heißt...'), dann sofort zurueck zur PERSON und ihrer Wachstumskante. Beschreibe, wie SIE tickt — nicht wie der Job funktioniert. KONKRET und fassbar (ein Bild oder eine greifbare Folge), KEIN abstrakter Coach-Satz ('mehr Einfluss als durch...', 'kurz innehalten' ohne Bild). 'name' und 'edge' duerfen sich NICHT inhaltlich wiederholen. KEINE Imperative, KEINE erfundenen Zahlen. Warm, machbar.>"
   }},
   "resource": {{"kind": "book", "title": "...", "author": "...", "price": "<grobe Preisangabe, z.B. 'ca. 20 €'>", "body": "<1 Satz warum genau das>", "cta": "Auf Amazon ansehen"}},
   "schritte": [
@@ -768,13 +768,17 @@ Regeln:
 - VERHALTEN statt CHARAKTER-URTEIL (wichtigster Hebel fuer "das bin ich"): Beschreibe, WAS die Person tut
   oder wozu sie neigt — niemals, WIE sie als Mensch IST. Ein Verhalten erkennt man wieder; ein Urteil wehrt
   man ab. GESPERRT sind absolute/urteilende Woerter: "nie", "immer", "ueber alles", "egal", "lässt ihn stehen",
-  "willst nicht", "kannst nicht", "interessiert dich nicht". Die Konsequenz muss sich anfuehlen wie
-  "ja, ertappt" — nicht wie "nein, so bin ich nicht".
+  "willst nicht", "kannst nicht", "interessiert dich nicht", "musst nicht", "jeden/alle retten", "kannst nicht jeden".
+  Die Konsequenz muss sich anfuehlen wie "ja, ertappt" — nicht wie "nein, so bin ich nicht".
   ✅ "Du merkst gar nicht, wie sehr du dann in deinem Tunnel bist."
   ❌ "Andere werden dir egal — du ziehst dein Ding durch und lässt sie stehen." (Urteil -> Abwehr)
   ✅ "Du sagst lieber ja, als jemanden zu enttaeuschen — und schluckst, was du eigentlich willst."
   ❌ "Selbst entscheiden willst du nicht, und sagst nie klar, was du brauchst." (absolut -> Vorwurf)
 - Leicht unbequem, aber nie verletzend oder herablassend.
+- KEINE Ratschlaege/Imperative ("üb mal", "lern", "versuch", "du musst", "du solltest", "lass los"). Die Zeile ist ein
+  SPIEGEL, kein Tipp — beschreibe was IST, gib keinen Rat.
+- Erfinde KEINE Zahlen/Mengen ("25 Kinder", "drei Projekte", "zehn Mails"). Die folgen nicht aus den Antworten und
+  treffen nur manche — das zerstoert den Moment.
 - Du-Form, kein Fachjargon. Nenne KEINE der Eigenschafts-Namen (Durchsetzung, Menschen, Struktur, Neugier, Kontakt, Ruhe, Eigenständigkeit) im Text.
 - SPRACHE — verstaendlich UND wuchtig (das Wichtigste!): Schreib, wie du es einem 16-jaehrigen Azubi sagen
   wuerdest. Jedes Wort muss er SOFORT verstehen. Die Wucht kommt aus der WAHRHEIT, nicht aus großen Woertern.
@@ -805,7 +809,7 @@ Antworte NUR mit der Erkenntnis, kein Vorspann."""
 
     try:
         msg = claude.messages.create(
-            model="claude-opus-4-8",
+            model="claude-sonnet-4-6",
             max_tokens=200,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -876,4 +880,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.16.0"}
+    return {"status": "ok", "version": "3.17.0"}
