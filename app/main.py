@@ -307,7 +307,7 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
   "lever": {{
     "name": "<die eine Sache, an der es sich zu arbeiten lohnt — 1-3 einfache Alltagswoerter, KEIN Fachbegriff>",
     "observation": "<2 KURZE Saetze (je max ~15 Woerter) Coach-Stimme: 'Es koennte sein, dass du...' — benenne ein Muster ihrer Veranlagung UND seinen Preis. Tastend, nie belehrend.>",
-    "edge": "<2 KURZE Saetze (je max ~15 Woerter), KONKRET und fassbar. Beschreibe, was sich fuer DICH aendert, wenn du hier waechst — ein greifbarer GEWINN, NICHT wie der Job/die Branche funktioniert. VERBOTEN: 'Ein Job wie dieser heisst...', 'Die besten X tun Y', 'Teams/Firmen laufen nur, wenn...' (Job-Lehrbuch statt Person). VERBOTEN das Wort 'Wachstumskante' und abstrakte Coach-Saetze. 'name' und 'edge' nicht redundant. KEINE Imperative, KEINE absoluten Woerter ('nur', 'immer', 'jeder'), KEINE erfundenen Zahlen.>"
+    "edge": "<2 KURZE Saetze (je max ~15 Woerter), KONKRET und fassbar. Beschreibe, was sich fuer DICH aendert, wenn du hier waechst — ein greifbarer GEWINN, NICHT wie der Job/die Branche funktioniert. VERBOTEN: 'Ein Job wie dieser heisst...', 'Die besten X tun Y', 'Teams/Firmen laufen nur, wenn...' (Job-Lehrbuch statt Person). VERBOTEN das Wort 'Wachstumskante' und abstrakte Coach-Saetze. 'name' und 'edge' nicht redundant. KEINE Imperative, KEINE Vorhersage ueber andere ('X vertraut/respektiert dich mehr'), KEINE absoluten Woerter ('nur', 'immer', 'jeder', 'alle', 'jede'), KEINE erfundenen Zahlen.>"
   }},
   "resource": {{"kind": "book", "title": "...", "author": "...", "price": "<grobe Preisangabe, z.B. 'ca. 20 €'>", "body": "<1 Satz warum genau das>", "cta": "Auf Amazon ansehen"}},
   "schritte": [
@@ -370,7 +370,11 @@ Regeln:
   ❌ "Vertriebsteams laufen nur, wenn jeder Bock hat." (Job-Lehrbuch + absolut "nur"/"jeder")
   ❌ "Die besten Produktmanager verbringen mehr Zeit mit Nutzern als mit Spreadsheets." (generische Predigt, kein persoenlicher Haken)
   ❌ "Da liegt deine Wachstumskante." (eingebrannte Floskel — das Wort ist GANZ verboten)
-  ✅ "Wenn du frueh fragst, ziehst du Leute mit. Du musst weniger allein stemmen." (konkret, persoenlicher Gewinn, ueber DICH)
+  ❌ "Die Schueler respektieren dich mehr, wenn du klare Grenzen ziehst." (WIRKUNGSVERSPRECHEN ueber andere — verboten)
+  ❌ "Die Teams vertrauen dir mehr, weil du souveraen wirkst." (Vorhersage, wie andere reagieren — verboten)
+  ✅ "Dir faellt vieles leichter, sobald du frueh ansagst, was geht." (ich-bezogen, kein Versprechen ueber andere)
+  REGEL: Schreib ueber DICH (was DIR leichter wird), NIE darueber, wie ANDERE reagieren ("die anderen werden...",
+  "X respektiert/vertraut dir mehr"). KEINE absoluten Woerter ("alle", "jede", "jeder", "immer", "nur").
 - resource: EIN echtes Buch, das genau an diesem Hebel ansetzt.
 - schritte: GENAU 3. Jede eine kleine Uebung, die AB HEUTE in JEDEM Alltag machbar ist, egal wo die Person
   gerade steht. KEINE Zeithorizonte, KEINE angenommene Situation, KEIN "in deinem Job/Team". Nur Veranlagung + Hebel.
@@ -885,4 +889,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.18.0"}
+    return {"status": "ok", "version": "3.19.0"}
