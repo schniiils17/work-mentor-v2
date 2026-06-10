@@ -307,7 +307,7 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
   "lever": {{
     "name": "<die eine Sache, an der es sich zu arbeiten lohnt — 1-3 einfache Alltagswoerter, KEIN Fachbegriff>",
     "observation": "<2 KURZE Saetze (je max ~15 Woerter) Coach-Stimme: 'Es koennte sein, dass du...' — benenne ein Muster ihrer Veranlagung UND seinen Preis. Tastend, nie belehrend.>",
-    "edge": "<2 KURZE Saetze (je max ~15 Woerter). HOECHSTENS ein halber Satz ueber den Job ('Ein Job wie dieser heißt...'), dann sofort zurueck zur PERSON und ihrer Wachstumskante. Beschreibe, wie SIE tickt — nicht wie der Job funktioniert. KONKRET und fassbar (ein Bild oder eine greifbare Folge), KEIN abstrakter Coach-Satz ('mehr Einfluss als durch...', 'kurz innehalten' ohne Bild). 'name' und 'edge' duerfen sich NICHT inhaltlich wiederholen. KEINE Imperative, KEINE erfundenen Zahlen. Warm, machbar.>"
+    "edge": "<2 KURZE Saetze (je max ~15 Woerter), KONKRET und fassbar. Beschreibe, was sich fuer DICH aendert, wenn du hier waechst — ein greifbarer GEWINN, NICHT wie der Job/die Branche funktioniert. VERBOTEN: 'Ein Job wie dieser heisst...', 'Die besten X tun Y', 'Teams/Firmen laufen nur, wenn...' (Job-Lehrbuch statt Person). VERBOTEN das Wort 'Wachstumskante' und abstrakte Coach-Saetze. 'name' und 'edge' nicht redundant. KEINE Imperative, KEINE absoluten Woerter ('nur', 'immer', 'jeder'), KEINE erfundenen Zahlen.>"
   }},
   "resource": {{"kind": "book", "title": "...", "author": "...", "price": "<grobe Preisangabe, z.B. 'ca. 20 €'>", "body": "<1 Satz warum genau das>", "cta": "Auf Amazon ansehen"}},
   "schritte": [
@@ -358,14 +358,20 @@ Regeln:
   body je Anforderung: 1 kurzer Satz, der deine Auspraegung ehrlich spiegelt. Du-Form. Jeder body ein NEUER
   Aspekt — nicht 4x dieselbe Eigenschaft.
 - fit_score spiegelt die Summe der Badges ehrlich (viele passt_gut = hoch, mehrere Hebel = niedriger).
-- strengths: GENAU 2 staerkste Eigenschaften (Trait-Ebene). lever: die EINE wichtigste Wachstumskante.
+- strengths: GENAU 2 staerkste Eigenschaften (Trait-Ebene). lever: die EINE wichtigste Sache, an der es sich
+  zu arbeiten lohnt.
   METHODISCH: Illustriere strengths mit einer KONKRETEN Situation aus dem ECHTEN Alltag DIESER Variante
   (bzw. des Jobs) — niemals mit einem Job-Klischee oder einer Taetigkeit, die die Person in ihrer Variante
   gar nicht macht. Lieber allgemein-treffend als falsch-konkret.
   Der "krass das bin ich"-Effekt im lever kommt daher, dass du den PREIS einer Veranlagung benennst —
   NICHT aus Schmeichelei und NICHT aus einem erfundenen Requisit. Werde praezise im MUSTER und im GEFUEHL,
   nicht in ausgedachten Szenen.
-- resource: EIN echtes Buch, das genau an dieser Wachstumskante ansetzt.
+  LEVER-SPRACHE (die haeufigsten Fehler, unbedingt vermeiden):
+  ❌ "Vertriebsteams laufen nur, wenn jeder Bock hat." (Job-Lehrbuch + absolut "nur"/"jeder")
+  ❌ "Die besten Produktmanager verbringen mehr Zeit mit Nutzern als mit Spreadsheets." (generische Predigt, kein persoenlicher Haken)
+  ❌ "Da liegt deine Wachstumskante." (eingebrannte Floskel — das Wort ist GANZ verboten)
+  ✅ "Wenn du frueh fragst, ziehst du Leute mit. Du musst weniger allein stemmen." (konkret, persoenlicher Gewinn, ueber DICH)
+- resource: EIN echtes Buch, das genau an diesem Hebel ansetzt.
 - schritte: GENAU 3. Jede eine kleine Uebung, die AB HEUTE in JEDEM Alltag machbar ist, egal wo die Person
   gerade steht. KEINE Zeithorizonte, KEINE angenommene Situation, KEIN "in deinem Job/Team". Nur Veranlagung + Hebel.
 - positionierung: 2 kurze Saetze, EIN neuer Tipp fuers Gespraech (siehe JSON). Nicht die Staerken wiederholen.
@@ -397,9 +403,8 @@ Beispiel fuer die Coach-Stimme im "lever"-Block (NUR der Ton, nicht der Inhalt):
 - observation: "Es koennte sein, dass du, wenn's schnell gehen soll, Entscheidungen lieber allein triffst,
   als sie lange auszudiskutieren — weil Diskutieren dauert und du das Ergebnis eh schon vor Augen hast.
   Kurzfristig bist du damit schneller."
-- edge: "Ein Job wie dieser heißt aber vor allem, Leute mitzunehmen. Und da laege genau hier deine
-  Wachstumskante — Menschen ziehen staerker mit, wenn sie sich gehoert fuehlen, auch wenn am Ende deine
-  Entscheidung steht."
+- edge: "Wenn du Leute frueh fragst, ziehen sie staerker mit. Du verlierst nichts dabei — du gewinnst
+  Rueckhalt, den du jetzt manchmal liegen laesst."
 """
 
     try:
@@ -880,4 +885,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.17.0"}
+    return {"status": "ok", "version": "3.18.0"}
