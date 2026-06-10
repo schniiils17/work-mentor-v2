@@ -53,6 +53,7 @@ class FitRequest(BaseModel):
     grounded: bool = True    # True = Anforderungen aus echten Stellenanzeigen erden
     typ_name: str = ""       # Interessen-Typ aus Test 1 (für die Interesse↔Können-Brücke)
     superkraft: str = ""     # Superkraft aus Test 1 (was die Person REIZT)
+    insight: str = ""        # Krass-Zeile aus Test 2 (/api/insight) — Trait-Spannung, roter Faden für lever
 
 class JobsRequest(BaseModel):
     scores: dict          # normalisiert 0-100 pro Dimension (R,I,A,S,E,C)
@@ -276,6 +277,29 @@ async def post_fit(req: FitRequest):
             "auseinandergehen — siehe Regel 'INTERESSE vs. KOENNEN'."
         )
 
+    insight_section = ""
+    if req.insight and req.insight.strip():
+        insight_section = (
+            "\n\n========================================"
+            "\nROTER FADEN — DIE EINE WAHRHEIT (hoechste Prioritaet fuer den lever):"
+            f"\n\"{req.insight.strip()}\""
+            "\n========================================"
+            "\nDiese eine Zeile hat die Person zwei Schritte vorher ueber sich gelesen — und wiedererkannt."
+            " Sie benennt EINE Spannung zwischen zwei Seiten ihrer Art (zwei starke Seiten, die sich reiben,"
+            " ODER eine starke Seite und das, was sie dafuer opfert). Das ist KEINE Job-Anforderung — es ist"
+            " ihr Muster. GENAU dieses Muster ist der rote Faden des Reports.\n"
+            "- Der 'lever' MUSS GENAU diese Spannung aufgreifen und einen Ausweg zeigen. Kein neues Thema,"
+            " keine zweite Baustelle.\n"
+            "- Waehle unter den 4 requirements GENAU die als 'dein_hebel', die diesem Muster am naechsten"
+            " kommt. Der lever spiegelt dann beides: das Job-Thema UND die Spannung der Zeile.\n"
+            "- Reiben sich ZWEI starke Seiten (beides Staerken): der lever macht KEINE davon zur Schwaeche."
+            " Er zeigt, wie die Person die REIBUNG der beiden steuert — das ist der Hebel, nicht eine der Seiten.\n"
+            "- Greif EIN Wort oder Bild der Zeile auf, damit die Person sie wiedererkennt. Aber zitiere sie"
+            " NICHT 1:1 und nicht vollstaendig — du fuehrst sie weiter: erst spiegeln, dann den Ausweg.\n"
+            "- Die Zeile ist bewusst hart formuliert (Praesens, keine Weichmacher). Im Report machst du daraus"
+            " eine TENDENZ: Weichmacher vorne, der scharfe Inhalt dahinter bleibt (siehe ABSOLUT-VERBOT)."
+        )
+
     prompt = f"""Du bist ein erfahrener Karriere-Coach. Stell dir vor, du hast diese eine Person ein
 Gespraech lang erlebt — ihre Art, ihr Tempo, wo sie aufblueht und wo sie sich selbst im Weg steht.
 Jetzt schreibst du ihr eine persoenliche Rueckmeldung zum Job "{req.job_name}". Kein Gutachten —
@@ -283,7 +307,7 @@ eine Rueckmeldung, bei der sie denkt: "krass, der hat mich gesehen, und jetzt we
 
 Was du ueber die Person weißt:
 RIASEC-Profil: {req.code}
-Dimension-Scores (Rohwerte -8 bis +8): {scores_str}{traits_section}{interest_section}{variant_section}{markt_anchor}
+Dimension-Scores (Rohwerte -8 bis +8): {scores_str}{traits_section}{interest_section}{insight_section}{variant_section}{markt_anchor}
 
 Was du NICHT weißt — und worueber du deshalb KEINE Annahme triffst:
 - Ob die Person aktuell in diesem Job, einem anderen Job oder gerade gar nicht arbeitet.
@@ -296,7 +320,7 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
 
 {{
   "fit_score": <Zahl 50-88, realistisch auf Basis aller vorliegenden Daten>,
-  "fit_headline": "<1 ermutigender, persoenlicher Satz, Du-Form. Er darf NICHT behaupten, was eine Anforderung oder die bruecke unten verneint — leite ihn aus den tatsaechlichen Badge-Ergebnissen ab.>",
+  "fit_headline": "<1 ermutigender, persoenlicher Satz, Du-Form. Er darf NICHT behaupten, was eine Anforderung oder die bruecke unten verneint — leite ihn aus den tatsaechlichen Badge-Ergebnissen ab. Keine absoluten Woerter, keine Vorhersage.>",
   "bruecke": "<1-2 KURZE Saetze ODER leerer String. NUR fuellen, wenn das Interesse (Typ/Superkraft aus Test 1) auf eine NIEDRIGE passende Eigenschaft trifft. Dann benenne die Spannung als HEBEL, Du-Form, einfach: 'X reizt dich — deshalb dieser Job. Leicht faellt dir X aber noch nicht. Das ist kein Widerspruch, sondern dein Hebel.' Wenn Interesse und Veranlagung zusammenpassen: leerer String.>",
   "requirements": [
     {{"name": "<Kern-Anforderung des Jobs, 2-5 Woerter>", "badge": "passt_gut|solide_basis|dein_hebel", "body": "<1 Satz: deine Auspraegung dazu, ehrlich, Du-Form>"}}
@@ -306,14 +330,14 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
   ],
   "lever": {{
     "name": "<die eine Sache, an der es sich zu arbeiten lohnt — 1-3 einfache Alltagswoerter, KEIN Fachbegriff>",
-    "observation": "<2 KURZE Saetze (je max ~15 Woerter) Coach-Stimme: 'Es koennte sein, dass du...' — benenne ein Muster ihrer Veranlagung UND seinen Preis. Tastend, nie belehrend.>",
-    "edge": "<2 KURZE Saetze (je max ~15 Woerter), KONKRET und fassbar. Beschreibe, was sich fuer DICH aendert, wenn du hier waechst — ein greifbarer GEWINN, NICHT wie der Job/die Branche funktioniert. VERBOTEN: 'Ein Job wie dieser heisst...', 'Die besten X tun Y', 'Teams/Firmen laufen nur, wenn...' (Job-Lehrbuch statt Person). VERBOTEN das Wort 'Wachstumskante' und abstrakte Coach-Saetze. 'name' und 'edge' nicht redundant. KEINE Imperative, KEINE Vorhersage ueber andere ('X vertraut/respektiert dich mehr'), KEINE absoluten Woerter ('nur', 'immer', 'jeder', 'alle', 'jede'), KEINE erfundenen Zahlen.>"
+    "observation": "<2 KURZE Saetze (je max ~15 Woerter) Coach-Stimme: 'Es koennte sein, dass du...' — benenne ein Muster ihrer Veranlagung UND seinen Preis. Tastend, nie belehrend. Wenn oben ein ROTER FADEN steht: greife GENAU dessen Spannung auf, kein neues Muster.>",
+    "edge": "<2 KURZE Saetze (je max ~15 Woerter), KONKRET und fassbar. Beschreibe, was sich fuer DICH aendert, wenn du hier waechst — ein greifbarer GEWINN, NICHT wie der Job/die Branche funktioniert. Wenn oben ein ROTER FADEN steht: zeig den Ausweg aus GENAU dieser Spannung. VERBOTEN: 'Ein Job wie dieser heisst...', 'Die besten X tun Y', 'Teams/Firmen laufen nur, wenn...' (Job-Lehrbuch statt Person). VERBOTEN das Wort 'Wachstumskante' und abstrakte Coach-Saetze. 'name' und 'edge' nicht redundant. KEINE Imperative, KEINE Vorhersage ueber andere ('X vertraut/respektiert dich mehr'), KEINE absoluten Woerter ('nur', 'immer', 'jeder', 'alle', 'jede'), KEINE erfundenen Zahlen.>"
   }},
   "resource": {{"kind": "book", "title": "...", "author": "...", "price": "<grobe Preisangabe, z.B. 'ca. 20 €'>", "body": "<1 Satz warum genau das>", "cta": "Auf Amazon ansehen"}},
   "schritte": [
-    {{"title": "<kurzer Titel>", "body": "<1 konkreter Satz: eine kleine Uebung, die AB HEUTE in jedem Alltag machbar ist — Arbeit, Freunde, Familie, egal. Bezogen auf Veranlagung + Hebel, NIE auf eine angenommene Situation.>"}}
+    {{"title": "<kurzer Titel>", "body": "<1 konkreter Satz nach der Bauform HANDLUNG (beobachtbares Verb) + WANN (Ausloeser/Zeitfenster) + WIE (Methode). AB HEUTE im Alltag machbar (Arbeit, Freunde, Familie), NIE eine angenommene Job-Situation. Der LETZTE der 3 Schritte traegt einen Zeitanker ('diese Woche'/'beim naechsten Mal'). KEIN Zustandswunsch ('werde mutiger').>"}}
   ],
-  "positionierung": "<2 kurze Saetze: EIN neuer, konkreter Tipp fuers Bewerbungsgespraech — wie die Person ihren EINEN Hebel selbst anspricht, bevor andere fragen. NICHT die Staerken wiederholen.>",
+  "positionierung": "<2 kurze Saetze, ANDERER Winkel als lever: NICHT die lever-Deutung wiederholen. Zeig, wie die Person ihren EINEN Hebel im Bewerbungsgespraech selbst anspricht, bevor jemand fragt — als reife Selbstkenntnis. EIN konkreter Satz, den sie sagen koennte. NICHT die Staerken wiederholen.>",
   "einstiegswege": [
     {{"name": "<Einstiegsweg in diesen Beruf, kurz>", "detail": "<1 knapper Satz>"}}
   ],
@@ -330,14 +354,25 @@ Regeln:
   * fit_headline, requirements und lever duerfen das Interesse NIE einfach abtun ("Struktur ist nicht deine Staerke")
     OHNE es einzuordnen. Reihenfolge immer: Interesse anerkennen -> ehrlich die Veranlagung -> als Hebel rahmen.
   * Passen Interesse und Veranlagung zusammen: "bruecke" leer lassen.
-- KOHAERENZ (am wichtigsten!): Der ganze Report erzaehlt EINE Geschichte — ohne Wiederholung, ohne Widerspruch.
-  * Es gibt GENAU EINEN "dein_hebel" unter den requirements. Dieser eine Hebel IST "die eine Sache" (lever) —
-    gleiches Thema, gleicher Punkt. NIEMALS zwei Baustellen.
-  * Alle 3 schritte gehoeren zu DIESEM einen Hebel. Kein Schritt zu einem anderen Thema.
-  * Jede Sektion bringt etwas NEUES. Wiederhole NICHT dieselbe Eigenschaft in mehreren Sektionen. Wenn
-    "ruhig/gelassen" eine Staerke ist, steht das EINMAL (in strengths) — nicht nochmal in headline oder positionierung.
-  * KEIN Widerspruch: Sagt der lever "mehr auf Leute zugehen", darf positionierung NICHT sagen "sag, dass du das meidest".
-  * Schreib durchgaengig ueber die Person (Du-Form). KEIN "ich" ("das verstehe ich gut" ist verboten).
+- EIN THEMA, VIER ROLLEN (Kohaerenz — am wichtigsten!): Im GANZEN Report gibt es GENAU EINE Baustelle.
+  Sie wird NICHT mehrfach gesagt, sondern wandert durch vier Stationen, jede mit EINER eigenen Aufgabe:
+  * dein_hebel-requirement = nennt die Baustelle als Job-Anforderung (1 ehrlicher Satz, deine Auspraegung).
+  * lever = vertieft DASSELBE Muster: woran liegt es (observation) + was hast DU davon, wenn du hier waechst (edge).
+  * die 3 schritte = das WIE: drei Uebungen fuer GENAU dieses Muster.
+  * positionierung = ANDERER Winkel: ein Satz, mit dem die Person diese eine Sache im Bewerbungsgespraech
+    SELBST anspricht, bevor jemand fragt — als reife Selbstkenntnis. Sie WIEDERHOLT die lever-Deutung NICHT,
+    sie zeigt nur, wie man sie im Gespraech in Worte fasst.
+  REGELN dazu:
+  * NIEMALS zwei Baustellen. lever.name, der eine dein_hebel und das Thema aller 3 schritte sind DASSELBE Muster.
+  * WOHER die Baustelle kommt: Steht oben ein ROTER FADEN, ist SEINE Spannung die Baustelle. Sonst: die
+    niedrigste passende Eigenschaft im Profil ODER die Spannung Interesse<->Koennen. ERFINDE KEINE Schwaeche,
+    die nirgends in den Daten niedrig oder spannungsbehaftet ist.
+  * STAERKE BLEIBT STAERKE: Eine Eigenschaft, die in strengths steht, taucht NIRGENDS als Baustelle/lever auf —
+    auch nicht ihr Gegenteil. Wenn "ruhig" eine Staerke ist, ist "zu wenig Tempo" NICHT der Hebel. Staerke und
+    Baustelle sind verschiedene Seiten der Person, nie dieselbe.
+  * KEIN Widerspruch: Sagt der lever "mehr auf Leute zugehen", sagt positionierung NICHT "sag, dass du das meidest".
+  * Jede Sektion bringt einen NEUEN Aspekt — nie denselben Satz zweimal.
+  * Durchgaengig Du-Form. KEIN "ich" ("das verstehe ich gut" ist verboten).
 - EHRLICHKEIT beim Fit: Bestimme den fit_score ehrlich aus den Badges. Danach richtet sich der ganze Ton.
   * Hoher Fit (>=75): Der Job passt. Die eine Sache ist eine echte Chance, auf die man sich freuen kann.
   * Mittlerer/niedriger Fit (<70): Das ist ein STRECK-JOB. Er fordert die Person an genau den Stellen, wo sie am
@@ -373,12 +408,36 @@ Regeln:
   ❌ "Die Schueler respektieren dich mehr, wenn du klare Grenzen ziehst." (WIRKUNGSVERSPRECHEN ueber andere — verboten)
   ❌ "Die Teams vertrauen dir mehr, weil du souveraen wirkst." (Vorhersage, wie andere reagieren — verboten)
   ✅ "Dir faellt vieles leichter, sobald du frueh ansagst, was geht." (ich-bezogen, kein Versprechen ueber andere)
-  REGEL: Schreib ueber DICH (was DIR leichter wird), NIE darueber, wie ANDERE reagieren ("die anderen werden...",
-  "X respektiert/vertraut dir mehr"). KEINE absoluten Woerter ("alle", "jede", "jeder", "immer", "nur").
-- resource: EIN echtes Buch, das genau an diesem Hebel ansetzt.
-- schritte: GENAU 3. Jede eine kleine Uebung, die AB HEUTE in JEDEM Alltag machbar ist, egal wo die Person
-  gerade steht. KEINE Zeithorizonte, KEINE angenommene Situation, KEIN "in deinem Job/Team". Nur Veranlagung + Hebel.
-- positionierung: 2 kurze Saetze, EIN neuer Tipp fuers Gespraech (siehe JSON). Nicht die Staerken wiederholen.
+  REGEL: Schreib ueber DICH (was DIR leichter wird), NIE darueber, wie ANDERE reagieren.
+- ABSOLUT-VERBOT + TENDENZ-PFLICHT (gilt fuer ALLE Felder: fit_headline, bruecke, requirements, strengths,
+  lever, schritte, positionierung — nicht nur lever):
+  * Jede Aussage ueber Charakter/Veranlagung/Koennen ist eine TENDENZ. Der Weichmacher steht VORNE
+    ("Es koennte sein, dass du...", "Du neigst dazu...", "...scheint dir zu liegen"). Der konkrete Inhalt
+    DAHINTER bleibt scharf und bildhaft — NICHT ins Vage kippen.
+    ✅ "Es koennte sein, dass du bei Stress einfach schneller machst — statt kurz Luft zu holen." (weich vorne, scharf hinten)
+    ❌ "Manchmal reagierst du unterschiedlich." (zu Tode entschaerft — Horoskop, verboten)
+  * HART VERBOTENE WOERTER (kein einziges, in KEINEM Feld): "nie", "immer", "jeder", "jede", "alle",
+    "keiner", "wirft dich nicht um", "vergisst nichts", "Wachstumskante".
+  * VERBOTENE VORHERSAGE ueber Ungetestetes: "wirst du schneller", "wirst du besser", "wird dir liegen",
+    "wird dir nicht liegen".
+  * VERBOTENE WIRKUNG ueber andere: "X respektiert dich mehr", "X vertraut dir mehr", "die anderen ziehen mit"
+    als Versprechen. Schreib NIE, wie ANDERE reagieren — schreib ueber DICH.
+  * "nur" und "kein/keine" sind nur dort erlaubt, wo sie KEINE absolute Behauptung ueber die Person sind
+    (✅ "ein Job wie dieser heisst vor allem...", ✅ "du verlierst nichts dabei"). Verboten als Absolut-Urteil
+    (❌ "du machst nie Pause", ❌ "keiner sieht das").
+- resource: EIN echtes Buch, das genau an diesem Hebel ansetzt — passend zur EINEN Baustelle, zu keinem anderen Thema.
+- schritte: GENAU 3 Uebungen zu DIESEM einen Hebel — keine andere Baustelle. AB HEUTE in JEDEM Alltag machbar
+  (Arbeit, Freunde, Familie) — KEINE angenommene Job-Situation, KEIN "in deinem Job/Team".
+  BAUFORM pro Schritt: konkrete Handlung (beobachtbares Verb) + Ausloeser/Wann + das WIE (die Methode).
+  Ein Aussenstehender muss erkennen koennen, ob die Person es getan hat. Mindestens der LETZTE Schritt
+  traegt einen Zeitanker: "diese Woche" oder "beim naechsten Mal".
+  ✅ "Such dir diese Woche EIN Gespraech. Sag als Erster deine Meinung — bevor du hoerst, was die anderen denken."
+  ✅ "Wenn du das naechste Mal sofort loslegen willst, zaehl erst bis drei. Frag dich: was uebersehe ich gerade?"
+  VERBOTEN sind reine Zustandswuensche ohne Handlung und ohne WIE:
+  ❌ "Werde mutiger." ❌ "Gewoehn dich dran." ❌ "Trau dich mehr." ❌ "Mach kleine Haeppchen." ❌ "Erklaer einfach frueher."
+  Hat ein Schritt kein beobachtbares Verb + kein WIE — neu schreiben.
+- positionierung: 2 kurze Saetze, ANDERER Winkel als lever (siehe JSON). Ein konkreter Satz, mit dem die Person
+  ihren EINEN Hebel im Gespraech selbst anspricht. NICHT die lever-Deutung wiederholen, NICHT die Staerken wiederholen.
 - einstiegswege: GENAU 3 realistische Wege in DIESEN Beruf (z.B. Ausbildung, Quereinstieg, Weiterbildung,
   Studium — je nach Beruf). Etabliertes Berufswissen, erfinde nichts Konkretes.
 - {answers_note}
@@ -394,7 +453,9 @@ Regeln:
   ✅ "Bleib ruhig, wenn's stressig wird — dann ziehen die Leute mit. Das kann man üben."
   ❌ "Wer die eigene Anspannung bewusst reguliert, führt in Krisensituationen souveräner."
 - SATZBAU — der haeufigste Fehler, unbedingt vermeiden: KEINE Schachtelsaetze. Kurze Hauptsaetze, EIN
-  Gedanke pro Satz, hoechstens EIN Komma pro Satz. Keine eingeschobenen Nebensaetze ("du, wenn ..., eher ...").
+  Gedanke pro Satz, hoechstens EIN Komma pro Satz. AUSNAHME: Das Komma des Tendenz-Weichmachers
+  ("Es koennte sein, dass du...") zaehlt nicht mit — dieser Vorne-weich-hinten-scharf-Satz ist erlaubt.
+  Keine eingeschobenen Nebensaetze ("du, wenn ..., eher ...").
   Keine Ketten aus "bis ... und ... wenn ...". Lieber drei kurze Saetze als einen langen. Lies laut — wo du
   Luft holst, mach einen Punkt.
   ✅ "Du machst Tempo, bis dir die Luft wegbleibt. Dass du zu weit gehst, merkst du erst hinterher."
@@ -409,6 +470,18 @@ Beispiel fuer die Coach-Stimme im "lever"-Block (NUR der Ton, nicht der Inhalt):
   Kurzfristig bist du damit schneller."
 - edge: "Wenn du Leute frueh fragst, ziehen sie staerker mit. Du verlierst nichts dabei — du gewinnst
   Rueckhalt, den du jetzt manchmal liegen laesst."
+
+BEVOR du das JSON ausgibst, pruefe still gegen diese Liste. Ist ein Punkt FAIL — schreib die Sektion neu:
+1. EIN Thema? dein_hebel-requirement, lever.name, alle 3 schritte und positionierung drehen sich um
+   DIESELBE eine Baustelle. (FAIL = zwei Baustellen)
+2. Belegt? Die Baustelle ist der ROTE FADEN oben ODER eine im Profil niedrige Eigenschaft. Nichts erfunden.
+3. Keine Doppelrolle? Keine Eigenschaft (auch nicht ihr Gegenteil) steht zugleich in strengths UND als Hebel.
+4. Hook eingeloest? Wenn ein ROTER FADEN da war: lever vertieft GENAU dessen Spannung, kein neues Thema.
+5. Wortfilter? KEINES dieser Woerter irgendwo: nie, immer, jeder, jede, alle, keiner, Wachstumskante,
+   "respektiert/vertraut dir mehr", "wirst du schneller/besser".
+6. Tendenz? Jede Veranlagungs-Aussage hat einen Weichmacher vorne, bleibt aber konkret dahinter.
+7. Schritte = Handlung + WIE, der letzte mit Zeitanker. Kein reiner Wunsch ("werde mutiger").
+8. Du-Form, kein "ich", echte Umlaute, max ein Komma pro Satz (ausser Weichmacher-Komma).
 """
 
     try:
@@ -889,4 +962,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.19.0"}
+    return {"status": "ok", "version": "3.20.0"}
