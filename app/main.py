@@ -51,6 +51,8 @@ class FitRequest(BaseModel):
     trait_scores: dict = {}  # {dim: Mittel 1-5} aus der Trait-Stufe (Stufe 2)
     variante: str = ""       # gewählte Job-Variante aus dem Berater-Schritt (optional)
     grounded: bool = True    # True = Anforderungen aus echten Stellenanzeigen erden
+    typ_name: str = ""       # Interessen-Typ aus Test 1 (für die Interesse↔Können-Brücke)
+    superkraft: str = ""     # Superkraft aus Test 1 (was die Person REIZT)
 
 class JobsRequest(BaseModel):
     scores: dict          # normalisiert 0-100 pro Dimension (R,I,A,S,E,C)
@@ -264,6 +266,16 @@ async def post_fit(req: FitRequest):
                            "dann GAR NICHT in die Liste (auch nicht als Hebel). Schliesse variant-fremde Aufgaben komplett "
                            "AUS. Greife NIE auf das Klischee des Jobtitels zurueck, wenn die Variante etwas anderes sagt.")
 
+    interest_section = ""
+    if req.typ_name or req.superkraft:
+        interest_section = (
+            "\n\nINTERESSEN-PROFIL (aus dem ERSTEN Test — was die Person REIZT, NICHT was ihr leichtfaellt):"
+            f"\n- Interessen-Typ: {req.typ_name}"
+            f"\n- Ihre 'Superkraft' (= ihr Interesse): {req.superkraft}"
+            "\nDas Persoenlichkeits-Profil oben zeigt dagegen, was ihr LEICHT faellt. Diese zwei koennen "
+            "auseinandergehen — siehe Regel 'INTERESSE vs. KOENNEN'."
+        )
+
     prompt = f"""Du bist ein erfahrener Karriere-Coach. Stell dir vor, du hast diese eine Person ein
 Gespraech lang erlebt — ihre Art, ihr Tempo, wo sie aufblueht und wo sie sich selbst im Weg steht.
 Jetzt schreibst du ihr eine persoenliche Rueckmeldung zum Job "{req.job_name}". Kein Gutachten —
@@ -271,7 +283,7 @@ eine Rueckmeldung, bei der sie denkt: "krass, der hat mich gesehen, und jetzt we
 
 Was du ueber die Person weißt:
 RIASEC-Profil: {req.code}
-Dimension-Scores (Rohwerte -8 bis +8): {scores_str}{traits_section}{variant_section}{markt_anchor}
+Dimension-Scores (Rohwerte -8 bis +8): {scores_str}{traits_section}{interest_section}{variant_section}{markt_anchor}
 
 Was du NICHT weißt — und worueber du deshalb KEINE Annahme triffst:
 - Ob die Person aktuell in diesem Job, einem anderen Job oder gerade gar nicht arbeitet.
@@ -284,7 +296,8 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
 
 {{
   "fit_score": <Zahl 50-88, realistisch auf Basis aller vorliegenden Daten>,
-  "fit_headline": "<1 ermutigender, persoenlicher Satz, Du-Form>",
+  "fit_headline": "<1 ermutigender, persoenlicher Satz, Du-Form. Er darf NICHT behaupten, was eine Anforderung oder die bruecke unten verneint — leite ihn aus den tatsaechlichen Badge-Ergebnissen ab.>",
+  "bruecke": "<1-2 KURZE Saetze ODER leerer String. NUR fuellen, wenn das Interesse (Typ/Superkraft aus Test 1) auf eine NIEDRIGE passende Eigenschaft trifft. Dann benenne die Spannung als HEBEL, Du-Form, einfach: 'X reizt dich — deshalb dieser Job. Leicht faellt dir X aber noch nicht. Das ist kein Widerspruch, sondern dein Hebel.' Wenn Interesse und Veranlagung zusammenpassen: leerer String.>",
   "requirements": [
     {{"name": "<Kern-Anforderung des Jobs, 2-5 Woerter>", "badge": "passt_gut|solide_basis|dein_hebel", "body": "<1 Satz: deine Auspraegung dazu, ehrlich, Du-Form>"}}
   ],
@@ -308,6 +321,15 @@ Antworte in GENAU diesem JSON, kein Fliesstext davor oder danach:
 }}
 
 Regeln:
+- INTERESSE vs. KOENNEN (roter Faden — am allerwichtigsten): Test 1 zeigt die INTERESSEN (Typ/Superkraft = was die
+  Person REIZT). Das Persoenlichkeits-Profil zeigt, was ihr LEICHT faellt. Diese zwei koennen AUSEINANDERGEHEN —
+  z.B. starkes Interesse am Organisieren, aber niedrige Eigenschaft Struktur. Das ist KEIN Widerspruch, und du
+  darfst es NIEMALS unkommentiert als Widerspruch stehen lassen (toedlich fuer das Vertrauen!):
+  * Geht Interessen-Typ/Superkraft gegen eine niedrige passende Eigenschaft: FUELLE "bruecke" und mach GENAU diese
+    Spannung zum Hebel — "Das reizt dich, faellt dir aber noch nicht leicht — genau das ist dein Hebel."
+  * fit_headline, requirements und lever duerfen das Interesse NIE einfach abtun ("Struktur ist nicht deine Staerke")
+    OHNE es einzuordnen. Reihenfolge immer: Interesse anerkennen -> ehrlich die Veranlagung -> als Hebel rahmen.
+  * Passen Interesse und Veranlagung zusammen: "bruecke" leer lassen.
 - KOHAERENZ (am wichtigsten!): Der ganze Report erzaehlt EINE Geschichte — ohne Wiederholung, ohne Widerspruch.
   * Es gibt GENAU EINEN "dein_hebel" unter den requirements. Dieser eine Hebel IST "die eine Sache" (lever) —
     gleiches Thema, gleicher Punkt. NIEMALS zwei Baustellen.
@@ -383,7 +405,7 @@ Beispiel fuer die Coach-Stimme im "lever"-Block (NUR der Ton, nicht der Inhalt):
     try:
         msg = claude.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=1700,
+            max_tokens=1850,
             messages=[{"role": "user", "content": prompt}]
         )
         text = msg.content[0].text.strip()
@@ -854,4 +876,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.15.0"}
+    return {"status": "ok", "version": "3.16.0"}

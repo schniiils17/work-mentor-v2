@@ -222,7 +222,7 @@ async function initTeaser() {
             const to = setTimeout(() => ctrl.abort(), 60000);
             const resp = await fetch('/api/fit', {
                 method: 'POST', headers: {'Content-Type': 'application/json'}, signal: ctrl.signal,
-                body: JSON.stringify({ job_name: selectedJob.name || 'Produktmanager', scores: wmResult.scores, code: wmResult.code || 'EA', trait_scores: wmTraits, variante: sessionStorage.getItem('wm_variante') || '' })
+                body: JSON.stringify({ job_name: selectedJob.name || 'Produktmanager', scores: wmResult.scores, code: wmResult.code || 'EA', trait_scores: wmTraits, variante: sessionStorage.getItem('wm_variante') || '', typ_name: wmResult.type_name || '', superkraft: wmResult.ai_superkraft || wmResult.superkraft || '' })
             });
             clearTimeout(to);
             const d = await resp.json();
@@ -415,7 +415,7 @@ function renderTeaser(data, wm) {
         </div>
 
         <a href="/premium" class="btn-pay">
-            Vollständiges Ergebnis — 20 €
+            Vollständiges Ergebnis — 19 €
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
 
