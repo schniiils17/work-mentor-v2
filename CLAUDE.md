@@ -120,4 +120,7 @@ Code ändern → git push (main) → Railway deployt automatisch
    durchschaubar.
 5. **Jooble deaktiviert**: zu langsam. Skill-Research nur über Claude (15–20s).
 6. **Match-Score-Minimum 60%**: darunter demotiviert es User.
-7. **Bayesian Smoothing**: zieht Extremwerte zur Mitte (keine 0%/100%).
+7. **Match-Score-Deckelung 60–96 %**: `_match_score` skaliert die Ähnlichkeit
+   linear und kappt hart auf 60–96 % (KEIN echtes Bayesian-Verfahren — der frühere
+   Name „Bayesian Smoothing" war falsch). Verhindert demoralisierende 0 % und
+   scheinsichere 100 %.

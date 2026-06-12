@@ -95,6 +95,12 @@
     border-top: 1px solid var(--border-light);
     padding: 16px 0 24px;
 }
+.rating-cue {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 6px;
+}
 .rating-statement {
     font-size: 17px;
     font-weight: 600;
@@ -158,12 +164,13 @@
 
         <!-- Rating Chips -->
         <div class="rating-sheet" id="ratingSheet" style="display: none;">
+                <div class="rating-cue">Wie sehr würde dir das Spaß machen?</div>
                 <div class="rating-statement" id="ratingStatement"></div>
             
             <div class="rating-chips">
                 <button class="rating-chip" data-value="-2">Gar nicht</button>
                 <button class="rating-chip" data-value="-1">Eher nicht</button>
-                <button class="rating-chip" data-value="0">Unsicher</button>
+                <button class="rating-chip" data-value="0">Neutral</button>
                 <button class="rating-chip" data-value="1">Gerne</button>
                 <button class="rating-chip" data-value="2">Sehr gerne</button>
             </div>
@@ -202,7 +209,7 @@ const magicMoments = {
 const valueLabels = {
     '-2': 'Gar nicht',
     '-1': 'Eher nicht',
-    '0': 'Unsicher',
+    '0': 'Neutral',
     '1': 'Gerne',
     '2': 'Sehr gerne'
 };

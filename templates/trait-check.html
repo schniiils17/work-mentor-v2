@@ -43,6 +43,7 @@
 @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-4px); opacity: 1; } }
 
 .tc-choice-sheet { background: var(--bg); border-top: 1px solid var(--border-light); padding: 18px 20px 26px; }
+.tc-cue { font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
 .tc-statement { font-size: 17px; font-weight: 600; line-height: 1.4; color: var(--text-primary); margin-bottom: 16px; }
 .tc-opts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
 .tc-opt {
@@ -81,6 +82,7 @@
     <div class="tc-chat" id="tcChat"></div>
 
     <div class="tc-choice-sheet" id="tcChoiceSheet" style="display:none;">
+        <div class="tc-cue">Wie sehr trifft das auf dich zu?</div>
         <div class="tc-statement" id="tcStatement"></div>
         <div class="tc-opts" id="tcOpts">
             <button class="tc-opt" data-v="1">Gar nicht</button>

@@ -15,7 +15,7 @@ import urllib.parse
 import base64
 
 from app.holland import ITEMS, assess, get_shuffled_items, _dim_label
-from app.traits import DIMENSIONS, TRAIT_ITEMS, score_traits, get_trait_items
+from app.traits import DIMENSIONS, TRAIT_ITEMS, score_traits, get_trait_items, check_trait_quality
 import anthropic
 
 app = FastAPI(title="Work Mentor 3.0")
@@ -751,11 +751,24 @@ async def post_insight(req: InsightRequest):
 
     typ = f"\nKarriere-Typ (Interessen): {req.type_name} ({req.code})" if req.type_name else ""
 
+    # Plausibilitaets-Check: stures Durchklicken -> KI soll nicht so tun, als haette
+    # sie eine scharfe Wahrheit gefunden.
+    quality = check_trait_quality(req.answers)
+    quality_note = ""
+    if not quality["valid"]:
+        quality_note = (
+            "\n\nACHTUNG — DUENNE DATENLAGE: Die Antworten wirken sehr einfoermig "
+            "(viel dasselbe angeklickt oder kaum Variation). Das Profil ist wenig belastbar. "
+            "Tu NICHT so, als haettest du einen scharfen Treffer. Formuliere zurueckhaltend und "
+            "ehrlich aus den zwei staerksten der vorhandenen Eigenschaften — lieber eine vorsichtige, "
+            "wahre Beobachtung als ein selbstsicherer Schuss ins Blaue."
+        )
+
     prompt = f"""Du formulierst die zentrale "das bin so ich"-Erkenntnis fuer einen Karriere-Selbsttest.
 
 Die Person hat 18 Aussagen auf einer Skala von 1-5 bewertet. Daraus ergeben sich 7 Eigenschaften
 (1 = schwach, 5 = stark ausgepraegt):
-{profile}{typ}
+{profile}{typ}{quality_note}
 
 Die schaerfste Erkenntnis liegt in einer SPANNUNG. Zwei moegliche Muster — nimm das, das die
 treffendste Zeile ergibt:
@@ -833,7 +846,7 @@ Antworte NUR mit der Erkenntnis, kein Vorspann."""
             max_tokens=200,
             messages=[{"role": "user", "content": prompt}]
         )
-        return {"insight": msg.content[0].text.strip(), "scores": scores, "ranked": [k for k, _ in ranked]}
+        return {"insight": msg.content[0].text.strip(), "scores": scores, "ranked": [k for k, _ in ranked], "quality": quality}
     except Exception as e:
         return {"error": str(e), "scores": scores}
 
@@ -900,4 +913,4 @@ async def favicon():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "3.22.0"}
+    return {"status": "ok", "version": "3.23.0"}

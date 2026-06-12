@@ -15,9 +15,10 @@ Wissenschaftliche Verankerung je Dimension:
 - RU Ruhe             = Emotionale Stabilität / O*NET Stresstoleranz (zweitstärkster Prädiktor)
 - EI Eigenständigkeit = O*NET Independence / Autonomie (Selbstbestimmung)
 
-Empirisch geprüft (Kipp-Test + Persona-Recovery, 28 balancierte Personas):
-96 % Recovery, ~14 % Fragilität — gegenüber dem alten 5-Pol-Forced-Choice
-(~55 % Recovery, 35 % Fragilität, Freigeist faktisch nicht messbar).
+Design-Check (intern, beim Entwurf — nicht im Repo reproduzierbar): die Mehrwert-
+Skala traf Test-Personas spürbar zuverlässiger als das alte 5-Pol-Forced-Choice.
+Das ist KEINE extern validierte Kennzahl — nicht als "wissenschaftlich geprüft"
+oder mit Prozentzahlen bewerben.
 """
 
 import random
@@ -79,6 +80,31 @@ def score_traits(answers):
         sums[it["dim"]] += contrib
         counts[it["dim"]] += 1
     return {k: round(sums[k] / counts[k], 1) if counts[k] else 3.0 for k in DIMENSIONS}
+
+
+def check_trait_quality(answers):
+    """Plausibilitäts-Check für Stufe 2: erkennt stures Durchklicken oder zu
+    wenige Antworten, damit aus Quatsch kein selbstsicheres "das bist du" wird.
+
+    Gibt {"valid": bool, "flags": [...], "n": int} zurück. Blockiert nichts —
+    signalisiert nur, wie belastbar das Profil ist (z.B. damit die KI bei dünner
+    Datenlage vorsichtiger formuliert).
+    """
+    vals = [max(1, min(5, int(a.get("value")))) for a in answers
+            if a.get("value") is not None and _ITEM_BY_ID.get(a.get("item_id"))]
+    n = len(vals)
+    flags = []
+    if n < 12:
+        flags.append("too_few")
+    if n:
+        if len(set(vals)) == 1:
+            flags.append("all_same")                       # 18x exakt dasselbe = klarer Quatsch
+        elif max(vals.count(x) for x in set(vals)) / n > 0.8:
+            flags.append("too_uniform")                    # >80 % eine Antwort
+        mean = sum(vals) / n
+        if sum((x - mean) ** 2 for x in vals) / n < 0.25:  # Standardabw. < 0.5
+            flags.append("too_flat")
+    return {"valid": len(flags) == 0, "flags": flags, "n": n}
 
 
 def get_trait_items():
