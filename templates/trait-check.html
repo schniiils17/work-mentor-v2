@@ -165,16 +165,16 @@ function pickValue(value, btn) {
 scaleBtns.forEach(b => b.addEventListener('click', () => pickValue(parseInt(b.dataset.v, 10), b)));
 
 async function submitInsight() {
-    await addMentor("Okay. Ich hab dich.", 600);
+    await addMentor("Fertig. Jetzt sehe ich, wie du tickst — und ob das zu deinem Job passt.", 600);
     sheet.style.display = 'none';
 
     const app = document.getElementById('tcApp');
     const load = document.createElement('div');
     load.className = 'tc-loading';
-    load.innerHTML = '<div class="tc-loading-dots"><div class="tc-loading-dot"></div><div class="tc-loading-dot"></div><div class="tc-loading-dot"></div></div><div class="tc-loading-text" id="tcLoadText">Ich lese, wie du tickst…</div>';
+    load.innerHTML = '<div class="tc-loading-dots"><div class="tc-loading-dot"></div><div class="tc-loading-dot"></div><div class="tc-loading-dot"></div></div><div class="tc-loading-text" id="tcLoadText">Ich lese deine Antworten…</div>';
     app.appendChild(load);
 
-    const texts = ['Ich lese, wie du tickst…', 'Ich finde dein Muster…', 'Gleich hast du\'s…'];
+    const texts = ['Ich lese deine Antworten…', 'Ich gleiche ab mit deinem Job…', 'Dein Ergebnis ist gleich da…'];
     let ti = 0;
     const iv = setInterval(() => { ti++; const el = document.getElementById('tcLoadText'); if (el && ti < texts.length) el.textContent = texts[ti]; }, 1800);
 
@@ -216,7 +216,7 @@ async function submitInsight() {
     const elapsed = Date.now() - loadStart;
     if (elapsed < 1400) await new Promise(r => setTimeout(r, 1400 - elapsed));
     chat.innerHTML = '';
-    await addMentor(jobName ? ('Bevor ich dir sage, ob du als ' + jobName + ' taugst — wer bist du eigentlich?') : 'Wer bist du eigentlich? Lass uns das rausfinden.', 700);
+    await addMentor(jobName ? ('Gut, ' + jobName + ' steht. Ob das wirklich passt, hängt aber nicht am Job — sondern an dir. Also: wer bist du eigentlich?') : 'Gut, dein Ziel steht. Ob es wirklich passt, hängt aber nicht am Job — sondern an dir. Also: wer bist du eigentlich?', 700);
     await new Promise(r => setTimeout(r, 200));
     showItem(0);
 })();

@@ -145,9 +145,9 @@
     </span>
 
     <div class="fit-intro-center">
-        <h1>Passt du als Mensch dahin?</h1>
+        <h1 id="fitH1">Passt der Job zu dir als Mensch?</h1>
         <p class="fit-intro-body" id="introBody">
-            Dein Profil zeigt, WAS dir liegt. Ob du wirklich dort reinpasst, hängt davon ab, WER du bist.
+            Dein Profil zeigt, WAS dir liegt. Ob er dir auch liegt, hängt aber davon ab, WER du bist — wie du tickst und entscheidest.
         </p>
 
         <div class="fit-info-card">
@@ -203,9 +203,10 @@ function fitStufe(m) { return m >= 82 ? 'Starke Passung' : m >= 72 ? 'Könnte pa
 
 document.getElementById('jobName').textContent = jobName;
 document.getElementById('matchPct').textContent = hasMatch ? fitStufe(selectedJob.match) : 'Dein Zieljob';
+document.getElementById('fitH1').textContent = 'Passt ' + jobName + ' zu dir als Mensch?';
 document.getElementById('introBody').innerHTML =
-    'Dein Profil zeigt, WAS dir liegt. Ob du als <strong>' + jobName + '</strong> wirklich taugst, ' +
-    'hängt davon ab, WER du bist — wie du tickst und entscheidest. Erst schärfen wir kurz deinen Job, dann 18 schnelle Fragen.';
+    'Dein Profil zeigt, WAS dir liegt. Ob dir <strong>' + jobName + '</strong> auch liegt, ' +
+    'hängt aber davon ab, WER du bist — wie du tickst und entscheidest. Erst schärfen wir kurz deinen Job, dann 18 schnelle Fragen.';
 
 const analyzeBtn = document.getElementById('analyzeBtn');
 analyzeBtn.addEventListener('click', startClarify);
